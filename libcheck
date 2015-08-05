@@ -1,0 +1,48 @@
+#!/bin/bash
+set -e
+
+function grep_without_fail()
+{
+	grep "$@" || true
+}
+
+SYSTEM_LIBRARIES="linux-gate|linux-vdso|libpthread|librt|libdl|libcrypt|libm|libc"
+SYSTEM_LIBRARIES="$SYSTEM_LIBRARIES|ld-linux.*|libutil|libnsl|libgcc_s|libstdc\+\+"
+SYSTEM_LIBRARIES="$SYSTEM_LIBRARIES|libtermcap|libresolv"
+
+if [[ "$1" = "" ]]; then
+	echo "Usage: libcheck <FILES>"
+	echo "Check whether the given executables or shared libraries are linked against non-system libraries."
+	echo
+	echo "By default, these libraries are allowed:"
+	echo "$SYSTEM_LIBRARIES"
+	echo
+	echo "You can allow more libraries by setting \$LIBCHECK_ALLOW, e.g.:"
+	echo "  env LIBCHECK_ALLOW='libcurl|libcrypto' libcheck /usr/bin/foo"
+	exit 1
+fi
+
+WHITELIST="($SYSTEM_LIBRARIES"
+if [[ "$LIBCHECK_ALLOW" != "" ]]; then
+	WHITELIST="$WHITELIST|$LIBCHECK_ALLOW"
+fi
+WHITELIST="$WHITELIST)\.so"
+ERROR=false
+set -o pipefail
+
+for F in "$@"; do
+	EXTRA_LIBS=`ldd "$F" | grep_without_fail -vE "$WHITELIST" | sed 's/.*=> //g' | sed 's/ (.*//g'`
+	EXTRA_LIBS=`echo $EXTRA_LIBS`
+	if [[ "$EXTRA_LIBS" != "" ]]; then
+		echo "$F is linked to non-system libraries: $EXTRA_LIBS"
+		ERROR=true
+	fi
+done
+if [[ $? != 0 ]]; then
+	exit 1
+fi
+if $ERROR; then
+	exit 1
+else
+	echo "All OK"
+fi

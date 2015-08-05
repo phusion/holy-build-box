@@ -168,7 +168,7 @@ fi
 
 if [[ "$SKIP_FINALIZE" != 1 ]]; then
 	header "Finalizing"
-
+	run cp /hbb_build/libcheck /hbb/bin/
 	run cp /hbb_build/environment.sh /hbb/activate_func.sh
 	run cp /hbb_build/activate_pic.sh /hbb_pic/activate
 	run cp /hbb_build/activate_nopic.sh /hbb_nopic/activate
