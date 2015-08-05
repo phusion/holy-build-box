@@ -32,8 +32,8 @@ function run()
 function download_and_extract()
 {
 	local BASENAME="$1"
-	local URL="$2"
-	local DIRNAME="$3"
+	local DIRNAME="$2"
+	local URL="$3"
 	local regex='\.bz2$'
 
 	run rm -f "$BASENAME"

@@ -2,12 +2,16 @@
 set -e
 
 PKG_CONFIG_VERSION=0.28
+CCACHE_VERSION=3.2.2
 ZLIB_VERSION=1.2.8
 OPENSSL_VERSION=1.0.2d
+CURL_VERSION=7.43.0
 
 source /hbb_build/functions.sh
 source /hbb_build/environment.sh
+
 MAKE_CONCURRENCY=2
+export PATH=/hbb/bin:$PATH
 
 #########################
 
@@ -16,7 +20,7 @@ run yum update -y
 
 header "Installing compiler toolchain"
 run yum install -y gcc gcc-c++ make curl file diffutils patch \
-	perl
+	perl bzip2
 
 
 ### pkg-config
@@ -32,6 +36,25 @@ if [[ "$SKIP_PKG_CONFIG" != 1 ]]; then
 
 	echo "Leaving source directory"
 	popd >/dev/null
+	run rm -rf pkg-config-$PKG_CONFIG_VERSION
+fi
+
+
+### ccache
+
+if [[ "$SKIP_CCACHE" != 1 ]]; then
+	header "Installing ccache $CCACHE_VERSION"
+	download_and_extract ccache-$CCACHE_VERSION.tar.gz \
+		ccache-$CCACHE_VERSION \
+		http://samba.org/ftp/ccache/ccache-$CCACHE_VERSION.tar.gz
+
+	run ./configure --prefix=/hbb
+	run make -j$MAKE_CONCURRENCY install
+	run strip --strip-all /hbb/bin/ccache
+
+	echo "Leaving source directory"
+	popd >/dev/null
+	run rm -rf ccache-$CCACHE_VERSION
 fi
 
 
@@ -51,11 +74,13 @@ function install_zlib()
 		activate_holy_build_box "$PREFIX" "$EXTRA_CFLAGS"
 		run ./configure --prefix=$PREFIX --static
 		run make -j$MAKE_CONCURRENCY install
+		run strip --strip-debug "$PREFIX/lib/libz.a"
 	)
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
 	popd >/dev/null
+	run rm -rf zlib-$ZLIB_VERSION
 }
 
 if [[ "$SKIP_ZLIB" != 1 ]]; then
@@ -100,6 +125,42 @@ function install_openssl()
 if [[ "$SKIP_OPENSSL" != 1 ]]; then
 	install_openssl /hbb_nopic
 	install_openssl /hbb_pic -fPIC
+fi
+
+
+### libcurl
+
+function install_curl()
+{
+	local PREFIX="$1"
+	local EXTRA_CFLAGS="$2"
+
+	header "Installing Curl $CURL_VERSION static libraries $EXTRA_CFLAGS"
+	download_and_extract curl-$CURL_VERSION.tar.gz \
+		curl-$CURL_VERSION \
+		http://curl.haxx.se/download/curl-$CURL_VERSION.tar.bz2
+
+	(
+		activate_holy_build_box "$PREFIX" "$EXTRA_CFLAGS"
+		./configure --prefix="$PREFIX" --disable-shared --disable-debug --enable-optimize --disable-werror \
+			--disable-curldebug --enable-symbol-hiding --disable-ares --disable-manual --disable-ldap --disable-ldaps \
+			--disable-rtsp --disable-dict --disable-ftp --disable-ftps --disable-gopher --disable-imap \
+			--disable-imaps --disable-pop3 --disable-pop3s --without-librtmp --disable-smtp --disable-smtps \
+			--disable-telnet --disable-tftp --disable-smb --disable-versioned-symbols \
+			--without-libmetalink --without-libidn --without-libssh2 --without-libmetalink --without-nghttp2 \
+			--with-ssl
+		run make -j$MAKE_CONCURRENCY install-strip
+	)
+	if [[ "$?" != 0 ]]; then false; fi
+
+	echo "Leaving source directory"
+	popd >/dev/null
+	run rm -rf curl-$CURL_VERSION
+}
+
+if [[ "$SKIP_CURL" != 1 ]]; then
+	install_curl /hbb_nopic
+	install_curl /hbb_pic -fPIC
 fi
 
 

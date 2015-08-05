@@ -2,7 +2,7 @@ function activate_holy_build_box() {
 	local PREFIX="$1"
 	local EXTRA_CFLAGS="$2"
 
-	export PATH=$PREFIX/bin:$PATH
+	export PATH=$PREFIX/bin:/hbb/bin:$PATH
 	export C_INCLUDE_PATH=$PREFIX/include
 	export CPLUS_INCLUDE_PATH=$PREFIX/include
 	export LIBRARY_PATH=$PREFIX/lib
