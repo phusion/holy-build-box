@@ -1,0 +1,7 @@
+# Site settings
+title: Holy Build Box
+email: info@phusion.nl
+baseurl: "/holy-build-box" # the subpath of your site, e.g. /blog/
+
+# Build settings
+markdown: kramdown
