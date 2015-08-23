@@ -10,13 +10,21 @@ OPENSSL_VERSION=1.0.2d
 CURL_VERSION=7.43.0
 
 source /hbb_build/functions.sh
-source /hbb_build/environment.sh
+source /hbb_build/activate_func.sh
 
 MAKE_CONCURRENCY=2
-DEADSTRIP_FLAGS="-ffunction-sections -fdata-sections"
 export PATH=/hbb/bin:$PATH
 
 #########################
+
+header "Initializing"
+run mkdir -p /hbb /hbb/bin
+run mkdir -p /hbb_nopic /hbb_pic /hbb_deadstrip_hardened_pie
+run cp /hbb_build/libcheck /hbb/bin/
+run cp /hbb_build/activate_func.sh /hbb/activate_func.sh
+run cp /hbb_build/activate_nopic.sh /hbb_nopic/activate
+run cp /hbb_build/activate_pic.sh /hbb_pic/activate
+run cp /hbb_build/activate_deadstrip_hardened_pie.sh /hbb_deadstrip_hardened_pie/activate
 
 header "Updating system"
 run yum update -y
@@ -85,15 +93,14 @@ fi
 function install_zlib()
 {
 	local PREFIX="$1"
-	local EXTRA_CFLAGS="$2"
 
-	header "Installing zlib $ZLIB_VERSION static libraries $EXTRA_CFLAGS"
+	header "Installing zlib $ZLIB_VERSION static libraries: $PREFIX"
 	download_and_extract zlib-$ZLIB_VERSION.tar.gz \
 		zlib-$ZLIB_VERSION \
 		http://zlib.net/zlib-$ZLIB_VERSION.tar.gz
 
 	(
-		activate_holy_build_box "$PREFIX" "$EXTRA_CFLAGS"
+		source "$PREFIX/activate"
 		run ./configure --prefix=$PREFIX --static
 		run make -j$MAKE_CONCURRENCY install
 		run strip --strip-debug "$PREFIX/lib/libz.a"
@@ -107,8 +114,8 @@ function install_zlib()
 
 if [[ "$SKIP_ZLIB" != 1 ]]; then
 	install_zlib /hbb_nopic
-	install_zlib /hbb_deadstrip_nopic "$DEADSTRIP_FLAGS"
-	install_zlib /hbb_pic -fPIC
+	install_zlib /hbb_pic
+	install_zlib /hbb_deadstrip_hardened_pie
 fi
 
 
@@ -117,17 +124,23 @@ fi
 function install_openssl()
 {
 	local PREFIX="$1"
-	local EXTRA_CFLAGS="$2"
 
-	header "Installing OpenSSL $OPENSSL_VERSION static libraries $EXTRA_CFLAGS"
+	header "Installing OpenSSL $OPENSSL_VERSION static libraries: $PREFIX"
 	download_and_extract openssl-$OPENSSL_VERSION.tar.gz \
 		openssl-$OPENSSL_VERSION \
 		http://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz
 
 	(
-		activate_holy_build_box "$PREFIX" "$EXTRA_CFLAGS"
-		run ./config --prefix=$PREFIX --openssldir=$PREFIX/openssl \
-			threads zlib no-shared no-sse2 -fvisibility=hidden $EXTRA_CFLAGS
+		source "$PREFIX/activate"
+		if $O3_ALLOWED; then
+			run ./config --prefix=$PREFIX --openssldir=$PREFIX/openssl \
+				threads zlib no-shared no-sse2 -fvisibility=hidden $MINIMAL_CFLAGS
+		else
+			run ./config --prefix=$PREFIX --openssldir=$PREFIX/openssl \
+				threads zlib no-shared no-sse2 -fvisibility=hidden -O2 $MINIMAL_CFLAGS
+			echo "+ Modifying Makefiles"
+			find . -name Makefile | xargs sed -i -e 's|-O3||g'
+		fi
 		run make
 		run make install_sw
 		run strip --strip-all $PREFIX/bin/openssl
@@ -147,8 +160,8 @@ function install_openssl()
 
 if [[ "$SKIP_OPENSSL" != 1 ]]; then
 	install_openssl /hbb_nopic
-	install_openssl /hbb_deadstrip_nopic "$DEADSTRIP_FLAGS"
-	install_openssl /hbb_pic -fPIC
+	install_openssl /hbb_pic
+	install_openssl /hbb_deadstrip_hardened_pie
 fi
 
 
@@ -157,15 +170,14 @@ fi
 function install_curl()
 {
 	local PREFIX="$1"
-	local EXTRA_CFLAGS="$2"
 
-	header "Installing Curl $CURL_VERSION static libraries $EXTRA_CFLAGS"
+	header "Installing Curl $CURL_VERSION static libraries: $PREFIX"
 	download_and_extract curl-$CURL_VERSION.tar.gz \
 		curl-$CURL_VERSION \
 		http://curl.haxx.se/download/curl-$CURL_VERSION.tar.bz2
 
 	(
-		activate_holy_build_box "$PREFIX" "$EXTRA_CFLAGS"
+		source "$PREFIX/activate"
 		./configure --prefix="$PREFIX" --disable-shared --disable-debug --enable-optimize --disable-werror \
 			--disable-curldebug --enable-symbol-hiding --disable-ares --disable-manual --disable-ldap --disable-ldaps \
 			--disable-rtsp --disable-dict --disable-ftp --disable-ftps --disable-gopher --disable-imap \
@@ -184,8 +196,8 @@ function install_curl()
 
 if [[ "$SKIP_CURL" != 1 ]]; then
 	install_curl /hbb_nopic
-	install_curl /hbb_deadstrip_nopic "$DEADSTRIP_FLAGS"
-	install_curl /hbb_pic -fPIC
+	install_curl /hbb_pic
+	install_curl /hbb_deadstrip_hardened_pie
 fi
 
 
@@ -193,11 +205,6 @@ fi
 
 if [[ "$SKIP_FINALIZE" != 1 ]]; then
 	header "Finalizing"
-	run cp /hbb_build/libcheck /hbb/bin/
-	run cp /hbb_build/environment.sh /hbb/activate_func.sh
-	run cp /hbb_build/activate_nopic.sh /hbb_nopic/activate
-	run cp /hbb_build/activate_deadstrip_nopic.sh /hbb_deadstrip_nopic/activate
-	run cp /hbb_build/activate_pic.sh /hbb_pic/activate
 	run yum clean -y all
-	run rm -rf /hbb_build
+	run rm -rf /hbb_build /tmp/*
 fi
