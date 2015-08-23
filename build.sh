@@ -3,6 +3,8 @@ set -e
 
 PKG_CONFIG_VERSION=0.28
 CCACHE_VERSION=3.2.2
+CMAKE_VERSION=3.3.1
+CMAKE_MAJOR_VERSION=3.3
 ZLIB_VERSION=1.2.8
 OPENSSL_VERSION=1.0.2d
 CURL_VERSION=7.43.0
@@ -56,6 +58,25 @@ if [[ "$SKIP_CCACHE" != 1 ]]; then
 	echo "Leaving source directory"
 	popd >/dev/null
 	run rm -rf ccache-$CCACHE_VERSION
+fi
+
+
+### CMake
+
+if [[ "$SKIP_CMAKE" != 1 ]]; then
+	header "Installing CMake $CMAKE_VERSION"
+	download_and_extract cmake-$CMAKE_VERSION.tar.gz \
+		cmake-$CMAKE_VERSION \
+		http://www.cmake.org/files/v$CMAKE_MAJOR_VERSION/cmake-$CMAKE_VERSION.tar.gz
+
+	run ./configure --prefix=/hbb --no-qt-gui --parallel=$MAKE_CONCURRENCY
+	run make -j$MAKE_CONCURRENCY
+	run make install
+	run strip --strip-all /hbb/bin/cmake
+
+	echo "Leaving source directory"
+	popd >/dev/null
+	run rm -rf cmake-$CMAKE_VERSION
 fi
 
 
