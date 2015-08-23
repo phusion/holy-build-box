@@ -11,6 +11,7 @@ source /hbb_build/functions.sh
 source /hbb_build/environment.sh
 
 MAKE_CONCURRENCY=2
+DEADSTRIP_FLAGS="-ffunction-sections -fdata-sections"
 export PATH=/hbb/bin:$PATH
 
 #########################
@@ -85,6 +86,7 @@ function install_zlib()
 
 if [[ "$SKIP_ZLIB" != 1 ]]; then
 	install_zlib /hbb_nopic
+	install_zlib /hbb_deadstrip_nopic "$DEADSTRIP_FLAGS"
 	install_zlib /hbb_pic -fPIC
 fi
 
@@ -124,6 +126,7 @@ function install_openssl()
 
 if [[ "$SKIP_OPENSSL" != 1 ]]; then
 	install_openssl /hbb_nopic
+	install_openssl /hbb_deadstrip_nopic "$DEADSTRIP_FLAGS"
 	install_openssl /hbb_pic -fPIC
 fi
 
@@ -160,6 +163,7 @@ function install_curl()
 
 if [[ "$SKIP_CURL" != 1 ]]; then
 	install_curl /hbb_nopic
+	install_curl /hbb_deadstrip_nopic "$DEADSTRIP_FLAGS"
 	install_curl /hbb_pic -fPIC
 fi
 
@@ -170,8 +174,9 @@ if [[ "$SKIP_FINALIZE" != 1 ]]; then
 	header "Finalizing"
 	run cp /hbb_build/libcheck /hbb/bin/
 	run cp /hbb_build/environment.sh /hbb/activate_func.sh
-	run cp /hbb_build/activate_pic.sh /hbb_pic/activate
 	run cp /hbb_build/activate_nopic.sh /hbb_nopic/activate
+	run cp /hbb_build/activate_deadstrip_nopic.sh /hbb_deadstrip_nopic/activate
+	run cp /hbb_build/activate_pic.sh /hbb_pic/activate
 	run yum clean -y all
 	run rm -rf /hbb_build
 fi
