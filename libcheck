@@ -8,7 +8,7 @@ function grep_without_fail()
 
 SYSTEM_LIBRARIES="linux-gate|linux-vdso|libpthread|librt|libdl|libcrypt|libm|libc"
 SYSTEM_LIBRARIES="$SYSTEM_LIBRARIES|ld-linux.*|libutil|libnsl|libgcc_s|libstdc\+\+"
-SYSTEM_LIBRARIES="$SYSTEM_LIBRARIES|libtermcap|libresolv"
+SYSTEM_LIBRARIES="$SYSTEM_LIBRARIES|libresolv"
 
 if [[ "$1" = "" ]]; then
 	echo "Usage: libcheck <FILES>"

@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e
+
+dir=`dirname "$0"`
+source "$dir/activate"
+exec "$@"
