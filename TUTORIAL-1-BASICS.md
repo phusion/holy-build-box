@@ -45,7 +45,7 @@ Compile it with:
       -v `pwd`:/io \
       phusion/holy-build-box-64:latest \
       /hbb_nopic/activate-exec \
-      bash -c 'gcc $CFLAGS /io/hello.c -o /io/hello $LDFLAGS'
+      bash -x -c 'gcc $CFLAGS /io/hello.c -o /io/hello $LDFLAGS'
 
 Verify that it works:
 
@@ -64,7 +64,7 @@ Activating the Holy Build Box environment is important. Without activation, a la
 
 This also explains why the gcc call is wrapped inside a `bash` call, and why inside the bash command we reference `$CFLAGS` and `$LDFLAGS`. We want the compiler to respect the Holy Build Box compilation and linker flags.
 
-The various `/hbb*` directories are explained in the [Environment structure](ENVIRONMENT-STRUCTURE.md) guide and in [Tutorial 7: Library variants](TUTORIAL-5-LIBRARY-VARIANTS).
+The various `/hbb*` directories are explained in the [Environment structure](ENVIRONMENT-STRUCTURE.md) guide and in [Tutorial 7: Library variants](TUTORIAL-5-LIBRARY-VARIANTS.md).
 
 ## Conclusion
 

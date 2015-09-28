@@ -8,7 +8,7 @@ Each application's build system is different, so each application requires diffe
 
 ## Nginx OpenSSL problem
 
-The Nginx's build system's problem is that it is able to detect OpenSSL's libcrypto library (for cryptographic algorithms), but fails to detect its libssl library (for SSL/TLS support). Because of this, it is not possible to compile Nginx with HTTPS support:
+The Nginx's build system's problem is that it is able to detect OpenSSL's libcrypto library (for cryptographic algorithms), but fails to detect its libssl library (for SSL/TLS support). Because of this, it is not possible to compile Nginx with HTTPS support. Consider what happens if we were to try to run Nginx's configure script (inside Holy Build Box) with `--with-http_ssl_module`:
 
     + ./configure --without-http_rewrite_module --with-http_ssl_module
     ...
@@ -21,9 +21,31 @@ The Nginx's build system's problem is that it is able to detect OpenSSL's libcry
 
 ## Analyzing the problem
 
-Most build systems log the reason why a configure check failed. Autotools log all checks to `config.log`. The Nginx build system logs to `objs/autoconf.err`.
+The best way to analyze the problem is by entering the Holy Build Box container, running the compilation script, then check whether the build system left any logs files that we can use to further analyze the problem.
 
-If we look inside the file, we eventually encounter this:
+Let's first update `compile.sh` so that the configure script is called with `--with-http_ssl_module`:
+
+    ./configure --without-http_rewrite_module --with-http_ssl_module
+
+Next, enter the container, invoke the compilation script and verify that the Nginx configure script bails out with an error. We assume that `nginx-1.8.0.tar.gz` from [tutorial 3](TUTORIAL-3-STATIC-LINKING-DEPS.md) is still in the current working directory.
+
+    $ docker run -t -i --rm \
+      -v `pwd`:/io \
+      phusion/holy-build-box-64:latest \
+      bash
+
+    container# bash /io/compile.sh
+    ...
+    ./configure: error: ...
+
+    container#
+
+Most build systems log the reason why a configure check failed. Autotools log all checks to `config.log`. If you look around inside the Nginx source directory (`/nginx-1.8.0`), you will eventually find a file `objs/autoconf.err`. That is where the Nginx build system logs to. Let's look inside the file.
+
+    container# cd nginx-1.8.0
+    container# cat objs/autoconf.err
+
+Towards the end of the file, we encounter a bunch of errors:
 
     checking for OpenSSL library
 
@@ -70,17 +92,17 @@ These are the lines responsible for running the OpenSSL check. As you can see, t
 
 Linking to `-lssl -lcrypto` is enough if OpenSSL is compiled dynamically, because the OpenSSL dynamic is itself linked to zlib and dl. But this doesn't work with static libraries: they do not contain information about which further dependencies are required, so it is up to us to specify all dependencies.
 
+Now that you are done analyzing the problem, you can exit the container shell.
+
+    container# exit
+
 ## Fixing the build system
 
 We fix this problem by modifying `auto/lib/openssl/conf` so that it compiles the test program with `-lz -ldl`. The best place to do this is in the compilation script, right after extracting the Nginx source code. Before the `./configure` invocation, insert:
 
     sed -i 's|-lssl -lcrypto|-lssl -lcrypto -lz -ldl|' auto/lib/openssl/conf
 
-Update the configure invocation in the script to include `--with-http_ssl_module`:
-
-    ./configure --without-http_rewrite_module --with-http_ssl_module
-
-Now test the script. We assume that `nginx-1.8.0.tar.gz` from tutorial 3 is still in the current working directory.
+Now test the script:
 
     docker run -t -i --rm \
       -v `pwd`:/io \
@@ -102,7 +124,7 @@ Verify that the compiled Nginx binary works and that it is compiled with SSL sup
     built with OpenSSL 1.0.2d 9 Jul 2015
     TLS SNI support enabled
 
-Finally, verify that it is not dynamically linked to any non-essential libraries:
+Finally, verify that it is not dynamically linked to any [non-essential libraries](ESSENTIAL-SYSTEM-LIBRARIES.md):
 
     $ ldd nginx
         linux-vdso.so.1 =>  (0x00007ffddb4fd000)
@@ -140,3 +162,5 @@ cp /usr/local/nginx/sbin/nginx /io/
 ## Conclusion
 
 You have now seen an example of how a program's build system can be tweaked to allow proper static linking. Next up, we will introduce you to the different library variants that Holy Build Box provides.
+
+[Tutorial 5: Library variants >>](TUTORIAL-5-LIBRARY-VARIANTS.md)
