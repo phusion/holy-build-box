@@ -44,7 +44,7 @@ The PCRE build system respects the environment variables set by the Holy Build B
 
 Remove the `--without-rewrite_module` parameter from the Nginx configure command:
 
-    ./configure --with-http_ssl_module
+    ./configure --with-http_ssl_module --with-ld-opt="$LDFLAGS"
 
 ## Verifying that it works
 
@@ -67,7 +67,7 @@ Then verify that Nginx is indeed compiled with the `rewrite_module` enabled:
 set -e
 
 # Activate Holy Build Box environment.
-source /hbb_nopic/activate
+source /hbb_deadstrip_hardened_pie/activate
 
 set -x
 
@@ -85,7 +85,7 @@ cd nginx-1.8.0
 
 # Compile
 sed -i 's|-lssl -lcrypto|-lssl -lcrypto -lz -ldl|' auto/lib/openssl/conf
-./configure --with-http_ssl_module
+./configure --with-http_ssl_module --with-ld-opt="$LDFLAGS"
 make
 make install
 

@@ -97,6 +97,17 @@ Holy Build Box also includes static versions of certain libraries. These librari
 
 These libraries are provided in multiple variants, each compiled with different compilation flags. The different variants will be covered with in [Tutorial 5: Library variants](TUTORIAL-5-LIBRARY-VARIANTS.md).
 
+### Security hardening
+
+Holy Build Box makes it easy to compile your application with special security hardening features:
+
+ * Protection against stack overflows and stack smashing
+ * Extra bounds checking in common functions
+ * Load time address randomization
+ * Read-only global offset table
+
+This is covered in [Tutorial 5: Library variants](TUTORIAL-5-LIBRARY-VARIANTS.md) and in the [Security hardening binaries](SECURITY-HARDENING-BINARIES.md).
+
 ## Getting started
 
 <a name="tutorials"></a>
@@ -117,6 +128,7 @@ Guides:
 
  * [Environment structure](ENVIRONMENT-STRUCTURE.md)
  * [Which system libraries are considered essential?](ESSENTIAL-SYSTEM-LIBRARIES.md)
+ * [Security hardening binaries](SECURITY-HARDENING-BINARIES.md)
  * [Building 32-bit binaries](BUILDING-32-BIT-BINARIES.md)
  * [Caching compilation results with ccache](CACHING-WITH-CCACHE.md)
  * [The special problem of libcurl SSL certificate authorities](LIBCURL-SSL-CERTIFICATE-AUTHORITIES.md)

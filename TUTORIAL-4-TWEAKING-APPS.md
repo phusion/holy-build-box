@@ -6,9 +6,9 @@ Most applications' build systems are not well-tested against static linking, so 
 
 Each application's build system is different, so each application requires different tweaks. The general idea is that your compilation should should modify the application's build system in such a way that it works. This tutorial serves as an example: we will show you how to tweak Nginx's build system.
 
-## Nginx OpenSSL problem
+## Problem 1: Nginx's OpenSSL detection
 
-The Nginx's build system's problem is that it is able to detect OpenSSL's libcrypto library (for cryptographic algorithms), but fails to detect its libssl library (for SSL/TLS support). Because of this, it is not possible to compile Nginx with HTTPS support. Consider what happens if we were to try to run Nginx's configure script (inside Holy Build Box) with `--with-http_ssl_module`:
+One of the problems in the Nginx build system is that it is able to detect OpenSSL's libcrypto library (for cryptographic algorithms), but fails to detect its libssl library (for SSL/TLS support). Because of this, it is not possible to compile Nginx with HTTPS support. Consider what happens if we were to try to run Nginx's configure script (inside Holy Build Box) with `--with-http_ssl_module`:
 
     + ./configure --without-http_rewrite_module --with-http_ssl_module
     ...
@@ -19,7 +19,7 @@ The Nginx's build system's problem is that it is able to detect OpenSSL's libcry
     into the system, or build the OpenSSL library statically from the source
     with nginx by using --with-openssl=<path> option.
 
-## Analyzing the problem
+### Analyzing the problem
 
 The best way to analyze the problem is by entering the Holy Build Box container, running the compilation script, then check whether the build system left any logs files that we can use to further analyze the problem.
 
@@ -40,7 +40,7 @@ Next, enter the container, invoke the compilation script and verify that the Ngi
 
     container#
 
-Most build systems log the reason why a configure check failed. Autotools log all checks to `config.log`. If you look around inside the Nginx source directory (`/nginx-1.8.0`), you will eventually find a file `objs/autoconf.err`. That is where the Nginx build system logs to. Let's look inside the file.
+Most build systems log the reason why a configure check failed. Autotools log all checks to `config.log`. Nginx's build system is not written in autotools, but if you look around inside the Nginx source directory (`/nginx-1.8.0`) you will eventually find a file `objs/autoconf.err`. That is where the Nginx build system logs to. Let's look inside the file.
 
     container# cd nginx-1.8.0
     container# cat objs/autoconf.err
@@ -96,7 +96,7 @@ Now that you are done analyzing the problem, you can exit the container shell.
 
     container# exit
 
-## Fixing the build system
+### Fixing the build system
 
 We fix this problem by modifying `auto/lib/openssl/conf` so that it compiles the test program with `-lz -ldl`. The best place to do this is in the compilation script, right after extracting the Nginx source code. Before the `./configure` invocation, insert:
 
@@ -134,6 +134,63 @@ Finally, verify that it is not dynamically linked to any [non-essential librarie
         libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fa53135f000)
         /lib64/ld-linux-x86-64.so.2 (0x00007fa531d7f000)
 
+## Problem 2: `$LDFLAGS` is not respected
+
+Another problem is that the Nginx build system does not respect `$LDFLAGS`.
+
+If you look closely at the output of the compilation script, you will see that the Nginx build system invokes the compiler like this:
+
+    cc -c -O2 -fvisibility=hidden -I/hbb_nopic/include -L/hbb_nopic/lib    -I src/core -I src/event -I src/event/modules -I src/os/unix -I objs \
+        -o objs/src/core/ngx_log.o \
+        src/core/ngx_log
+
+Notice the `-O2 -fvisibility=hidden -I/hbb_nopic/include -L/hbb_nopic/lib` part. This is the value of the `$CFLAGS` environment variable (as you have seen in [tutorial 1](TUTORIAL-1-BASICS.md)), so the Nginx build system passed that environment variable to the compiler, just as we wanted.
+
+However, if you look a bit further at how Nginx links the executable, that doesn't look so good:
+
+    cc -o objs/nginx \
+        objs/src/core/nginx.o \
+        ...
+        objs/ngx_modules.o \
+        -lpthread -lcrypt -lssl -lcrypto -lz -ldl -ldl -lz
+
+Nginx did not pass the value of `$LDFLAGS` -- which is `-L/hbb_nopic/lib` -- to the linker at all!
+
+Until now, this hasn't been much of a problem. `$LDFLAGS` only contains a `-L` parameter. The Holy Build Box environment also sets the `LIBRARY_PATH` environment variable, so the linker can still find the Holy Build Box static libraries. However, as you will learn in [tutorial 5](TUTORIAL-5-LIBRARY-VARIANTS.md), we provide alternative library variants where `$LDFLAGS` can contain much more than just `-L`. So we need to find a way to make Nginx's build system pass our `$LDFLAGS`.
+
+### Fixing the build system
+
+One way to fix this is by editing the Makefile. However this should be considered the "nuclear option" -- something to be done when you have no other choice. If Nginx provides a way for us to pass additional linker flags, then we should use that.
+
+If we run the Nginx configure script with `--help`, we find just what we need:
+
+    $ ./configure --help
+    ...
+      --with-ld-opt=OPTIONS              set additional linker options
+    ...
+
+So we modify `compile.sh` and change the configure invocation to:
+
+    ./configure --without-http_rewrite_module --with-http_ssl_module --with-ld-opt="$LDFLAGS"
+
+Notice the quotes around `$LDFLAGS`. This ensures that Bash considers `$LDFLAGS` to be a single argument, despite the fact that it contains spaces.
+
+Now test the script:
+
+    docker run -t -i --rm \
+      -v `pwd`:/io \
+      phusion/holy-build-box-64:latest \
+      bash /io/compile.sh
+
+You should see that linker flags are now passed properly:
+
+    cc -c -O2 -fvisibility=hidden -I/hbb_nopic/include -L/hbb_nopic/lib    -I src/core -I src/event -I src/event/modules -I src/os/unix -I objs \
+        -o objs/ngx_modules.o \
+        objs/ngx_modules.c
+        ...
+        objs/ngx_modules.o \
+        -L/hbb_nopic/lib -lpthread -lcrypt -lssl -lcrypto -lz -ldl -ldl -lz
+
 ## The entire compilation script
 
 ~~~bash
@@ -151,7 +208,7 @@ cd nginx-1.8.0
 
 # Compile
 sed -i 's|-lssl -lcrypto|-lssl -lcrypto -lz -ldl|' auto/lib/openssl/conf
-./configure --without-http_rewrite_module --with-http_ssl_module
+./configure --without-http_rewrite_module --with-http_ssl_module --with-ld-opt="$LDFLAGS"
 make
 make install
 

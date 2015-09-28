@@ -81,6 +81,12 @@ Instead of sourcing the `activate` script from within `compile.sh`, you could al
 
 This is an equally valid approach. Throughout this tutorial series, we will be using the `source` approach, but the choice is yours.
 
+## $CFLAGS and $LDFLAGS
+
+In tutorial 1, you had to pass `$CFLAGS` and `$LDFLAGS` to the compiler. So why didn't you have to do it this time?
+
+It is because GNU hello is using the autotools build system, which automatically passes `$CFLAGS` and `$LDFLAGS` to the compiler and the linker. This is great because so many applications use autotools. However, not every application uses autotools, so sometimes we will have to tweak the build system a little bit so that `$CFLAGS` and `$LDFLAGS` are passed.
+
 ## Conclusion
 
 You have now learned how to compile an application inside the Holy Build Box environment. Next up, we will learn how to statically link to dependencies.

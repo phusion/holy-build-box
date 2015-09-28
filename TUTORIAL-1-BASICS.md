@@ -19,9 +19,14 @@ Holy Build Box consists of two Docker images:
 
 Throughout this tutorial, we will use the 64 variant. Using the 32 variant requires [special instructions](BUILDING-32-BIT-BINARIES.md).
 
-Start a bash shell inside the Holy Build Box environment so that you can look around and inspect things:
+Start a Bash shell inside the Holy Build Box environment so that you can look around and inspect things:
 
-    docker run -t -i --rm phusion/holy-build-box-64:latest bash
+    $ docker run -t -i --rm phusion/holy-build-box-64:latest bash
+    container#
+
+When you are done, type `exit` to exit the shell:
+
+    container# exit
 
 ## Compilation
 
@@ -62,9 +67,28 @@ The reason why this is needed because some of the software inside the Holy Build
 
 Activating the Holy Build Box environment is important. Without activation, a large part of Holy Build Box does not work. Holy Build Box should be activated as early as possible.
 
-This also explains why the gcc call is wrapped inside a `bash` call, and why inside the bash command we reference `$CFLAGS` and `$LDFLAGS`. We want the compiler to respect the Holy Build Box compilation and linker flags.
+This also explains why the gcc call is wrapped inside a `bash` call, and why inside the Bash command we reference `$CFLAGS` and `$LDFLAGS`. We want the compiler to respect the Holy Build Box compilation and linker flags.
 
-The various `/hbb*` directories are explained in the [Environment structure](ENVIRONMENT-STRUCTURE.md) guide and in [Tutorial 7: Library variants](TUTORIAL-5-LIBRARY-VARIANTS.md).
+The various `/hbb*` directories and the environment variables are explained in the [Environment structure](ENVIRONMENT-STRUCTURE.md) guide and in [Tutorial 7: Library variants](TUTORIAL-5-LIBRARY-VARIANTS.md).
+
+### Environment variable values
+
+We encourage you to inspect the environment variables set by the Holy Build Box activation script:
+
+    $ docker run -t -i --rm \
+      phusion/holy-build-box-64:latest \
+      /hbb_nopic/activate-exec \
+      bash
+    Holy build box activated
+    Prefix: /hbb_nopic
+    Compiler flags: -O2 -fvisibility=hidden -I/hbb_nopic/include -L/hbb_nopic/lib
+    Linker flags: -L/hbb_nopic/lib
+
+    container# echo $CFLAGS
+    -O2 -fvisibility=hidden -I/hbb_nopic/include -L/hbb_nopic/lib
+    container# echo $LDFLAGS
+    -L/hbb_nopic/lib
+    container# exit
 
 ## Conclusion
 
