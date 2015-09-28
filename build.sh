@@ -5,6 +5,7 @@ PKG_CONFIG_VERSION=0.28
 CCACHE_VERSION=3.2.3
 CMAKE_VERSION=3.3.2
 CMAKE_MAJOR_VERSION=3.3
+PYTHON_VERSION=2.7.10
 ZLIB_VERSION=1.2.8
 OPENSSL_VERSION=1.0.2d
 CURL_VERSION=7.44.0
@@ -91,6 +92,25 @@ if [[ "$SKIP_CMAKE" != 1 ]]; then
 	echo "Leaving source directory"
 	popd >/dev/null
 	run rm -rf cmake-$CMAKE_VERSION
+fi
+
+
+### ccache
+
+if [[ "$SKIP_PYTHON" != 1 ]]; then
+	header "Installing Python $PYTHON_VERSION"
+	download_and_extract Python-$PYTHON_VERSION.tgz \
+		Python-$PYTHON_VERSION \
+		https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
+
+	run ./configure --prefix=/hbb
+	run make -j$MAKE_CONCURRENCY install
+	run strip --strip-all /hbb/bin/python
+	run strip --strip-debug /hbb/lib/python*/lib-dynload/*.so
+
+	echo "Leaving source directory"
+	popd >/dev/null
+	run rm -rf Python-$PYTHON_VERSION
 fi
 
 
