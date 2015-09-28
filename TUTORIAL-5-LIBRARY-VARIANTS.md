@@ -26,16 +26,9 @@ Your application must also be compiled with matching compilation flags. The acti
 
  * **`deadstrip_hardened_pie`**
 
-   This variant is compiled with security hardening flags and with dead-code elimination flags. This variant is especially suitable for compiling binaries for use in production environments.
+   This variant is compiled with security hardening flags and with dead-code elimination flags. This variant is especially suitable for compiling binaries for use in production environments. See [Security hardening binaries](SECURITY-HARDENING-BINARIES.md) for more information.
 
-   The following security hardening features are enabled:
-
-    * Protection against stack overflows and stack smashing
-    * Extra bounds checking in common functions
-    * Load time address randomization
-    * Read-only global offset table
-
-   **Warning**: the enabled security features are not compatible with `-O3`.
+   **Warning**: the enabled security features are [not compatible with `-O3`](SECURITY-HARDENING-BINARIES.md).
 
    The dead-code elimination flags allow the compiler to eliminate unused code, which makes your binaries as small as possible.
 
@@ -50,6 +43,20 @@ Let's see what happens if we compile Nginx with the `deadstrip_hardened_pie` var
     $ strip --strip-all nginx
     $ ls -lh nginx
     -rwxr-xr-x 1 hongli hongli 2,7M sep 28 13:43 nginx*
+
+It also wasn't compiled with any security hardening flags:
+
+    $ docker run -t -i --rm \
+      -v `pwd`/nginx:/exe:ro \
+      phusion/holy-build-box-64:latest \
+      /hbb_deadstrip_hardened_pie/activate-exec \
+      hardening-check -b /exe
+    ...
+    Position Independent Executable: no, normal executable!
+    Stack protected: no, not found!
+    Fortify Source functions: no, only unprotected functions found!
+    Read-only relocations: no, not found!
+    Immediate binding: no, not found! (ignored)
 
 Modify the compilation script to load `/hbb_deadstrip_hardened_pie/activate` instead of `/hbb_nopic/activate`. Change this line...
 
@@ -74,9 +81,19 @@ Let's take a look at the Nginx binary now:
 
 The Nginx binary is now 2.6 MB. We saved about 100 KB.
 
-We can also see that the security hardening flag are enabled inside the executable:
+We can also see that the security hardening flag are enabled inside the binary:
 
-    TODO
+    $ docker run -t -i --rm \
+      -v `pwd`/nginx:/exe:ro \
+      phusion/holy-build-box-64:latest \
+      /hbb_deadstrip_hardened_pie/activate-exec \
+      hardening-check -b /exe
+    ...
+    Position Independent Executable: yes
+    Stack protected: yes
+    Fortify Source functions: yes (some protected functions found)
+    Read-only relocations: yes
+    Immediate binding: no, not found! (ignored)
 
 ## Conclusion
 
