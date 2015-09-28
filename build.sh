@@ -21,6 +21,7 @@ header "Initializing"
 run mkdir -p /hbb /hbb/bin
 run mkdir -p /hbb_nopic /hbb_pic /hbb_deadstrip_hardened_pie
 run cp /hbb_build/libcheck /hbb/bin/
+run cp /hbb_build/hardening-check /hbb/bin/
 run cp /hbb_build/activate_func.sh /hbb/activate_func.sh
 
 run cp /hbb_build/activate-exec /hbb_nopic/
