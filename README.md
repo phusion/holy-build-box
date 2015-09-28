@@ -83,8 +83,8 @@ The environment is bare-bones with almost nothing installed. Besides the basics,
  * GCC 4.1.2 (C and C++ support)
  * GNU make
  * pkg-config 0.28
- * ccache 3.3.2
- * CMake 3.3.1
+ * ccache 3.2.3
+ * CMake 3.3.2
 
 ### Included static libraries
 
@@ -92,7 +92,7 @@ Holy Build Box also includes static versions of certain libraries. These librari
 
  * zlib 1.2.8
  * OpenSSL 1.0.2d
- * curl and libcurl 7.43.0
+ * curl and libcurl 7.44.0
 
 These libraries are provided in multiple variants, each compiled with different compilation flags. The different variants will be covered with in [Tutorial 5: Library variants](TUTORIAL-5-LIBRARY-VARIANTS.md).
 
