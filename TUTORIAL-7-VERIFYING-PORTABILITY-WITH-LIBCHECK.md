@@ -53,7 +53,7 @@ set -x
 # Install static PCRE
 tar xzf /io/pcre-XXX.tar.gz
 cd pcre-XXX.tar.gz
-./configure --prefix=/hbb_deadstrip_hardened_pie
+./configure --prefix=/hbb_deadstrip_hardened_pie --disable-shared --enable-static
 make
 make install
 cd ..

@@ -115,7 +115,7 @@ You should see that the configure script succeeds in detecting OpenSSL this time
     ...
     checking for OpenSSL library ... found
 
-## Verifying the binary
+### Verifying the binary
 
 Verify that the compiled Nginx binary works and that it is compiled with SSL support:
 

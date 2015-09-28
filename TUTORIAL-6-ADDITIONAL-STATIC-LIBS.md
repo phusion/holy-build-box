@@ -32,7 +32,7 @@ Insert the following code into `compile.sh`, right after the `source` call:
 # Install static PCRE
 tar xzf /io/pcre-8.37.tar.gz
 cd pcre-8.37
-./configure --prefix=/hbb_deadstrip_hardened_pie
+./configure --prefix=/hbb_deadstrip_hardened_pie --disable-shared --enable-static
 make
 make install
 cd ..
@@ -73,7 +73,7 @@ set -x
 # Install static PCRE
 tar xzf /io/pcre-XXX.tar.gz
 cd pcre-XXX.tar.gz
-./configure --prefix=/hbb_deadstrip_hardened_pie
+./configure --prefix=/hbb_deadstrip_hardened_pie --disable-shared --enable-static
 make
 make install
 cd ..
