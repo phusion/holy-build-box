@@ -2,7 +2,7 @@
 
 Holy Build Box is a system for building "portable" binaries for Linux: binaries that work on pretty much any Linux distribution. This works by providing an easy-to-use compilation environment with an old glibc version. Holy Build Box can produce x86 and x86-64 binaries.
 
-**Resources:**: [Website](http://holy-build-box.github.io) | [Issue tracker](https://github.com/phusion/holy-build-box/issues)
+**Resources:**: [Website](http://phusion.github.io/holy-build-box/) | [Issue tracker](https://github.com/phusion/holy-build-box/issues)
 
 **Table of contents**
 
@@ -15,14 +15,14 @@ Holy Build Box is a system for building "portable" binaries for Linux: binaries 
    - [Tutorials](#tutorials)
    - [Guides](#guides)
  * [FAQ](#faq)
-   - [Who should be interested in portable Linux binaries?]()
-   - [Which operating systems does Holy Build Box support?]()
-   - [Static linking introduces security problems. How do you deal with this?]()
-   - [How does Holy Build Box compare to using Docker to package up an application?]()
-   - [How does Holy Build Box compare to Go?]()
-   - [Is Holy Build Box suitable for all applications?]()
-   - [How should I deal with interpreted applications, such as ones written in Ruby, Python or Node.js?]()
-   - [Why the name "Holy Build Box"?]()
+   - [Who should be interested in portable Linux binaries?](#who-should-be-interested-in-portable-linux-binaries)
+   - [Which operating systems does Holy Build Box support?](#which-operating-systems-does-holy-build-box-support)
+   - [Static linking introduces security problems. How do you deal with this?](#static-linking-introduces-security-problems-how-do-you-deal-with-this)
+   - [How does Holy Build Box compare to using Docker to package up an application?](#how-does-holy-build-box-compare-to-using-docker-to-package-up-an-application)
+   - [How does Holy Build Box compare to Go?](#how-does-holy-build-box-compare-to-go)
+   - [Is Holy Build Box suitable for all applications?](#is-holy-build-box-suitable-for-all-applications)
+   - [How should I deal with interpreted applications, such as ones written in Ruby, Python or Node.js?](#how-should-i-deal-with-interpreted-applications-such-as-ones-written-in-ruby-python-or-nodejs)
+   - [Why the name "Holy Build Box"?](#why-the-name-holy-build-box)
 
 ------
 
@@ -118,6 +118,7 @@ Guides:
  * [Which system libraries are considered essential?](ESSENTIAL-SYSTEM-LIBRARIES.md)
  * [Building 32-bit binaries](BUILDING-32-BIT-BINARIES.md)
  * [Caching compilation results with ccache](CACHING-WITH-CCACHE.md)
+ * [The special problem of libcurl SSL certificate authorities](LIBCURL-SSL-CERTIFICATE-AUTHORITIES.md)
 
 ## FAQ
 
@@ -132,7 +133,7 @@ Holy Build Box is made for developers that fit the following criteria:
 
 If you identify with all of the above points, then Holy Build Box is for you.
 
-Intepreted applications whose interpreters are written in C or C++ -- such as Ruby, Python or Node.js -- [are also supported](TODO), though indirectly.
+Intepreted applications whose interpreters are written in C or C++ -- such as Ruby, Python or Node.js -- [are also supported](#how-should-i-deal-with-interpreted-applications-such-as-ones-written-in-ruby-python-or-nodejs), though indirectly.
 
 Some non-developers (i.e. users) may object to the idea of distributing portable binaries. A common objecting is as follows:
 
@@ -174,11 +175,11 @@ On the other hand, compiling an application using Holy Build Box requires advanc
 
 The Go compiler also produces portable Linux binaries. Holy Build Box is meant for existing C/C++ applications. In general, Go is a more productive language than C/C++. So if you are writing a new application, then using Go is an excellent choice. Otherwise, Holy Build Box is for you.
 
-For example, the main reason why we made Holy Build Box was to be able to produce portable binaries for [the Phusion Passenger application server](https://www.phusionpassenger.com) and [Traveling Ruby](http://traveling-ruby.github.io). Passenger is a mature codebase written in C++ so we can't just change it entirely to Go. Likewise, Ruby is written in C.
+For example, the main reason why we made Holy Build Box was to be able to produce portable binaries for [the Phusion Passenger application server](https://www.phusionpassenger.com) and [Traveling Ruby](http://phusion.github.io/traveling-ruby/). Passenger is a mature codebase written in C++ so we can't just change it entirely to Go. Likewise, Ruby is written in C.
 
 ### Is Holy Build Box suitable for all applications?
 
-No. Holy Build Box is mainly designed to compile headless applications such as CLI tools, servers and daemons. For example: [Phusion Passenger](https://www.phusionpassenger.com/), Nginx, [Traveling Ruby](http://traveling-ruby.github.io).
+No. Holy Build Box is mainly designed to compile headless applications such as CLI tools, servers and daemons. For example: [Phusion Passenger](https://www.phusionpassenger.com/), Nginx, [Traveling Ruby](http://phusion.github.io/traveling-ruby/).
 
 Supporting graphical applications such as those based on GTK, Qt, SDL, OpenGL etc is outside the scope of this project. This doesn't mean that they cannot be made to work, but it's not something we are interested in so we have put no effort into that.
 
@@ -190,7 +191,7 @@ We have specific recommendations for some languages:
 
 #### Ruby
 
-Take a look at [Traveling Ruby](http://traveling-ruby.github.io). The approach taken by Traveling Ruby is exactly what we recommended. Traveling Ruby uses Holy Build Box to build its Linux binaries.
+Take a look at [Traveling Ruby](http://phusion.github.io/traveling-ruby/). The approach taken by Traveling Ruby is exactly what we recommended. Traveling Ruby uses Holy Build Box to build its Linux binaries.
 
 #### Node.js
 
@@ -200,7 +201,7 @@ If your application has a dependency on an NPM module with native extension, eit
 
 ### Why the name "Holy Build Box"?
 
-Around 2004, I (Hongli Lai) participated in a now-defunct open source project called Autopackage. Back then we were in the middle of the Linux-on-the-desktop hype. One of the things people complained most about was software installation. Every distribution had its own way of installing things, and binaries compiled on one distribution doesn't work on another. This was considered problematic because, as a developer, it is so painful to distribute software to end users. See also the FAQ entry [Who should be interested in portable Linux binaries?](TODO).
+Around 2004, I (Hongli Lai) participated in a now-defunct open source project called Autopackage. Back then we were in the middle of the Linux-on-the-desktop hype. One of the things people complained most about was software installation. Every distribution had its own way of installing things, and binaries compiled on one distribution doesn't work on another. This was considered problematic because, as a developer, it is so painful to distribute software to end users. See also the FAQ entry [Who should be interested in portable Linux binaries?](#who-should-be-interested-in-portable-linux-binaries).
 
 This problem actually still exists -- it was never resolved.
 
