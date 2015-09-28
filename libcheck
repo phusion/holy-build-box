@@ -1,48 +1,48 @@
-#!/bin/bash
-set -e
+#!/hbb/bin/python
+import os, sys, subprocess, re
 
-function grep_without_fail()
-{
-	grep "$@" || true
-}
+if len(sys.argv) <= 1:
+	print("Usage: libcheck <FILES>")
+	print("Check whether the given executables or shared libraries are linked against non-system libraries.")
+	print("")
+	print( "By default, these libraries are allowed:")
+	print( "$SYSTEM_LIBRARIES")
+	print("")
+	print( "You can allow more libraries by setting \$LIBCHECK_ALLOW, e.g.:")
+	print( "  env LIBCHECK_ALLOW='libcurl|libcrypto' libcheck /usr/bin/foo")
+	sys.exit(1)
 
-SYSTEM_LIBRARIES="linux-gate|linux-vdso|libpthread|librt|libdl|libcrypt|libm|libc"
-SYSTEM_LIBRARIES="$SYSTEM_LIBRARIES|ld-linux.*|libutil|libnsl|libgcc_s|libstdc\+\+"
-SYSTEM_LIBRARIES="$SYSTEM_LIBRARIES|libresolv"
+ARROW = re.compile(" => ")
+SYSTEM_LIBRARIES_REGEX = \
+	"linux-gate|linux-vdso|libpthread|librt|libdl|libcrypt|libm|libc" + \
+	"|ld-linux.*|libutil|libnsl|libgcc_s|libstdc\\+\\+|libresolv"
 
-if [[ "$1" = "" ]]; then
-	echo "Usage: libcheck <FILES>"
-	echo "Check whether the given executables or shared libraries are linked against non-system libraries."
-	echo
-	echo "By default, these libraries are allowed:"
-	echo "$SYSTEM_LIBRARIES"
-	echo
-	echo "You can allow more libraries by setting \$LIBCHECK_ALLOW, e.g.:"
-	echo "  env LIBCHECK_ALLOW='libcurl|libcrypto' libcheck /usr/bin/foo"
-	exit 1
-fi
+if 'LIBCHECK_ALLOW' in os.environ:
+	WHITELIST_REGEX = re.compile('(' + SYSTEM_LIBRARIES_REGEX +
+		'|' + os.environ['LIBCHECK_ALLOW'] + ')\\.so')
+else:
+	WHITELIST_REGEX = re.compile('(' + SYSTEM_LIBRARIES_REGEX + ')\\.so')
 
-WHITELIST="($SYSTEM_LIBRARIES"
-if [[ "$LIBCHECK_ALLOW" != "" ]]; then
-	WHITELIST="$WHITELIST|$LIBCHECK_ALLOW"
-fi
-WHITELIST="$WHITELIST)\.so"
-ERROR=false
-set -o pipefail
+error = False
 
-for F in "$@"; do
-	EXTRA_LIBS=`ldd "$F" | grep_without_fail -vE "$WHITELIST" | sed 's/.*=> //g' | sed 's/ (.*//g'`
-	EXTRA_LIBS=`echo $EXTRA_LIBS`
-	if [[ "$EXTRA_LIBS" != "" ]]; then
-		echo "$F is linked to non-system libraries: $EXTRA_LIBS"
-		ERROR=true
-	fi
-done
-if [[ $? != 0 ]]; then
-	exit 1
-fi
-if $ERROR; then
-	exit 1
-else
-	echo "All OK"
-fi
+for path in sys.argv[1:]:
+	ldd = subprocess.check_output(['ldd', path]).split('\n')
+	offenders = []
+	for line in ldd:
+		line = line.strip()
+		if len(line) > 0 and not re.search(WHITELIST_REGEX, line):
+			if re.search(ARROW, line) is None:
+				library = line
+			elif re.search('not found', line) is not None:
+				library = re.split(ARROW, line, 1)[0]
+			else:
+				library = re.split(ARROW, line, 1)[1]
+			library = re.sub(r' \(.*', '', library)
+			offenders.append(library)
+			error = True
+	if len(offenders) > 0:
+		print("%s is linked to non-system libraries: %s" % (path, offenders))
+
+if error:
+	sys.exit(1)
+
