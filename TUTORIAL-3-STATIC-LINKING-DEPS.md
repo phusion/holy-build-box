@@ -38,7 +38,7 @@ Note that we configure the Nginx source with `--without-http_rewrite_module`, be
 
 Download Nginx and invoke the script:
 
-    curl -sSLO http://nginx.org/download/nginx-1.8.0.tar.gz
+    curl -LO http://nginx.org/download/nginx-1.8.0.tar.gz
     docker run -t -i --rm \
       -v `pwd`:/io \
       phusion/holy-build-box-64:latest \

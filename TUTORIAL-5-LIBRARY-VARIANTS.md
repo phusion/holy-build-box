@@ -95,6 +95,36 @@ We can also see that the security hardening flag are enabled inside the binary:
     Read-only relocations: yes
     Immediate binding: no, not found! (ignored)
 
+**Tip**: when using the `deadstrip_hardened_pie`, we recommend that you call `hardening-check` from your compilation script after compilation is finished.
+
+## The entire compilation script
+
+~~~bash
+#!/bin/bash
+set -e
+
+# Activate Holy Build Box environment.
+source /hbb_nopic/activate
+
+set -x
+
+# Extract and enter source
+tar xzf /io/nginx-1.8.0.tar.gz
+cd nginx-1.8.0
+
+# Compile
+sed -i 's|-lssl -lcrypto|-lssl -lcrypto -lz -ldl|' auto/lib/openssl/conf
+./configure --without-http_rewrite_module --with-http_ssl_module --with-ld-opt="$LDFLAGS"
+make
+make install
+
+# Verify result
+hardening-check -b /usr/local/nginx/sbin/nginx
+
+# Copy result to host
+cp /usr/local/nginx/sbin/nginx /io/
+~~~
+
 ## Conclusion
 
 You have now learned about the different library variants. Next up, you will learn what to do if your application has additional dependencies that are not included in Holy Build Box.

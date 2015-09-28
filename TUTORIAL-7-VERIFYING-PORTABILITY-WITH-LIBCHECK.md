@@ -15,12 +15,17 @@ For example, let's compile the hello world from [tutorial 1](TUTORIAL-1-BASICS.m
     docker run -t -i --rm \
       -v `pwd`:/io \
       phusion/holy-build-box-64:latest \
-      gcc /io/hello.c -o /io/hello -lz
+      gcc /io/hello.c -o /io/hello /usr/lib64/libz.so.1
+
+Notice that we don't use activation command `/hbb_nopic/activate-exec`.
 
 Use `ldd` to verify that it is indeed dynamically linked to zlib:
 
     $ ldd hello
-    TODO
+        linux-vdso.so.1 =>  (0x00007ffe28054000)
+        libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f216b1ff000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f216ae3a000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007f216b418000)
 
 If you invoke libcheck, it should complain about this fact:
 
@@ -29,7 +34,8 @@ If you invoke libcheck, it should complain about this fact:
       phusion/holy-build-box-64:latest \
       /hbb_nopic/activate-exec \
       libcheck /io/hello
-    TODO
+    ...
+    /io/hello is linked to non-system libraries: /lib64/libz.so.1
 
 ## Adding libcheck to your compilation script
 
@@ -40,7 +46,7 @@ We recommend calling `libcheck` from your compilation script, so that you are wa
 set -e
 
 # Activate Holy Build Box environment.
-source /hbb_nopic/activate
+source /hbb_deadstrip_hardened_pie/activate
 
 set -x
 
@@ -58,11 +64,12 @@ cd nginx-1.8.0
 
 # Compile
 sed -i 's|-lssl -lcrypto|-lssl -lcrypto -lz -ldl|' auto/lib/openssl/conf
-./configure --with-http_ssl_module
+./configure --with-http_ssl_module --with-ld-opt="$LDFLAGS"
 make
 make install
 
 # Verify result
+hardening-check -b /usr/local/nginx/sbin/nginx
 libcheck /usr/local/nginx/sbin/nginx
 
 # Copy result to host

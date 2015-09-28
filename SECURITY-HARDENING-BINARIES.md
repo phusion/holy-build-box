@@ -31,6 +31,8 @@ Replace `/path-to-your-binary` with the actual path.
 
 See also [the hardening-check man page](http://manpages.ubuntu.com/manpages/trusty/man1/hardening-check.1.html).
 
+We recommend that you call `hardening-check` from your compilation script after compilation is finished.
+
 ## Why `-b`?
 
 We recommend passing `-b` (also known as `--nobindnow`) to `hardening-check`. By default, `hardening-check` checks whether the binary is compiled with immediate binding (`BIND_NOW`). However, we have chosen not to include this flag in our environment because it makes application startup slow for not much security gain. [The Debian hardening guide](https://wiki.debian.org/HardeningWalkthrough) also recommends disabling it by default.

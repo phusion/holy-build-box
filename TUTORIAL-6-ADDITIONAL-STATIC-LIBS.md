@@ -24,14 +24,14 @@ Let's suppose that you want to compile Nginx with the `rewrite_module` enabled. 
 
 First, download PCRE:
 
-    TODO
+    curl -LO http://skylineservers.dl.sourceforge.net/project/pcre/pcre/8.37/pcre-8.37.tar.gz
 
 Insert the following code into `compile.sh`, right after the `source` call:
 
 ~~~bash
 # Install static PCRE
-tar xzf /io/pcre-XXX.tar.gz
-cd pcre-XXX.tar.gz
+tar xzf /io/pcre-8.37.tar.gz
+cd pcre-8.37
 ./configure --prefix=/hbb_deadstrip_hardened_pie
 make
 make install
@@ -54,7 +54,6 @@ Invoke the compilation script:
       -v `pwd`:/io \
       phusion/holy-build-box-64:latest \
       bash /io/compile.sh
-    
 
 Then verify that Nginx is indeed compiled with the `rewrite_module` enabled:
 
@@ -88,6 +87,9 @@ sed -i 's|-lssl -lcrypto|-lssl -lcrypto -lz -ldl|' auto/lib/openssl/conf
 ./configure --with-http_ssl_module --with-ld-opt="$LDFLAGS"
 make
 make install
+
+# Verify result
+hardening-check -b /usr/local/nginx/sbin/nginx
 
 # Copy result to host
 cp /usr/local/nginx/sbin/nginx /io/

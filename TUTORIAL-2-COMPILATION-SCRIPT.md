@@ -21,7 +21,7 @@ Consider that most applications are compiled using the well-known autotools comm
 
 One such program is [GNU hello](https://www.gnu.org/software/hello/). GNU hello is packaged inside a tarball `hello-2.10.tar.gz`. Let's download it first:
 
-    curl -sSLO http://ftp.gnu.org/gnu/hello/hello-2.10.tar.gz
+    curl -LO http://ftp.gnu.org/gnu/hello/hello-2.10.tar.gz
 
 ## Writing the compilation script
 
