@@ -1,4 +1,4 @@
-# System for building portable Linux binaries
+# System for building cross-distribution Linux binaries
 
 <img src="http://phusion.github.io/holy-build-box/img/logo.png">
 
