@@ -1,5 +1,7 @@
 # System for building portable Linux binaries
 
+<img src="http://phusion.github.io/holy-build-box/img/logo.png">
+
 Holy Build Box is a system for building "portable" binaries for Linux: binaries that work on pretty much any Linux distribution. This works by providing an easy-to-use compilation environment with an old glibc version. Holy Build Box can produce x86 and x86-64 binaries.
 
 **Resources:**: [Website](http://phusion.github.io/holy-build-box/) | [Issue tracker](https://github.com/phusion/holy-build-box/issues)
