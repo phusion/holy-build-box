@@ -57,7 +57,11 @@ Invoke the compilation script:
 
 Then verify that Nginx is indeed compiled with the `rewrite_module` enabled:
 
-    TODO
+    $ ./nginx -V
+    nginx version: nginx/1.8.0
+    built with OpenSSL 1.0.2d 9 Jul 2015
+    TLS SNI support enabled
+    configure arguments: --with-http_ssl_module --with-ld-opt='-L/hbb_deadstrip_hardened_pie/lib -Wl,--gc-sections -pie -Wl,-z,relro'
 
 ## The entire compilation script
 
@@ -71,8 +75,8 @@ source /hbb_deadstrip_hardened_pie/activate
 set -x
 
 # Install static PCRE
-tar xzf /io/pcre-XXX.tar.gz
-cd pcre-XXX.tar.gz
+tar xzf /io/pcre-8.37.tar.gz
+cd pcre-8.37
 ./configure --prefix=/hbb_deadstrip_hardened_pie --disable-shared --enable-static
 make
 make install

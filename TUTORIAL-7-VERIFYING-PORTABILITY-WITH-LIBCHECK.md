@@ -51,8 +51,8 @@ source /hbb_deadstrip_hardened_pie/activate
 set -x
 
 # Install static PCRE
-tar xzf /io/pcre-XXX.tar.gz
-cd pcre-XXX.tar.gz
+tar xzf /io/pcre-8.37.tar.gz
+cd pcre-8.37
 ./configure --prefix=/hbb_deadstrip_hardened_pie --disable-shared --enable-static
 make
 make install
