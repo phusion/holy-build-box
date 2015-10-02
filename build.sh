@@ -38,7 +38,7 @@ run yum update -y
 
 header "Installing compiler toolchain"
 run yum install -y gcc gcc-c++ make curl file diffutils patch \
-	perl bzip2
+	perl bzip2 which
 
 
 ### pkg-config
