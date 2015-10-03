@@ -5,4 +5,4 @@ activate_holy_build_box /hbb_exe_gc_hardened \
 	"-static-libstdc++ -Wl,--gc-sections -pie -Wl,-z,relro" \
 	"-ffunction-sections -fdata-sections -fstack-protector -D_FORTIFY_SOURCE=2 -fPIE" \
 	"-ffunction-sections -fdata-sections -fstack-protector -D_FORTIFY_SOURCE=2 -fPIC" \
-	"-lstatic-libstdc++"
+	"-static-libstdc++"

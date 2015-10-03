@@ -14,6 +14,7 @@ source /hbb_build/functions.sh
 source /hbb_build/activate_func.sh
 
 MAKE_CONCURRENCY=2
+VARIANTS='exe exe_gc_hardened shlib'
 export PATH=/hbb/bin:$PATH
 
 #########################
@@ -24,12 +25,11 @@ run cp /hbb_build/libcheck /hbb/bin/
 run cp /hbb_build/hardening-check /hbb/bin/
 run cp /hbb_build/activate_func.sh /hbb/activate_func.sh
 
-run mkdir -p /hbb_exe /hbb_exe_gc_hardened /hbb_shlib
-run cp /hbb_build/activate-exec /hbb_exe/ /hbb_exe_gc_hardened/ /hbb_shlib/
-
-run cp /hbb_build/activate_exe.sh /hbb_exe/activate
-run cp /hbb_build/activate_exe_gc_hardened.sh /hbb_exe_gc_hardened/activate
-run cp /hbb_build/activate_shlib.sh /hbb_shlib/activate
+for VARIANT in $VARIANTS; do
+	run mkdir -p /hbb_$VARIANT
+	run cp /hbb_build/activate-exec /hbb_$VARIANT/
+	run cp /hbb_build/activate_$VARIANT.sh /hbb_$VARIANT/activate
+done
 
 header "Updating system"
 run yum update -y
@@ -139,9 +139,9 @@ function install_zlib()
 }
 
 if [[ "$SKIP_ZLIB" != 1 ]]; then
-	install_zlib exe
-	install_zlib exe_gc_hardened
-	install_zlib shlib
+	for VARIANT in $VARIANTS; do
+		install_zlib $VARIANT
+	done
 fi
 
 
@@ -188,9 +188,9 @@ function install_openssl()
 }
 
 if [[ "$SKIP_OPENSSL" != 1 ]]; then
-	install_openssl exe
-	install_openssl exe_gc_hardened
-	install_openssl shlib
+	for VARIANT in $VARIANTS; do
+		install_openssl $VARIANT
+	done
 fi
 
 
@@ -226,9 +226,9 @@ function install_curl()
 }
 
 if [[ "$SKIP_CURL" != 1 ]]; then
-	install_curl exe
-	install_curl exe_gc_hardened
-	install_curl shlib
+	for VARIANT in $VARIANTS; do
+		install_curl $VARIANT
+	done
 fi
 
 

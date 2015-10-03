@@ -1,7 +1,7 @@
 source /hbb/activate_func.sh
 activate_holy_build_box /hbb_exe \
 	"" \
-	"-lstatic-libstdc++" \
+	"-static-libstdc++" \
 	"" \
 	"" \
-	"-lstatic-libstdc++"
+	"-static-libstdc++"
