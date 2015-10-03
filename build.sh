@@ -281,6 +281,7 @@ function install_curl()
 			--without-libmetalink --without-libidn --without-libssh2 --without-libmetalink --without-nghttp2 \
 			--with-ssl
 		run make -j$MAKE_CONCURRENCY install-strip
+		run rm -f "$PREFIX/bin/curl"
 	)
 	if [[ "$?" != 0 ]]; then false; fi
 
@@ -302,4 +303,7 @@ if ! eval_bool "$SKIP_FINALIZE"; then
 	header "Finalizing"
 	run yum clean -y all
 	run rm -rf /hbb_build /tmp/*
+	for VARIANT in $VARIANTS; do
+		run rm -rf /hbb_$VARIANT/share/man
+	done
 fi
