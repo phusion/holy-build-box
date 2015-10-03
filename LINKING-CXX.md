@@ -1,8 +1,8 @@
 # Caveat: Linking C++ applications and libraries
 
-Linking C++ applications and libraries is tricky because you have to wonder whether you want to statically link to libstdc++. Unlike glibc which is pretty stable and where newer versions are backwards compatible, newer versions of libstdc++ may not be backwards compatible. Libstdc++ has been pretty stable over the couple of years, but historically it has broken compatibility a lot.
+Linking C++ applications and libraries may be tricky because you have to wonder whether you want to statically link to libstdc++.
 
-We therefore recommend that you statically link to libstdc++. This is why [the `*LDFLAGS` environment variables](LIBRARY-VARIANTS.md) contain `-static-libstdc++`.
+Unlike glibc which is pretty stable and where newer versions are backwards compatible, newer versions of libstdc++ may not be backwards compatible. Libstdc++ has been pretty stable over the couple of years, but historically it has broken compatibility a lot. We therefore recommend in most situations that you statically link to libstdc++. This is why [the `*LDFLAGS` environment variables](LIBRARY-VARIANTS.md) contain `-static-libstdc++`.
 
 ## The special problem of `dlopen()` compatibility
 
