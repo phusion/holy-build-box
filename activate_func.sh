@@ -4,7 +4,7 @@ function activate_holy_build_box() {
 	local EXTRA_LDFLAGS="$3"
 	local EXTRA_STATICLIB_CFLAGS="$4"
 	local SHLIB_CFLAGS="$5"
-	local SHLIB_LDFLAGS=""
+	local SHLIB_LDFLAGS="$6"
 
 	source /opt/rh/devtoolset-2/enable
 
