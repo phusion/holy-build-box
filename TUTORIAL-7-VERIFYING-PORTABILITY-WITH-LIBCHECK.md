@@ -15,6 +15,7 @@ For example, let's compile the hello world from [tutorial 1](TUTORIAL-1-BASICS.m
     docker run -t -i --rm \
       -v `pwd`:/io \
       phusion/holy-build-box-64:latest \
+      /hbb_exe/activate-exec \
       gcc /io/hello.c -o /io/hello /usr/lib64/libz.so.1
 
 Notice that we don't use activation command `/hbb_exe/activate-exec`.
@@ -35,7 +36,7 @@ If you invoke libcheck, it should complain about this fact:
       /hbb_exe/activate-exec \
       libcheck /io/hello
     ...
-    /io/hello is linked to non-system libraries: /lib64/libz.so.1
+    /io/hello is linked to non-system libraries: ['/lib64/libz.so.1']
 
 ## Adding libcheck to your compilation script
 
@@ -46,14 +47,14 @@ We recommend calling `libcheck` from your compilation script, so that you are wa
 set -e
 
 # Activate Holy Build Box environment.
-source /hbb_gc_hardened/activate
+source /hbb_exe_gc_hardened/activate
 
 set -x
 
 # Install static PCRE
 tar xzf /io/pcre-8.37.tar.gz
 cd pcre-8.37
-./configure --prefix=/hbb_gc_hardened --disable-shared --enable-static
+./configure --prefix=/hbb_exe_gc_hardened --disable-shared --enable-static
 make
 make install
 cd ..

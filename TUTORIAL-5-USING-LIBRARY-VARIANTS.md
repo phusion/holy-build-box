@@ -8,7 +8,7 @@ Your application must also be compiled with matching compilation flags. The acti
 
 ## Example: compiling Nginx with the `exe_gc_hardened`
 
-Let's see what happens if we compile Nginx with the `exe_gc_hardened` variant. The Nginx binary that we compiled in [tutorial 4](TUTORIAL-4-TWEAKING-APPS.md) was 2.7 MB after stripping its debugging symbols:
+Let's see what happens if we compile Nginx with the `exe_gc_hardened` variant. The Nginx binary that we compiled in [tutorial 4](TUTORIAL-4-TWEAKING-APPS.md) was 3.1 MB after stripping its debugging symbols:
 
     $ strip --strip-all nginx
     $ ls -lh nginx
@@ -49,7 +49,7 @@ Let's take a look at the Nginx binary now:
     $ ls -lh nginx
     -rwxr-xr-x 1 hongli hongli 2,6M sep 28 13:44 nginx*
 
-The Nginx binary is now 2.6 MB. We saved about 100 KB.
+The Nginx binary is now 2.8 MB. We saved about 300 KB.
 
 We can also see that the security hardening flag are enabled inside the binary:
 

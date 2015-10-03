@@ -12,7 +12,7 @@ Although Holy Build Box includes a number of static libraries, your application 
 
    Second, these static libraries are not compiled with `-fvisibility=hidden`. If the final application loads multiple dynamic libraries, and two or more of those dynamic libraries are linked to different versions of the same static libraries, then the different copies of those static libraries will conflict with each other. `-fvisibility=hidden` prevents that.
 
- 3. If you use the `deadstrip_hardened_pie` variant, then note that the static libraries provided by CentOS may not be compiled with security hardening flags, and are certainly not compiled with dead-code elimination enabled.
+ 3. If you use the `exe_gc_hardened` variant, then note that the static libraries provided by CentOS may not be compiled with security hardening flags, and are certainly not compiled with dead-code elimination enabled.
 
 So we recommend that you compile from source any static libraries that are not included with Holy Build Box. Furthermore, the flags used to compile these static libraries should match the flags for the currently active [library variant](TUTORIAL-5-LIBRARY-VARIANTS.md).
 
@@ -20,25 +20,25 @@ Only reasons #2 and #3 *require* you to compile static libraries from source. If
 
 ## Example: compiling Nginx with PCRE
 
-Let's suppose that you want to compile Nginx with the `rewrite_module` enabled. This module requires PCRE, which Holy Build Box does not include. You also want to compile Nginx with the `deadstrip_hardened_pie` variant.
+Let's suppose that you want to compile Nginx with the `rewrite_module` enabled. This module requires PCRE, which Holy Build Box does not include. You also want to compile Nginx with the `exe_gc_hardened` variant.
 
 First, download PCRE:
 
     curl -LO http://skylineservers.dl.sourceforge.net/project/pcre/pcre/8.37/pcre-8.37.tar.gz
 
-Insert the following code into `compile.sh`, right after the `source` call:
+Insert the following code into `compile.sh`, right before `# Extract and enter source`:
 
 ~~~bash
 # Install static PCRE
 tar xzf /io/pcre-8.37.tar.gz
 cd pcre-8.37
-./configure --prefix=/hbb_gc_hardened --disable-shared --enable-static
+./configure --prefix=/hbb_exe_gc_hardened --disable-shared --enable-static
 make
 make install
 cd ..
 ~~~
 
-Note that we configure PCRE to install the active library variant's directory (`/hbb_gc_hardened`). The Holy Build Box environment variables are set up in such a way that your compiler looks for libraries in there first, so installing PCRE to that prefix will ensure that the Nginx build system can find PCRE.
+Note that we configure PCRE to install the active library variant's directory (`/hbb_exe_gc_hardened`). The Holy Build Box environment variables are set up in such a way that your compiler looks for libraries in there first, so installing PCRE to that prefix will ensure that the Nginx build system can find PCRE.
 
 The PCRE build system respects the environment variables set by the Holy Build Box activation script, so we know that PCRE is compiled with the right flags.
 
@@ -61,7 +61,7 @@ Then verify that Nginx is indeed compiled with the `rewrite_module` enabled:
     nginx version: nginx/1.8.0
     built with OpenSSL 1.0.2d 9 Jul 2015
     TLS SNI support enabled
-    configure arguments: --with-http_ssl_module --with-ld-opt='-L/hbb_gc_hardened/lib -Wl,--gc-sections -pie -Wl,-z,relro'
+    configure arguments: --with-http_ssl_module --with-ld-opt='-L/hbb_exe_gc_hardened/lib -static-libstdc++ -Wl,--gc-sections -pie -Wl,-z,relro'
 
 ## The entire compilation script
 
@@ -70,14 +70,14 @@ Then verify that Nginx is indeed compiled with the `rewrite_module` enabled:
 set -e
 
 # Activate Holy Build Box environment.
-source /hbb_gc_hardened/activate
+source /hbb_exe_gc_hardened/activate
 
 set -x
 
 # Install static PCRE
 tar xzf /io/pcre-8.37.tar.gz
 cd pcre-8.37
-./configure --prefix=/hbb_gc_hardened --disable-shared --enable-static
+./configure --prefix=/hbb_exe_gc_hardened --disable-shared --enable-static
 make
 make install
 cd ..

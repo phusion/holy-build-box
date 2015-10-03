@@ -64,7 +64,7 @@ If you have inspected the Holy Build Box environment, then you may have noticed 
 It is because the Holy Build Box activation script (`/hbb_exe/activate`) sets environment variables so that the compiler toolchain looks in /hbb_exe/lib first. Some of the environment variables set are:
 
     export LIBRARY_PATH='/hbb_exe/lib'
-    export LDFLAGS='-L/hbb_exe/lib'
+    export LDFLAGS='-L/hbb_exe/lib -static-libstdc++'
 
 ## Conclusion
 
