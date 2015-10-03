@@ -36,11 +36,11 @@ You can inspect the environment variables by starting a bash shell and sourcing 
     container$ source /hbb_exe/activate
     Holy build box activated
     Prefix: /hbb_exe
-    CFLAGS: -O2 -fvisibility=hidden -I/hbb_nopic/include -L/hbb_nopic/lib -fPIC
-    LDFLAGS: -L/hbb_nopic/lib -fPIC
-    STATICLIB_CFLAGS:
-    SHLIB_CFLAGS:
-    SHLIB_LDFLAGS:
+    CFLAGS: -O2 -fvisibility=hidden -I/hbb_exe/include
+    LDFLAGS: -L/hbb_exe -static-libstdc++
+    STATICLIB_CFLAGS: -O2 -fvisibility=hidden -I/hbb_exe/include
+    SHLIB_CFLAGS: -O2 -fvisibility=hidden -I/hbb_exe/include
+    SHLIB_LDFLAGS: -L/hbb_exe
 
     container$ echo $CFLAGS
-    -O2 -fvisibility=hidden -I/hbb_nopic/include -L/hbb_nopic/lib -fPIC
+    -O2 -fvisibility=hidden -I/hbb_exe/include

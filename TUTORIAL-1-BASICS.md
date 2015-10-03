@@ -81,13 +81,16 @@ We encourage you to inspect the environment variables set by the Holy Build Box 
       bash
     Holy build box activated
     Prefix: /hbb_exe
-    Compiler flags: -O2 -fvisibility=hidden -I/hbb_nopic/include -L/hbb_nopic/lib
-    Linker flags: -L/hbb_nopic/lib
+    CFLAGS: -O2 -fvisibility=hidden -I/hbb_exe/include
+    LDFLAGS: -L/hbb_exe -static-libstdc++
+    STATICLIB_CFLAGS: -O2 -fvisibility=hidden -I/hbb_exe/include
+    SHLIB_CFLAGS: -O2 -fvisibility=hidden -I/hbb_exe/include
+    SHLIB_LDFLAGS: -L/hbb_exe
 
     container# echo $CFLAGS
-    -O2 -fvisibility=hidden -I/hbb_nopic/include -L/hbb_nopic/lib
+    -O2 -fvisibility=hidden -I/hbb_exe/include
     container# echo $LDFLAGS
-    -L/hbb_nopic/lib
+    -L/hbb_exe -static-libstdc++
     container# exit
 
 ## Conclusion
