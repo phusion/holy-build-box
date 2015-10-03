@@ -2,7 +2,7 @@
 
 [<< Back to Tutorial 4: Tweaking the application's build system](TUTORIAL-4-TWEAKING-APPS.md) | [Tutorial index](README.md#tutorials) | [Skip to Tutorial 6: Introducing additional static libraries >>](TUTORIAL-6-ADDITIONAL-STATIC-LIBS.md)
 
-Holy Build Box provides [3 different variants](LIBRARY-VARIANTS.md) of its static libraries, each compiled with different compilation flags and thus meant for different situations. So we in the tutorials we have only used the `exe` variant. In this tutorial, we will show you how to use the `exe_gc_hardened`. The provided static libraries this variant are compiled with security hardening flags and dead code elimination flags.
+Holy Build Box provides [several different variants](LIBRARY-VARIANTS.md) of its static libraries, each compiled with different compilation flags and thus meant for different situations. So we in the tutorials we have only used the `exe` variant. In this tutorial, we will show you how to use the `exe_gc_hardened`. The provided static libraries this variant are compiled with security hardening flags and dead code elimination flags.
 
 Your application must also be compiled with matching compilation flags. The activation script of each variant sets `CFLAGS`, `CXXFLAGS` [and other environment variables](ENVIRONMENT-STRUCTURE.md), which most applications' build system will automatically pick up.
 

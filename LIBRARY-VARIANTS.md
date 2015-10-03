@@ -1,5 +1,9 @@
 # Library variants
 
+Holy Build Box provides several different variants of its static libraries, each compiled with different compilation flags and thus meant for different situations.
+
+The static libraries in each variant are compiled with the flags as specified by its `STATICLIB_CFLAGS` environment variable.
+
 ## `exe`
 
 This variant is meant for compiling applications. This is the variant that you have worked with so far in the [tutorials](README.md#tutorials).
@@ -15,6 +19,7 @@ This variant is not suitable for compiling shared libraries because the provided
  * `STATICLIB_CFLAGS` and `STATICLIB_CXXFLAGS`: `-O2 -fvisibility=hidden`
  * `SHLIB_CFLAGS` and `SHLIB_CXXFLAGS`: `-O2 -fvisibility=hidden`
  * `SHLIB_LDFLAGS`: `-static-libstdc++`
+ * `O3_ALLOWED`: `true`
  * Activation command: `/hbb_exe/activate-exec`
  * Activation source script: `/hbb_exe/activate`
 
@@ -40,6 +45,7 @@ Like `exe`, this variant is not suitable for compiling shared libraries. Use the
  * `STATICLIB_CFLAGS` and `STATICLIB_CXXFLAGS`: `-O2 -fvisibility=hidden -ffunction-sections -fdata-sections -fstack-protector -D_FORTIFY_SOURCE=2 -fPIE`
  * `SHLIB_CFLAGS` and `SHLIB_CXXFLAGS`: `-O2 -fvisibility=hidden -ffunction-sections -fdata-sections -fstack-protector -D_FORTIFY_SOURCE=2 -fPIC`
  * `SHLIB_LDFLAGS`: `-static-libstdc++`
+ * `O3_ALLOWED`: `false`
  * Activation command: `/hbb_exe_gc_hardened/activate-exec`
  * Activation source script: `/hbb_exe_gc_hardened/activate`
 
@@ -55,5 +61,6 @@ This variant is like `exe`, but allows compiling dynamic libraries because the p
  * `STATICLIB_CFLAGS` and `STATICLIB_CXXFLAGS`: `-O2 -fvisibility=hidden -fPIC`
  * `SHLIB_CFLAGS` and `SHLIB_CXXFLAGS`: `-O2 -fvisibility=hidden`
  * `SHLIB_LDFLAGS`: `-static-libstdc++`
+ * `O3_ALLOWED`: `true`
  * Activation command: `/hbb_shlib/activate-exec`
  * Activation source script: `/hbb_shlib/activate`
