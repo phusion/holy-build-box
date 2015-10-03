@@ -243,6 +243,6 @@ Anyway, fast forward to 2015. Virtualization and containerization is now cheap i
 
 ## Other comparable systems
 
-We have heard that [http://mesonbuild.com/](the Meson build system) also [allows compiling cross-distribution Linux binaries](https://github.com/mesonbuild/meson/wiki/Creating%20Linux%20binaries). Meson is more fully-featured than Holy Build Box in that it tries to abstract away library and dependency management.
+We have heard that [the Meson build system](http://mesonbuild.com/) also [allows compiling cross-distribution Linux binaries](https://github.com/mesonbuild/meson/wiki/Creating%20Linux%20binaries). Meson is more fully-featured than Holy Build Box in that it tries to abstract away library and dependency management.
 
-One of the most interesting features in Meson is that it automatically generates a dependency manifest when you use it to create statically linked binaries. This manifest allows you to find out which library versions a binary is linked to, which in turn allows you to automatically scan binaries for security vulnerabilities. Holy Build Box may follow this approach some time in the future.
+One of the most interesting features in Meson is that it automatically generates a [dependency manifest](http://nibblestew.blogspot.com/2015/08/proposal-for-dependency-security-scheme.html) when you use it to create statically linked binaries. This manifest allows you to find out which library versions a binary is linked to, which in turn allows you to automatically scan binaries for security vulnerabilities. Holy Build Box may follow this approach some time in the future.
