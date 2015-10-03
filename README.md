@@ -26,6 +26,7 @@ Holy Build Box is a system for building "portable" binaries for Linux: binaries 
    - [Is Holy Build Box suitable for all applications?](#is-holy-build-box-suitable-for-all-applications)
    - [How should I deal with interpreted applications, such as ones written in Ruby, Python or Node.js?](#how-should-i-deal-with-interpreted-applications-such-as-ones-written-in-ruby-python-or-nodejs)
    - [Why the name "Holy Build Box"?](#why-the-name-holy-build-box)
+ * [Other comparable systems](#other-comparable-systems)
 
 ------
 
@@ -180,7 +181,7 @@ OS X is not supported. Windows is not supported. Other Unices are not supported.
 
 We update the library versions in Holy Build Box regularly. However, application developers will need to recompile their applications on a regular basis too.
 
-There is no way to automatically update application dependencies without recompilation, while also ensuring that their binaries are portable. The two things are mutually incompatible. There is no solution to this.
+There is no way to automatically update application dependencies without recompilation, while also ensuring that their binaries are portable. The two things are mutually incompatible. There is no solution to this. (Having said that, [the Meson build system follows an interesting approach](#other-comparable-systems) which would allow you to at least automatically find out whether a binary is vulnerable.)
 
 If you are an application developer, you should consider the tradeoff. Do your users like having a binary that Just Works(tm)? Do they like this enough that won't mind that an `apt-get upgrade` won't patch security issues in your application's dependencies, and that they need to wait for an update from you? Are you committed to checking your dependencies' security status and updating your binaries regularly?
 
@@ -239,3 +240,9 @@ We wanted to give developers a way to produce portable binaries without asking t
 Autopackage eventually went defunct because of resistance from distributors. I guess that people weren't *truly* interested in Linux succeeding on the desktop, despite how many people complained about it.
 
 Anyway, fast forward to 2015. Virtualization and containerization is now cheap is ubiquitous. Thus the holy build box approach is now viable.
+
+## Other comparable systems
+
+We have heard that [http://mesonbuild.com/](the Meson build system) also [allows compiling cross-distribution Linux binaries](https://github.com/mesonbuild/meson/wiki/Creating%20Linux%20binaries). Meson is more fully-featured than Holy Build Box in that it tries to abstract away library and dependency management.
+
+One of the most interesting features in Meson is that it automatically generates a dependency manifest when you use it to create statically linked binaries. This manifest allows you to find out which library versions a binary is linked to, which in turn allows you to automatically scan binaries for security vulnerabilities. Holy Build Box may follow this approach some time in the future.
