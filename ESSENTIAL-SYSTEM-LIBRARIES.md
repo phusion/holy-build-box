@@ -22,4 +22,5 @@ We consider the following libraries to be essential system libraries:
 
     # GCC runtime
     libgcc_s.so
-    libstdc++.so
+
+Note that libstdc++ is not included in this list because of the [C++ linking caveats](LINKING-CXX.md).

@@ -16,6 +16,7 @@ Holy Build Box is a system for building "portable" binaries for Linux: binaries 
  * [Getting started](#getting-started)
    - [Tutorials](#tutorials)
    - [Guides](#guides)
+   - [Caveats](#caveats)
  * [FAQ](#faq)
    - [Who should be interested in portable Linux binaries?](#who-should-be-interested-in-portable-linux-binaries)
    - [Which operating systems does Holy Build Box support?](#which-operating-systems-does-holy-build-box-support)
@@ -134,7 +135,13 @@ Guides:
  * [Security hardening binaries](SECURITY-HARDENING-BINARIES.md)
  * [Building 32-bit binaries](BUILDING-32-BIT-BINARIES.md)
  * [Caching compilation results with ccache](CACHING-WITH-CCACHE.md)
- * [The special problem of libcurl SSL certificate authorities](LIBCURL-SSL-CERTIFICATE-AUTHORITIES.md)
+
+<a name="caveats"></a>
+
+Caveats:
+
+ * [Libcurl SSL certificate authorities](LIBCURL-SSL-CERTIFICATE-AUTHORITIES.md)
+ * [Linking C++ applications and libraries](LINKING-CXX.md)
 
 ## FAQ
 

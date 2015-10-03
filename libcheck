@@ -15,7 +15,7 @@ if len(sys.argv) <= 1:
 ARROW = re.compile(" => ")
 SYSTEM_LIBRARIES_REGEX = \
 	"linux-gate|linux-vdso|libpthread|librt|libdl|libcrypt|libm|libc" + \
-	"|ld-linux.*|libutil|libnsl|libgcc_s|libstdc\\+\\+|libresolv"
+	"|ld-linux.*|libutil|libnsl|libgcc_s|libresolv"
 
 if 'LIBCHECK_ALLOW' in os.environ:
 	WHITELIST_REGEX = re.compile('(' + SYSTEM_LIBRARIES_REGEX +

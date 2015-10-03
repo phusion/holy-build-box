@@ -79,6 +79,6 @@ cp /usr/local/nginx/sbin/nginx /io/
 
 ## Conclusion
 
-Congratulations, you have reached the end of the tutorials! You may now be interested in reading the [guides](README.md#guides).
+Congratulations, you have reached the end of the tutorials! You may now be interested in reading the [guides](README.md#guides) and the [caveats](README.md#caveats).
 
 Happy building.

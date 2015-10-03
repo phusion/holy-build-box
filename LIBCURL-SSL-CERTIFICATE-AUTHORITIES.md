@@ -1,4 +1,4 @@
-# The special problem of libcurl SSL certificate authorities
+# Caveat: libcurl SSL certificate authorities
 
 If you use libcurl to perform HTTPS requests, then libcurl requires a list of certificate authorities. If you do not provide libcurl with such a list (through `CURLOPT_CAINFO`) then libcurl will attempt to use the operating system's default certificate authority list. However, every Linux distribution stores this list in a different location. Distributions customize their libcurl packages to tell libcurl where their default list is.
 
