@@ -82,7 +82,7 @@ The Holy Build Box environment is built on CentOS 5. This allows it to produce b
 
 The environment is bare-bones with almost nothing installed. Besides the basics, only a compiler toolchain is provided:
 
- * GCC 4.1.2 (C and C++ support)
+ * GCC 4.8.2 (C and C++ support)
  * GNU make
  * pkg-config 0.28
  * ccache 3.2.3

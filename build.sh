@@ -6,12 +6,25 @@ CCACHE_VERSION=3.2.3
 CMAKE_VERSION=3.3.2
 CMAKE_MAJOR_VERSION=3.3
 PYTHON_VERSION=2.7.10
+GCC_LIBSTDCXX_VERSION=4.8.2
 ZLIB_VERSION=1.2.8
 OPENSSL_VERSION=1.0.2d
 CURL_VERSION=7.44.0
 
 source /hbb_build/functions.sh
 source /hbb_build/activate_func.sh
+
+SKIP_TOOLS=${SKIP_TOOLS:-false}
+SKIP_LIBS=${SKIP_LIBS:-false}
+SKIP_PKG_CONFIG=${SKIP_PKG_CONFIG:-$SKIP_TOOLS}
+SKIP_CCACHE=${SKIP_CCACHE:-$SKIP_TOOLS}
+SKIP_CMAKE=${SKIP_CMAKE:-$SKIP_TOOLS}
+SKIP_PYTHON=${SKIP_PYTHON:-$SKIP_TOOLS}
+SKIP_LIBSTDCXX=${SKIP_LIBSTDCXX:-$SKIP_LIBS}
+SKIP_ZLIB=${SKIP_ZLIB:-$SKIP_LIBS}
+SKIP_OPENSSL=${SKIP_OPENSSL:-$SKIP_LIBS}
+SKIP_CURL=${SKIP_CURL:-$SKIP_LIBS}
+SKIP_FINALIZE=${SKIP_FINALIZE:-false}
 
 MAKE_CONCURRENCY=2
 VARIANTS='exe exe_gc_hardened shlib'
@@ -33,21 +46,28 @@ done
 
 header "Updating system"
 run yum update -y
+run yum install -y curl
 
 header "Installing compiler toolchain"
-run yum install -y gcc gcc-c++ make curl file diffutils patch \
-	perl bzip2 which
+cd /etc/yum.repos.d
+# GCC 4.8 for CentOS 5: http://braaten-family.org/ed/blog/2014-05-28-devtools-for-centos/
+run curl -LOS http://people.centos.org/tru/devtools-2/devtools-2.repo
+cd /
+run yum install -y devtoolset-2-gcc devtoolset-2-gcc-c++ devtoolset-2-binutils \
+	make file diffutils patch perl bzip2 which
+source /opt/rh/devtoolset-2/enable
 
 
 ### pkg-config
 
-if [[ "$SKIP_PKG_CONFIG" != 1 ]]; then
+if ! eval_bool "$SKIP_PKG_CONFIG"; then
 	header "Installing pkg-config $PKG_CONFIG_VERSION"
 	download_and_extract pkg-config-$PKG_CONFIG_VERSION.tar.gz \
 		pkg-config-$PKG_CONFIG_VERSION \
 		http://pkgconfig.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz
 
 	run ./configure --prefix=/hbb --with-internal-glib
+	run rm -f /hbb/bin/*pkg-config
 	run make -j$MAKE_CONCURRENCY install-strip
 
 	echo "Leaving source directory"
@@ -58,7 +78,7 @@ fi
 
 ### ccache
 
-if [[ "$SKIP_CCACHE" != 1 ]]; then
+if ! eval_bool "$SKIP_CCACHE"; then
 	header "Installing ccache $CCACHE_VERSION"
 	download_and_extract ccache-$CCACHE_VERSION.tar.gz \
 		ccache-$CCACHE_VERSION \
@@ -76,7 +96,7 @@ fi
 
 ### CMake
 
-if [[ "$SKIP_CMAKE" != 1 ]]; then
+if ! eval_bool "$SKIP_CMAKE"; then
 	header "Installing CMake $CMAKE_VERSION"
 	download_and_extract cmake-$CMAKE_VERSION.tar.gz \
 		cmake-$CMAKE_VERSION \
@@ -93,9 +113,9 @@ if [[ "$SKIP_CMAKE" != 1 ]]; then
 fi
 
 
-### ccache
+### Python
 
-if [[ "$SKIP_PYTHON" != 1 ]]; then
+if ! eval_bool "$SKIP_PYTHON"; then
 	header "Installing Python $PYTHON_VERSION"
 	download_and_extract Python-$PYTHON_VERSION.tgz \
 		Python-$PYTHON_VERSION \
@@ -109,6 +129,50 @@ if [[ "$SKIP_PYTHON" != 1 ]]; then
 	echo "Leaving source directory"
 	popd >/dev/null
 	run rm -rf Python-$PYTHON_VERSION
+fi
+
+
+## libstdc++
+
+function install_libstdcxx()
+{
+	local VARIANT="$1"
+	local PREFIX="/hbb_$VARIANT"
+
+	header "Installing libstdc++ static libraries: $VARIANT"
+	download_and_extract gcc-$GCC_LIBSTDCXX_VERSION.tar.gz \
+		gcc-$GCC_LIBSTDCXX_VERSION \
+		http://mirror2.babylon.network/gcc/releases/gcc-$GCC_LIBSTDCXX_VERSION/gcc-$GCC_LIBSTDCXX_VERSION.tar.bz2
+
+	(
+		source "$PREFIX/activate"
+		run rm -rf ../gcc-build
+		run mkdir ../gcc-build
+		echo "+ Entering /gcc-build"
+		cd ../gcc-build
+
+		export CFLAGS="$STATICLIB_CFLAGS"
+		export CXXFLAGS="$STATICLIB_CXXFLAGS"
+		../gcc-$GCC_LIBSTDCXX_VERSION/libstdc++-v3/configure \
+			--prefix=$PREFIX --disable-multilib \
+			--disable-libstdcxx-visibility --disable-shared
+		run make -j$MAKE_CONCURRENCY
+		run mkdir -p $PREFIX/lib
+		run cp src/.libs/libstdc++.a $PREFIX/lib/
+		run cp libsupc++/.libs/libsupc++.a $PREFIX/lib/
+	)
+	if [[ "$?" != 0 ]]; then false; fi
+
+	echo "Leaving source directory"
+	popd >/dev/null
+	run rm -rf gcc-$GCC_LIBSTDCXX_VERSION
+	run rm -rf gcc-build
+}
+
+if ! eval_bool "$SKIP_LIBSTDCXX"; then
+	for VARIANT in $VARIANTS; do
+		install_libstdcxx $VARIANT
+	done
 fi
 
 
@@ -138,7 +202,7 @@ function install_zlib()
 	run rm -rf zlib-$ZLIB_VERSION
 }
 
-if [[ "$SKIP_ZLIB" != 1 ]]; then
+if ! eval_bool "$SKIP_ZLIB"; then
 	for VARIANT in $VARIANTS; do
 		install_zlib $VARIANT
 	done
@@ -187,7 +251,7 @@ function install_openssl()
 	run rm -rf openssl-$OPENSSL_VERSION
 }
 
-if [[ "$SKIP_OPENSSL" != 1 ]]; then
+if ! eval_bool "$SKIP_OPENSSL"; then
 	for VARIANT in $VARIANTS; do
 		install_openssl $VARIANT
 	done
@@ -225,7 +289,7 @@ function install_curl()
 	run rm -rf curl-$CURL_VERSION
 }
 
-if [[ "$SKIP_CURL" != 1 ]]; then
+if ! eval_bool "$SKIP_CURL"; then
 	for VARIANT in $VARIANTS; do
 		install_curl $VARIANT
 	done
@@ -234,7 +298,7 @@ fi
 
 ### Finalizing
 
-if [[ "$SKIP_FINALIZE" != 1 ]]; then
+if ! eval_bool "$SKIP_FINALIZE"; then
 	header "Finalizing"
 	run yum clean -y all
 	run rm -rf /hbb_build /tmp/*

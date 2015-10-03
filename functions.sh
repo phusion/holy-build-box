@@ -50,3 +50,9 @@ function download_and_extract()
 	echo "Entering $RUNTIME_DIR/$DIRNAME"
 	pushd "$DIRNAME" >/dev/null
 }
+
+function eval_bool()
+{
+	local VAL="$1"
+	[[ "$VAL" = 1 || "$VAL" = true || "$VAL" = yes || "$VAL" = y ]]
+}
