@@ -7,11 +7,11 @@ Holy Build Box makes it easy to compile your application with special security h
  * Load time address randomization
  * Read-only global offset table
 
-This is done through the `deadstrip_hardened_pie` library variant. See [tutorial 5](TUTORIAL-5-LIBRARY-VARIANTS) for more information about library variants. When this variant is activated, Holy Build Box will set the necessary security hardening flags in `$CLFAGS`, `$CXXFLAGS` and `$LDFLAGS`.
+This is done through the `exe_gc_hardened` library variant. See [tutorial 5](TUTORIAL-5-LIBRARY-VARIANTS) for more information about library variants. When this variant is activated, Holy Build Box will set the necessary security hardening flags in `$CLFAGS`, `$CXXFLAGS` and `$LDFLAGS`.
 
 ## WARNING: -O3 not supported
 
-The `deadstrip_hardened_pie` variant is not compatible with `-O3`. Ensure that your code is compiled with `-O2` or lower.
+The `exe_gc_hardened` variant is not compatible with `-O3`. Ensure that your code is compiled with `-O2` or lower.
 
 ## The `hardening-check` tool
 
@@ -24,7 +24,7 @@ If you want to use it outside a Holy Build Box container, use it as follows:
     docker run -t -i --rm \
       -v /path-to-your-binary:/exe:ro \
       phusion/holy-build-box-64:latest \
-      /hbb_deadstrip_hardened_pie/activate-exec \
+      /hbb_exe_gc_hardened/activate-exec \
       hardening-check -b /exe
 
 Replace `/path-to-your-binary` with the actual path.

@@ -5,7 +5,7 @@ As described in [Features](README.md#features), the Holy Build Box environment c
 Most of the compiler toolchain, e.g. `gcc` and `g++`, are installed with YUM. However, some software in CentOS 5 is way too outdated for compiling modern applications, so we installed more recent versions of them from source.
 
  * Executable tools such as `pkg-config` and `CMake` are installed to `/hbb`.
- * Libraries such as OpenSSL are installed to to the library variant directories. That is, `/hbb_nopic`, `/hbb_pic` and `/hbb_deadstrip_hardened_pie`.
+ * Libraries such as OpenSSL are installed to to the [library variant directories](LIBRARY-VARIANTS.md), e.g. `/hbb_exe`.
 
 The activation script inside each library variant directory sets various environment variables to ensure that whatever is inside that library variant directory is found first. For example, it prepends `/hbb/bin` and `/hbb_<VARIANT NAME>/bin` to PATH.
 
@@ -16,26 +16,31 @@ The activation script sets the following environment variables:
  * `CPLUS_INCLUDE_PATH`
  * `LIBRARY_PATH`
  * `PKG_CONFIG_PATH`
+ * `O3_ALLOWED`
  * `CFLAGS`
  * `CXXFLAGS`
  * `LDFLAGS`
- * `MINIMAL_CFLAGS`
- * `O3_ALLOWED`
+ 
 
 Some environment variables deserve special explanation:
 
- * `MINIMAL_CFLAGS` is like `CXFLAGS` and `CXXFLAGS`, but does not include `-O2 -fvisibility=hidden`. It does include `-I` and `-L` flags to ensure that the compiler knows where to look for header and library files. It also does include variant-specific flags such as `-fPIC` (for the `pic` variant).
- * `O3_ALLOWED` signals whether the variant is compatible with `-O3`. It is set to `true` or `false`. It is true for all variants except for the `deadstrip_hardened_pie` variant.
+ * `O3_ALLOWED` signals whether the variant is compatible with `-O3`. It is set to `true` or `false`. It is true for all variants except for the `exe_gc_hardened` variant.
+ * `CFLAGS`, `CXXFLAGS` and `LDFLAGS` are meant for compiling binaries.
+ * `STATICLIB_CFLAGS` and `STATICLIB_CXXFLAGS` are meant for compiling static libraries. When compiling static libraries, you should set `CFLAGS` and `CXXFLAGS` to equal these variables.
+ * `SHLIB_CFLAGS`, `SHLIB_CXXFLAGS` and `SHLIB_LDFLAGS` are meant for compiling shared libraries. When compiling shared libraries, you should set `CFLAGS`, `CXXFLAGS` and `LDFLAGS` to equal these variables.
 
 You can inspect the environment variables by starting a bash shell and sourcing one of the activation scripts:
 
     $ docker run -t -i --rm phusion/holy-build-box-64:latest bash
     
-    container$ source /hbb_pic/activate
+    container$ source /hbb_exe/activate
     Holy build box activated
-    Prefix: /hbb_pic
-    Compiler flags: -O2 -fvisibility=hidden -I/hbb_nopic/include -L/hbb_nopic/lib -fPIC
-    Linker flags: -L/hbb_nopic/lib -fPIC
+    Prefix: /hbb_exe
+    CFLAGS: -O2 -fvisibility=hidden -I/hbb_nopic/include -L/hbb_nopic/lib -fPIC
+    LDFLAGS: -L/hbb_nopic/lib -fPIC
+    STATICLIB_CFLAGS:
+    SHLIB_CFLAGS:
+    SHLIB_LDFLAGS:
 
     container$ echo $CFLAGS
     -O2 -fvisibility=hidden -I/hbb_nopic/include -L/hbb_nopic/lib -fPIC

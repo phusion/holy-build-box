@@ -1,6 +1,6 @@
 # Tutorial 4: Tweaking the application's build system
 
-[<< Back to Tutorial 3: Static linking to dependencies](TUTORIAL-3-STATIC-LINKING-DEPS.md) | [Tutorial index](README.md#tutorials) | [Skip to Tutorial 5: Library variants >>](TUTORIAL-5-LIBRARY-VARIANTS.md)
+[<< Back to Tutorial 3: Static linking to dependencies](TUTORIAL-3-STATIC-LINKING-DEPS.md) | [Tutorial index](README.md#tutorials) | [Skip to Tutorial 5: Using library variants >>](TUTORIAL-5-USING-LIBRARY-VARIANTS.md)
 
 Most applications' build systems are not well-tested against static linking, so you will often run into situations where you need to tweak them a little bit.
 
@@ -49,10 +49,10 @@ Towards the end of the file, we encounter a bunch of errors:
 
     checking for OpenSSL library
 
-    /hbb_nopic/lib/libcrypto.a(c_zlib.o): In function `bio_zlib_free':
+    /hbb_exe/lib/libcrypto.a(c_zlib.o): In function `bio_zlib_free':
     (.text+0x6f): undefined reference to `inflateEnd'
     ...
-    /hbb_nopic/lib/libcrypto.a(dso_dlfcn.o): In function `dlfcn_globallookup':
+    /hbb_exe/lib/libcrypto.a(dso_dlfcn.o): In function `dlfcn_globallookup':
     (.text+0x30): undefined reference to `dlopen'
     ...
     ----------
@@ -67,7 +67,7 @@ Towards the end of the file, we encounter a bunch of errors:
     }
 
     ----------
-    cc -O2 -fvisibility=hidden -I/hbb_nopic/include -L/hbb_nopic/lib -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -o objs/autotest objs/autotest.c -lssl -lcrypto
+    cc -O2 -fvisibility=hidden -I/hbb_exe/include -L/hbb_exe/lib -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -o objs/autotest objs/autotest.c -lssl -lcrypto
 
 In the above snippet, we see that the Nginx configure script tried to compile a small program in order to autodetect whether OpenSSL is available. However, the compilation of that small program failed because of undefined symbol references.
 
@@ -140,11 +140,11 @@ Another problem is that the Nginx build system does not respect `$LDFLAGS`.
 
 If you look closely at the output of the compilation script, you will see that the Nginx build system invokes the compiler like this:
 
-    cc -c -O2 -fvisibility=hidden -I/hbb_nopic/include -L/hbb_nopic/lib    -I src/core -I src/event -I src/event/modules -I src/os/unix -I objs \
+    cc -c -O2 -fvisibility=hidden -I/hbb_exe/include -L/hbb_exe/lib    -I src/core -I src/event -I src/event/modules -I src/os/unix -I objs \
         -o objs/src/core/ngx_log.o \
         src/core/ngx_log
 
-Notice the `-O2 -fvisibility=hidden -I/hbb_nopic/include -L/hbb_nopic/lib` part. This is the value of the `$CFLAGS` environment variable (as you have seen in [tutorial 1](TUTORIAL-1-BASICS.md)), so the Nginx build system passed that environment variable to the compiler, just as we wanted.
+Notice the `-O2 -fvisibility=hidden -I/hbb_exe/include -L/hbb_exe/lib` part. This is the value of the `$CFLAGS` environment variable (as you have seen in [tutorial 1](TUTORIAL-1-BASICS.md)), so the Nginx build system passed that environment variable to the compiler, just as we wanted.
 
 However, if you look a bit further at how Nginx links the executable, that doesn't look so good:
 
@@ -154,7 +154,7 @@ However, if you look a bit further at how Nginx links the executable, that doesn
         objs/ngx_modules.o \
         -lpthread -lcrypt -lssl -lcrypto -lz -ldl -ldl -lz
 
-Nginx did not pass the value of `$LDFLAGS` -- which is `-L/hbb_nopic/lib` -- to the linker at all!
+Nginx did not pass the value of `$LDFLAGS` -- which is `-L/hbb_exe/lib` -- to the linker at all!
 
 Until now, this hasn't been much of a problem. `$LDFLAGS` only contains a `-L` parameter. The Holy Build Box environment also sets the `LIBRARY_PATH` environment variable, so the linker can still find the Holy Build Box static libraries. However, as you will learn in [tutorial 5](TUTORIAL-5-LIBRARY-VARIANTS.md), we provide alternative library variants where `$LDFLAGS` can contain much more than just `-L`. So we need to find a way to make Nginx's build system pass our `$LDFLAGS`.
 
@@ -184,12 +184,12 @@ Now test the script:
 
 You should see that linker flags are now passed properly:
 
-    cc -c -O2 -fvisibility=hidden -I/hbb_nopic/include -L/hbb_nopic/lib    -I src/core -I src/event -I src/event/modules -I src/os/unix -I objs \
+    cc -c -O2 -fvisibility=hidden -I/hbb_exe/include -L/hbb_exe/lib    -I src/core -I src/event -I src/event/modules -I src/os/unix -I objs \
         -o objs/ngx_modules.o \
         objs/ngx_modules.c
         ...
         objs/ngx_modules.o \
-        -L/hbb_nopic/lib -lpthread -lcrypt -lssl -lcrypto -lz -ldl -ldl -lz
+        -L/hbb_exe/lib -lpthread -lcrypt -lssl -lcrypto -lz -ldl -ldl -lz
 
 ## The entire compilation script
 
@@ -198,7 +198,7 @@ You should see that linker flags are now passed properly:
 set -e
 
 # Activate Holy Build Box environment.
-source /hbb_nopic/activate
+source /hbb_exe/activate
 
 set -x
 
@@ -220,4 +220,4 @@ cp /usr/local/nginx/sbin/nginx /io/
 
 You have now seen an example of how a program's build system can be tweaked to allow proper static linking. Next up, we will introduce you to the different library variants that Holy Build Box provides.
 
-[Tutorial 5: Library variants >>](TUTORIAL-5-LIBRARY-VARIANTS.md)
+[Tutorial 5: Using library variants >>](TUTORIAL-5-USING-LIBRARY-VARIANTS.md)

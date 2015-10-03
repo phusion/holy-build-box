@@ -17,7 +17,7 @@ For example, let's compile the hello world from [tutorial 1](TUTORIAL-1-BASICS.m
       phusion/holy-build-box-64:latest \
       gcc /io/hello.c -o /io/hello /usr/lib64/libz.so.1
 
-Notice that we don't use activation command `/hbb_nopic/activate-exec`.
+Notice that we don't use activation command `/hbb_exe/activate-exec`.
 
 Use `ldd` to verify that it is indeed dynamically linked to zlib:
 
@@ -32,7 +32,7 @@ If you invoke libcheck, it should complain about this fact:
     $ docker run -t -i --rm \
       -v `pwd`:/io \
       phusion/holy-build-box-64:latest \
-      /hbb_nopic/activate-exec \
+      /hbb_exe/activate-exec \
       libcheck /io/hello
     ...
     /io/hello is linked to non-system libraries: /lib64/libz.so.1
@@ -46,14 +46,14 @@ We recommend calling `libcheck` from your compilation script, so that you are wa
 set -e
 
 # Activate Holy Build Box environment.
-source /hbb_deadstrip_hardened_pie/activate
+source /hbb_gc_hardened/activate
 
 set -x
 
 # Install static PCRE
 tar xzf /io/pcre-8.37.tar.gz
 cd pcre-8.37
-./configure --prefix=/hbb_deadstrip_hardened_pie --disable-shared --enable-static
+./configure --prefix=/hbb_gc_hardened --disable-shared --enable-static
 make
 make install
 cd ..

@@ -1,6 +1,6 @@
 # Tutorial 6: Introducing additional static libraries
 
-[<< Back to Tutorial 5: Library variants](TUTORIAL-5-LIBRARY-VARIANTS.md) | [Tutorial index](README.md#tutorials) | [Skip to Tutorial 7: Verifying binary portability with libcheck >>](TUTORIAL-7-VERIFYING-PORTABILITY-WITH-LIBCHECK.md)
+[<< Back to Tutorial 5: Using library variants](TUTORIAL-5-USING-LIBRARY-VARIANTS.md) | [Tutorial index](README.md#tutorials) | [Skip to Tutorial 7: Verifying binary portability with libcheck >>](TUTORIAL-7-VERIFYING-PORTABILITY-WITH-LIBCHECK.md)
 
 Although Holy Build Box includes a number of static libraries, your application may need additional static libraries. Although it is tempting to install them with `yum`, it is not the approach we recommend. The static libraries provided by CentOS 5 are sub-optimal for the following reasons:
 
@@ -32,13 +32,13 @@ Insert the following code into `compile.sh`, right after the `source` call:
 # Install static PCRE
 tar xzf /io/pcre-8.37.tar.gz
 cd pcre-8.37
-./configure --prefix=/hbb_deadstrip_hardened_pie --disable-shared --enable-static
+./configure --prefix=/hbb_gc_hardened --disable-shared --enable-static
 make
 make install
 cd ..
 ~~~
 
-Note that we configure PCRE to install the active library variant's directory (`/hbb_deadstrip_hardened_pie`). The Holy Build Box environment variables are set up in such a way that your compiler looks for libraries in there first, so installing PCRE to that prefix will ensure that the Nginx build system can find PCRE.
+Note that we configure PCRE to install the active library variant's directory (`/hbb_gc_hardened`). The Holy Build Box environment variables are set up in such a way that your compiler looks for libraries in there first, so installing PCRE to that prefix will ensure that the Nginx build system can find PCRE.
 
 The PCRE build system respects the environment variables set by the Holy Build Box activation script, so we know that PCRE is compiled with the right flags.
 
@@ -61,7 +61,7 @@ Then verify that Nginx is indeed compiled with the `rewrite_module` enabled:
     nginx version: nginx/1.8.0
     built with OpenSSL 1.0.2d 9 Jul 2015
     TLS SNI support enabled
-    configure arguments: --with-http_ssl_module --with-ld-opt='-L/hbb_deadstrip_hardened_pie/lib -Wl,--gc-sections -pie -Wl,-z,relro'
+    configure arguments: --with-http_ssl_module --with-ld-opt='-L/hbb_gc_hardened/lib -Wl,--gc-sections -pie -Wl,-z,relro'
 
 ## The entire compilation script
 
@@ -70,14 +70,14 @@ Then verify that Nginx is indeed compiled with the `rewrite_module` enabled:
 set -e
 
 # Activate Holy Build Box environment.
-source /hbb_deadstrip_hardened_pie/activate
+source /hbb_gc_hardened/activate
 
 set -x
 
 # Install static PCRE
 tar xzf /io/pcre-8.37.tar.gz
 cd pcre-8.37
-./configure --prefix=/hbb_deadstrip_hardened_pie --disable-shared --enable-static
+./configure --prefix=/hbb_gc_hardened --disable-shared --enable-static
 make
 make install
 cd ..

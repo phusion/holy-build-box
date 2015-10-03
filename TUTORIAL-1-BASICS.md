@@ -49,7 +49,7 @@ Compile it with:
     docker run -t -i --rm \
       -v `pwd`:/io \
       phusion/holy-build-box-64:latest \
-      /hbb_nopic/activate-exec \
+      /hbb_exe/activate-exec \
       bash -x -c 'gcc $CFLAGS /io/hello.c -o /io/hello $LDFLAGS'
 
 Verify that it works:
@@ -59,7 +59,7 @@ Verify that it works:
 
 ## Holy Build Box environment activation
 
-Note that `gcc` is preceded by a "magical" invocation to `/hbb_nopic/activate-exec`. What is this?
+Note that `gcc` is preceded by a "magical" invocation to `/hbb_exe/activate-exec`. What is this?
 
 The `activate-exec` comand sets various environment variables -- such as `PATH`, `CFLAGS` and `C_INCLUDE_PATH` -- so that the compiler toolchain can find various software that is included in Holy Build Box. It then executes the command specified in its parameters -- that is, gcc.
 
@@ -77,10 +77,10 @@ We encourage you to inspect the environment variables set by the Holy Build Box 
 
     $ docker run -t -i --rm \
       phusion/holy-build-box-64:latest \
-      /hbb_nopic/activate-exec \
+      /hbb_exe/activate-exec \
       bash
     Holy build box activated
-    Prefix: /hbb_nopic
+    Prefix: /hbb_exe
     Compiler flags: -O2 -fvisibility=hidden -I/hbb_nopic/include -L/hbb_nopic/lib
     Linker flags: -L/hbb_nopic/lib
 

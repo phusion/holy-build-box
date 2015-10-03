@@ -97,7 +97,7 @@ Holy Build Box also includes static versions of certain libraries. These librari
  * OpenSSL 1.0.2d
  * curl and libcurl 7.44.0
 
-These libraries are provided in multiple variants, each compiled with different compilation flags. The different variants will be covered with in [Tutorial 5: Library variants](TUTORIAL-5-LIBRARY-VARIANTS.md).
+These libraries are provided in multiple variants, each compiled with different compilation flags. The different variants will be covered with in [Tutorial 5: Using library variants](TUTORIAL-5-LIBRARY-VARIANTS.md) and in the [Library variants](LIBRARY-VARIANTS.md) guide.
 
 ### Security hardening
 
@@ -120,7 +120,7 @@ Tutorials:
  * [Tutorial 2: Compilation via a script](TUTORIAL-2-COMPILATION-SCRIPT.md)
  * [Tutorial 3: Static linking to dependencies](TUTORIAL-3-STATIC-LINKING-DEPS.md)
  * [Tutorial 4: Tweaking the application's build system](TUTORIAL-4-TWEAKING-APPS.md)
- * [Tutorial 5: Library variants](TUTORIAL-5-LIBRARY-VARIANTS.md)
+ * [Tutorial 5: Using library variants](TUTORIAL-5-USING-LIBRARY-VARIANTS.md)
  * [Tutorial 6: Introducing additional static libraries](TUTORIAL-6-ADDITIONAL-STATIC-LIBS.md)
  * [Tutorial 7: Verifying binary portability with libcheck](TUTORIAL-7-VERIFYING-PORTABILITY-WITH-LIBCHECK.md)
 
@@ -129,6 +129,7 @@ Tutorials:
 Guides:
 
  * [Environment structure](ENVIRONMENT-STRUCTURE.md)
+ * [Library variants](LIBRARY-VARIANTS.md)
  * [Which system libraries are considered essential?](ESSENTIAL-SYSTEM-LIBRARIES.md)
  * [Security hardening binaries](SECURITY-HARDENING-BINARIES.md)
  * [Building 32-bit binaries](BUILDING-32-BIT-BINARIES.md)

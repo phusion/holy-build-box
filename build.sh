@@ -20,18 +20,16 @@ export PATH=/hbb/bin:$PATH
 
 header "Initializing"
 run mkdir -p /hbb /hbb/bin
-run mkdir -p /hbb_nopic /hbb_pic /hbb_deadstrip_hardened_pie
 run cp /hbb_build/libcheck /hbb/bin/
 run cp /hbb_build/hardening-check /hbb/bin/
 run cp /hbb_build/activate_func.sh /hbb/activate_func.sh
 
-run cp /hbb_build/activate-exec /hbb_nopic/
-run cp /hbb_build/activate-exec /hbb_pic/
-run cp /hbb_build/activate-exec /hbb_deadstrip_hardened_pie/
+run mkdir -p /hbb_exe /hbb_exe_gc_hardened /hbb_shlib
+run cp /hbb_build/activate-exec /hbb_exe/ /hbb_exe_gc_hardened/ /hbb_shlib/
 
-run cp /hbb_build/activate_nopic.sh /hbb_nopic/activate
-run cp /hbb_build/activate_pic.sh /hbb_pic/activate
-run cp /hbb_build/activate_deadstrip_hardened_pie.sh /hbb_deadstrip_hardened_pie/activate
+run cp /hbb_build/activate_exe.sh /hbb_exe/activate
+run cp /hbb_build/activate_exe_gc_hardened.sh /hbb_exe_gc_hardened/activate
+run cp /hbb_build/activate_shlib.sh /hbb_shlib/activate
 
 header "Updating system"
 run yum update -y
@@ -118,15 +116,17 @@ fi
 
 function install_zlib()
 {
-	local PREFIX="$1"
+	local VARIANT="$1"
+	local PREFIX="/hbb_$VARIANT"
 
-	header "Installing zlib $ZLIB_VERSION static libraries: $PREFIX"
+	header "Installing zlib $ZLIB_VERSION static libraries: $VARIANT"
 	download_and_extract zlib-$ZLIB_VERSION.tar.gz \
 		zlib-$ZLIB_VERSION \
 		http://zlib.net/zlib-$ZLIB_VERSION.tar.gz
 
 	(
 		source "$PREFIX/activate"
+		export CFLAGS="$STATICLIB_CFLAGS"
 		run ./configure --prefix=$PREFIX --static
 		run make -j$MAKE_CONCURRENCY install
 		run strip --strip-debug "$PREFIX/lib/libz.a"
@@ -139,9 +139,9 @@ function install_zlib()
 }
 
 if [[ "$SKIP_ZLIB" != 1 ]]; then
-	install_zlib /hbb_nopic
-	install_zlib /hbb_pic
-	install_zlib /hbb_deadstrip_hardened_pie
+	install_zlib exe
+	install_zlib exe_gc_hardened
+	install_zlib shlib
 fi
 
 
@@ -149,7 +149,8 @@ fi
 
 function install_openssl()
 {
-	local PREFIX="$1"
+	local VARIANT="$1"
+	local PREFIX="/hbb_$VARIANT"
 
 	header "Installing OpenSSL $OPENSSL_VERSION static libraries: $PREFIX"
 	download_and_extract openssl-$OPENSSL_VERSION.tar.gz \
@@ -158,15 +159,17 @@ function install_openssl()
 
 	(
 		source "$PREFIX/activate"
-		if $O3_ALLOWED; then
-			run ./config --prefix=$PREFIX --openssldir=$PREFIX/openssl \
-				threads zlib no-shared no-sse2 -fvisibility=hidden $MINIMAL_CFLAGS
-		else
-			run ./config --prefix=$PREFIX --openssldir=$PREFIX/openssl \
-				threads zlib no-shared no-sse2 -fvisibility=hidden -O2 $MINIMAL_CFLAGS
+
+		# OpenSSL already passes optimization flags regardless of CFLAGS
+		export CFLAGS=`echo "$STATICLIB_CFLAGS" | sed 's/-O2//'`
+		run ./config --prefix=$PREFIX --openssldir=$PREFIX/openssl \
+			threads zlib no-shared no-sse2 $CFLAGS
+
+		if ! $O3_ALLOWED; then
 			echo "+ Modifying Makefiles"
-			find . -name Makefile | xargs sed -i -e 's|-O3||g'
+			find . -name Makefile | xargs sed -i -e 's|-O3|-O2|g'
 		fi
+
 		run make
 		run make install_sw
 		run strip --strip-all $PREFIX/bin/openssl
@@ -185,9 +188,9 @@ function install_openssl()
 }
 
 if [[ "$SKIP_OPENSSL" != 1 ]]; then
-	install_openssl /hbb_nopic
-	install_openssl /hbb_pic
-	install_openssl /hbb_deadstrip_hardened_pie
+	install_openssl exe
+	install_openssl exe_gc_hardened
+	install_openssl shlib
 fi
 
 
@@ -195,7 +198,8 @@ fi
 
 function install_curl()
 {
-	local PREFIX="$1"
+	local VARIANT="$1"
+	local PREFIX="/hbb_$VARIANT"
 
 	header "Installing Curl $CURL_VERSION static libraries: $PREFIX"
 	download_and_extract curl-$CURL_VERSION.tar.gz \
@@ -204,6 +208,7 @@ function install_curl()
 
 	(
 		source "$PREFIX/activate"
+		export CFLAGS="$STATICLIB_CFLAGS"
 		./configure --prefix="$PREFIX" --disable-shared --disable-debug --enable-optimize --disable-werror \
 			--disable-curldebug --enable-symbol-hiding --disable-ares --disable-manual --disable-ldap --disable-ldaps \
 			--disable-rtsp --disable-dict --disable-ftp --disable-ftps --disable-gopher --disable-imap \
@@ -221,9 +226,9 @@ function install_curl()
 }
 
 if [[ "$SKIP_CURL" != 1 ]]; then
-	install_curl /hbb_nopic
-	install_curl /hbb_pic
-	install_curl /hbb_deadstrip_hardened_pie
+	install_curl exe
+	install_curl exe_gc_hardened
+	install_curl shlib
 fi
 
 

@@ -15,7 +15,7 @@ Your compilation script `compile.sh` should look as follows:
 set -e
 
 # Activate Holy Build Box environment.
-source /hbb_nopic/activate
+source /hbb_exe/activate
 
 set -x
 
@@ -59,12 +59,12 @@ Finally, verify that Nginx works and is not dynamically linked to any non-essent
 
 ## Why is Nginx not dynamically linked to OpenSSL?
 
-If you have inspected the Holy Build Box environment, then you may have noticed that it includes a dynamic version of OpenSSL in /usr/lib. So why was Nginx linked to the static OpenSSL in /hbb_nopic/lib, instead of the dynamic OpenSSL in /usr/lib?
+If you have inspected the Holy Build Box environment, then you may have noticed that it includes a dynamic version of OpenSSL in /usr/lib. So why was Nginx linked to the static OpenSSL in /hbb_exe/lib, instead of the dynamic OpenSSL in /usr/lib?
 
-It is because the Holy Build Box activation script (`/hbb_nopic/activate`) sets environment variables so that the compiler toolchain looks in /hbb_nopic/lib first. Some of the environment variables set are:
+It is because the Holy Build Box activation script (`/hbb_exe/activate`) sets environment variables so that the compiler toolchain looks in /hbb_exe/lib first. Some of the environment variables set are:
 
-    export LIBRARY_PATH='/hbb_nopic/lib'
-    export LDFLAGS='-L/hbb_nopic/lib'
+    export LIBRARY_PATH='/hbb_exe/lib'
+    export LDFLAGS='-L/hbb_exe/lib'
 
 ## Conclusion
 

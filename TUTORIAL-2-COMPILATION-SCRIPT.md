@@ -32,7 +32,7 @@ Next, write a script that extracts the tarball and runs the compilation commands
 set -e
 
 # Activate Holy Build Box environment.
-source /hbb_nopic/activate
+source /hbb_exe/activate
 
 set -x
 
@@ -67,7 +67,7 @@ Afterwards, you should find a `hello` binary in your current working directory.
 
 ## The Holy Build Box environment activation script
 
-Note the line `source /hbb_nopic/activate`. In tutorial 1, you learned about the `activate-exec` command and that it's important to activate the Holy Build Box environment before doing anything else. So why do we use `activate` now instead of `activate-exec`? And what's with the `source` command?
+Note the line `source /hbb_exe/activate`. In tutorial 1, you learned about the `activate-exec` command and that it's important to activate the Holy Build Box environment before doing anything else. So why do we use `activate` now instead of `activate-exec`? And what's with the `source` command?
 
 The `activate` script also sets Holy Build Box environment variables, just like `activate-exec`. The difference is that `activate` is designed to be "sourced" from Bash -- to be directly executed within the same Bash process, as opposed to executing it as a separate process. This is necessary because environment variables in Unix are only activated inside the originating process and child processes -- they do not propagate to parent processes or other processes.
 
@@ -76,7 +76,7 @@ Instead of sourcing the `activate` script from within `compile.sh`, you could al
     docker run -t -i --rm \
       -v `pwd`:/io \
       phusion/holy-build-box-64:latest \
-      /hbb_nopic/activate-exec \
+      /hbb_exe/activate-exec \
       bash /io/compile.sh
 
 This is an equally valid approach. Throughout this tutorial series, we will be using the `source` approach, but the choice is yours.
