@@ -101,6 +101,7 @@ Holy Build Box also includes static versions of certain libraries. These librari
  * zlib 1.2.8
  * OpenSSL 1.0.2d
  * curl and libcurl 7.44.0
+ * SQLite 2014-3080702
 
 These libraries are provided in multiple variants, each compiled with different compilation flags. The different variants will be covered with in [Tutorial 5: Using library variants](TUTORIAL-5-LIBRARY-VARIANTS.md) and in the [Library variants](LIBRARY-VARIANTS.md) guide.
 
