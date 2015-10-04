@@ -32,17 +32,20 @@ Insert the following code into `compile.sh`, right before `# Extract and enter s
 # Install static PCRE
 tar xzf /io/pcre-8.37.tar.gz
 cd pcre-8.37
-./configure --prefix=/hbb_exe_gc_hardened --disable-shared --enable-static
+env CFLAGS="$STATICLIB_CFLAGS" CXXFLAGS="$STATICLIB_CXXFLAGS" \
+  ./configure --prefix=/hbb_exe_gc_hardened --disable-shared --enable-static
 make
 make install
 cd ..
 ~~~
 
-Note that we configure PCRE to install the active library variant's directory (`/hbb_exe_gc_hardened`). The Holy Build Box environment variables are set up in such a way that your compiler looks for libraries in there first, so installing PCRE to that prefix will ensure that the Nginx build system can find PCRE.
+Note that we configure PCRE to install to the active library variant's directory (`/hbb_exe_gc_hardened`). The Holy Build Box environment variables are set up in such a way that your compiler looks for libraries in there first, so installing PCRE to that prefix will ensure that the Nginx build system can find PCRE.
 
-The PCRE build system respects the environment variables set by the Holy Build Box activation script, so we know that PCRE is compiled with the right flags.
+The PCRE build system respects `C(XX)FLAGS` and passes those flags to the compiler. But note that we set `C(XX)FLAGS` to `STATICLIB_C(XX)FLAGS` while running the PCRE configure script. The `C(XX)FLAGS` that Holy Build Box sets are meant for compiling binaries only, not for compiling static libraries. When compiling static libraries, you are supposed to use the flags as defined in `STATICLIB_C(XX)FLAGS`. Since PCRE only recognizes `C(XX)FLAGS` but not `STATICLIB_C(XX)FLAGS`, we pass the value of `STATICLIB_C(XX)FLAGS` through the `C(XX)FLAGS` environment variable..
 
-Remove the `--without-rewrite_module` parameter from the Nginx configure command:
+See [Environment structure](ENVIRONMENT-STRUCTURE.md) and [Library Variants](LIBRARY-VARIANTS.md) for more information about `STATICLIB_C(XX)FLAGS`.
+
+Next, remove the `--without-rewrite_module` parameter from the Nginx configure command:
 
     ./configure --with-http_ssl_module --with-ld-opt="$LDFLAGS"
 
@@ -77,7 +80,8 @@ set -x
 # Install static PCRE
 tar xzf /io/pcre-8.37.tar.gz
 cd pcre-8.37
-./configure --prefix=/hbb_exe_gc_hardened --disable-shared --enable-static
+env CFLAGS="$STATICLIB_CFLAGS" CXXFLAGS="$STATICLIB_CXXFLAGS" \
+  ./configure --prefix=/hbb_exe_gc_hardened --disable-shared --enable-static
 make
 make install
 cd ..

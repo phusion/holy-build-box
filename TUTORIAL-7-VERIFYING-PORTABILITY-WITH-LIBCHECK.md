@@ -54,7 +54,8 @@ set -x
 # Install static PCRE
 tar xzf /io/pcre-8.37.tar.gz
 cd pcre-8.37
-./configure --prefix=/hbb_exe_gc_hardened --disable-shared --enable-static
+env CFLAGS="$STATICLIB_CFLAGS" CXXFLAGS="$STATICLIB_CXXFLAGS" \
+  ./configure --prefix=/hbb_exe_gc_hardened --disable-shared --enable-static
 make
 make install
 cd ..
