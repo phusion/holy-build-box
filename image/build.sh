@@ -41,7 +41,7 @@ run cp /hbb_build/activate_func.sh /hbb/activate_func.sh
 for VARIANT in $VARIANTS; do
 	run mkdir -p /hbb_$VARIANT
 	run cp /hbb_build/activate-exec /hbb_$VARIANT/
-	run cp /hbb_build/activate_$VARIANT.sh /hbb_$VARIANT/activate
+	run cp /hbb_build/variants/$VARIANT.sh /hbb_$VARIANT/activate
 done
 
 header "Updating system"
