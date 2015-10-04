@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+AUTOCONF_VERSION=2.69
+AUTOMAKE_VERSION=1.15
+LIBTOOL_VERSION=2.4.6
 PKG_CONFIG_VERSION=0.28
 CCACHE_VERSION=3.2.3
 CMAKE_VERSION=3.3.2
@@ -16,10 +19,15 @@ source /hbb_build/activate_func.sh
 
 SKIP_TOOLS=${SKIP_TOOLS:-false}
 SKIP_LIBS=${SKIP_LIBS:-false}
+
+SKIP_AUTOCONF=${SKIP_AUTOCONF:-$SKIP_TOOLS}
+SKIP_AUTOMAKE=${SKIP_AUTOMAKE:-$SKIP_TOOLS}
+SKIP_LIBTOOL=${SKIP_LIBTOOL:-$SKIP_TOOLS}
 SKIP_PKG_CONFIG=${SKIP_PKG_CONFIG:-$SKIP_TOOLS}
 SKIP_CCACHE=${SKIP_CCACHE:-$SKIP_TOOLS}
 SKIP_CMAKE=${SKIP_CMAKE:-$SKIP_TOOLS}
 SKIP_PYTHON=${SKIP_PYTHON:-$SKIP_TOOLS}
+
 SKIP_LIBSTDCXX=${SKIP_LIBSTDCXX:-$SKIP_LIBS}
 SKIP_ZLIB=${SKIP_ZLIB:-$SKIP_LIBS}
 SKIP_OPENSSL=${SKIP_OPENSSL:-$SKIP_LIBS}
@@ -56,6 +64,60 @@ cd /
 run yum install -y devtoolset-2-gcc devtoolset-2-gcc-c++ devtoolset-2-binutils \
 	make file diffutils patch perl bzip2 which
 source /opt/rh/devtoolset-2/enable
+
+
+### autoconf
+
+if ! eval_bool "$SKIP_AUTOCONF"; then
+	header "Installing autoconf $AUTOCONF_VERSION"
+	download_and_extract autoconf-$AUTOCONF_VERSION.tar.gz \
+		autoconf-$AUTOCONF_VERSION \
+		http://ftp.gnu.org/gnu/autoconf/autoconf-$AUTOCONF_VERSION.tar.gz
+
+	run ./configure --prefix=/hbb --disable-shared --enable-static
+	run make -j$MAKE_CONCURRENCY
+	run make install-strip
+
+	echo "Leaving source directory"
+	popd >/dev/null
+	run rm -rf autoconf-$AUTOCONF_VERSION
+fi
+
+
+### automake
+
+if ! eval_bool "$SKIP_AUTOMAKE"; then
+	header "Installing automake $AUTOMAKE_VERSION"
+	download_and_extract automake-$AUTOMAKE_VERSION.tar.gz \
+		automake-$AUTOMAKE_VERSION \
+		http://ftp.gnu.org/gnu/automake/automake-$AUTOMAKE_VERSION.tar.gz
+
+	run ./configure --prefix=/hbb --disable-shared --enable-static
+	run make -j$MAKE_CONCURRENCY
+	run make install-strip
+
+	echo "Leaving source directory"
+	popd >/dev/null
+	run rm -rf automake-$AUTOMAKE_VERSION
+fi
+
+
+### libtool
+
+if ! eval_bool "$SKIP_LIBTOOL"; then
+	header "Installing libtool $LIBTOOL_VERSION"
+	download_and_extract libtool-$LIBTOOL_VERSION.tar.gz \
+		libtool-$LIBTOOL_VERSION \
+		http://ftp.gnu.org/gnu/libtool/libtool-$LIBTOOL_VERSION.tar.gz
+
+	run ./configure --prefix=/hbb --disable-shared --enable-static
+	run make -j$MAKE_CONCURRENCY
+	run make install-strip
+
+	echo "Leaving source directory"
+	popd >/dev/null
+	run rm -rf libtool-$AUTOMAKE_VERSION
+fi
 
 
 ### pkg-config

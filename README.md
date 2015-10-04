@@ -82,10 +82,13 @@ Holy Build Box partially solves problem #1 and #3 by providing static versions o
 
 The Holy Build Box environment is built on CentOS 5. This allows it to produce binaries that work on pretty much any x86 and x86-64 Linux distribution released since 2007.
 
-The environment is bare-bones with almost nothing installed. Besides the basics, only a compiler toolchain is provided:
+The environment is bare-bones with almost nothing installed. Besides the basics, only a compiler toolchain is provided. The toolchain is more recent than the one provided by CentOS 5.
 
  * GCC 4.8.2 (C and C++ support)
  * GNU make
+ * autoconf 2.69
+ * automake 1.15
+ * libtool 2.4.6
  * pkg-config 0.28
  * ccache 3.2.3
  * CMake 3.3.2
