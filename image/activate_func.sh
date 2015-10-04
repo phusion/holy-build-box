@@ -16,7 +16,7 @@ function activate_holy_build_box() {
 
 	export CPPFLAGS="-I$PREFIX/include"
 	export LDPATHFLAGS="-L$PREFIX"
-	local MINIMAL_CFLAGS="-O2 -fvisibility=hidden $CPPFLAGS"
+	local MINIMAL_CFLAGS="-g -O2 -fvisibility=hidden $CPPFLAGS"
 
 	export CFLAGS="$MINIMAL_CFLAGS $EXTRA_CFLAGS"
 	export CXXFLAGS="$MINIMAL_CFLAGS $EXTRA_CFLAGS"
