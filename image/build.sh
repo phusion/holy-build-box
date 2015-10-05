@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+M4_VERSION=1.4.17
 AUTOCONF_VERSION=2.69
 AUTOMAKE_VERSION=1.15
 LIBTOOL_VERSION=2.4.6
@@ -13,8 +14,8 @@ GCC_LIBSTDCXX_VERSION=4.8.2
 ZLIB_VERSION=1.2.8
 OPENSSL_VERSION=1.0.2d
 CURL_VERSION=7.44.0
-SQLITE_VERSION=3080702
-SQLITE_YEAR=2014
+SQLITE_VERSION=3081101
+SQLITE_YEAR=2015
 
 source /hbb_build/functions.sh
 source /hbb_build/activate_func.sh
@@ -23,6 +24,7 @@ SKIP_TOOLS=${SKIP_TOOLS:-false}
 SKIP_LIBS=${SKIP_LIBS:-false}
 SKIP_FINALIZE=${SKIP_FINALIZE:-false}
 
+SKIP_M4=${SKIP_M4:-$SKIP_TOOLS}
 SKIP_AUTOCONF=${SKIP_AUTOCONF:-$SKIP_TOOLS}
 SKIP_AUTOMAKE=${SKIP_AUTOMAKE:-$SKIP_TOOLS}
 SKIP_LIBTOOL=${SKIP_LIBTOOL:-$SKIP_TOOLS}
@@ -67,6 +69,24 @@ cd /
 run yum install -y devtoolset-2-gcc devtoolset-2-gcc-c++ devtoolset-2-binutils \
 	make file diffutils patch perl bzip2 which
 source /opt/rh/devtoolset-2/enable
+
+
+### m4
+
+if ! eval_bool "$SKIP_M4"; then
+	header "Installing m4 $M4_VERSION"
+	download_and_extract m4-$M4_VERSION.tar.gz \
+		m4-$M4_VERSION \
+		http://ftp.gnu.org/gnu/m4/m4-$M4_VERSION.tar.gz
+
+	run ./configure --prefix=/hbb --disable-shared --enable-static
+	run make -j$MAKE_CONCURRENCY
+	run make install-strip
+
+	echo "Leaving source directory"
+	popd >/dev/null
+	run rm -rf m4-$M4_VERSION
+fi
 
 
 ### autoconf
@@ -119,7 +139,7 @@ if ! eval_bool "$SKIP_LIBTOOL"; then
 
 	echo "Leaving source directory"
 	popd >/dev/null
-	run rm -rf libtool-$AUTOMAKE_VERSION
+	run rm -rf libtool-$LIBTOOL_VERSION
 fi
 
 
@@ -257,8 +277,8 @@ function install_zlib()
 		source "$PREFIX/activate"
 		export CFLAGS="$STATICLIB_CFLAGS"
 		run ./configure --prefix=$PREFIX --static
-		run make -j$MAKE_CONCURRENCY install
-		run strip --strip-debug "$PREFIX/lib/libz.a"
+		run make -j$MAKE_CONCURRENCY
+		run make install
 	)
 	if [[ "$?" != 0 ]]; then false; fi
 
@@ -292,7 +312,7 @@ function install_openssl()
 		# OpenSSL already passes optimization flags regardless of CFLAGS
 		export CFLAGS=`echo "$STATICLIB_CFLAGS" | sed 's/-O2//'`
 		run ./config --prefix=$PREFIX --openssldir=$PREFIX/openssl \
-			threads zlib no-shared no-sse2 $CFLAGS
+			threads zlib no-shared no-sse2 $CFLAGS $LDFLAGS
 
 		if ! $O3_ALLOWED; then
 			echo "+ Modifying Makefiles"
@@ -301,9 +321,10 @@ function install_openssl()
 
 		run make
 		run make install_sw
-		run strip --strip-all $PREFIX/bin/openssl
-		run strip --strip-debug $PREFIX/lib/libcrypto.a
-		run strip --strip-debug $PREFIX/lib/libssl.a
+		run strip --strip-all "$PREFIX/bin/openssl"
+		if [[ "$VARIANT" = exe_gc_hardened ]]; then
+			run hardening-check -b "$PREFIX/bin/openssl"
+		fi
 		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lssl -lcrypto -ldl/' $PREFIX/lib/pkgconfig/openssl.pc
 		run sed -i 's/^Libs.private:.*/Libs.private: -L${libdir} -lssl -lcrypto -ldl -lz/' $PREFIX/lib/pkgconfig/openssl.pc
 		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lssl -lcrypto -ldl/' $PREFIX/lib/pkgconfig/libssl.pc
@@ -319,6 +340,10 @@ function install_openssl()
 if ! eval_bool "$SKIP_OPENSSL"; then
 	for VARIANT in $VARIANTS; do
 		install_openssl $VARIANT
+	done
+	run mv /hbb_exe_gc_hardened/bin/openssl /hbb/bin/
+	for VARIANT in $VARIANTS; do
+		run rm -f /hbb_$VARIANT/bin/openssl
 	done
 fi
 
@@ -345,7 +370,11 @@ function install_curl()
 			--disable-telnet --disable-tftp --disable-smb --disable-versioned-symbols \
 			--without-libmetalink --without-libidn --without-libssh2 --without-libmetalink --without-nghttp2 \
 			--with-ssl
-		run make -j$MAKE_CONCURRENCY install-strip
+		run make -j$MAKE_CONCURRENCY
+		run make install
+		if [[ "$VARIANT" = exe_gc_hardened ]]; then
+			run hardening-check -b "$PREFIX/bin/curl"
+		fi
 		run rm -f "$PREFIX/bin/curl"
 	)
 	if [[ "$?" != 0 ]]; then false; fi
@@ -371,7 +400,7 @@ function install_sqlite()
 
 	header "Installing SQLite $SQLITE_VERSION static libraries: $PREFIX"
 	download_and_extract sqlite-autoconf-$SQLITE_VERSION.tar.gz \
-		sqlite-autoconf-$SQLITE_VERSION
+		sqlite-autoconf-$SQLITE_VERSION \
 		http://www.sqlite.org/$SQLITE_YEAR/sqlite-autoconf-$SQLITE_VERSION.tar.gz
 
 	(
@@ -381,18 +410,26 @@ function install_sqlite()
 		run ./configure --prefix="$PREFIX" --enable-static \
 			--disable-shared --disable-dynamic-extensions
 		run make -j$MAKE_CONCURRENCY
-		run make install-strip
+		run make install
+		if [[ "$VARIANT" = exe_gc_hardened ]]; then
+			run hardening-check -b "$PREFIX/bin/sqlite3"
+		fi
+		run strip --strip-all "$PREFIX/bin/sqlite3"
 	)
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
 	popd >/dev/null
-	run rm -rf sqlite-autoconf-$SQLITE3_VERSION
+	run rm -rf sqlite-autoconf-$SQLITE_VERSION
 }
 
 if ! eval_bool "$SKIP_SQLITE"; then
 	for VARIANT in $VARIANTS; do
 		install_sqlite $VARIANT
+	done
+	run mv /hbb_exe_gc_hardened/bin/sqlite3 /hbb/bin/
+	for VARIANT in $VARIANTS; do
+		run rm -f /hbb_$VARIANT/bin/sqlite3
 	done
 fi
 
