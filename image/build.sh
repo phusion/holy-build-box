@@ -219,6 +219,12 @@ if ! eval_bool "$SKIP_PYTHON"; then
 	# These were installed as part of openssl-devel
 	run yum remove -y openssl-devel e2fsprogs-devel keyutils-libs-devel \
 		krb5-devel libselinux-devel libsepol-devel zlib-devel
+
+	# Install setuptools and pip
+	curl -OL --fail https://bootstrap.pypa.io/ez_setup.py
+	python ez_setup.py
+	rm -f ez_setup.py
+	easy_install pip
 fi
 
 

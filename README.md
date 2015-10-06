@@ -92,7 +92,7 @@ The environment is bare-bones with almost nothing installed. Besides the basics,
  * pkg-config 0.28
  * ccache 3.2.3
  * CMake 3.3.2
- * Python 2.7.10
+ * Python 2.7.10 (+ setuptools and pip)
 
 ### Included static libraries
 
