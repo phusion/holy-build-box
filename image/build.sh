@@ -67,7 +67,7 @@ cd /etc/yum.repos.d
 run curl -LOS http://people.centos.org/tru/devtools-2/devtools-2.repo
 cd /
 run yum install -y devtoolset-2-gcc devtoolset-2-gcc-c++ devtoolset-2-binutils \
-	make file diffutils patch perl bzip2 which
+	make file diffutils patch perl bzip2 which openssl-devel
 source /opt/rh/devtoolset-2/enable
 
 
@@ -202,6 +202,7 @@ fi
 
 if ! eval_bool "$SKIP_PYTHON"; then
 	header "Installing Python $PYTHON_VERSION"
+	run yum install -y openssl-devel
 	download_and_extract Python-$PYTHON_VERSION.tgz \
 		Python-$PYTHON_VERSION \
 		https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
@@ -214,6 +215,10 @@ if ! eval_bool "$SKIP_PYTHON"; then
 	echo "Leaving source directory"
 	popd >/dev/null
 	run rm -rf Python-$PYTHON_VERSION
+
+	# These were installed as part of openssl-devel
+	run yum remove -y openssl-devel e2fsprogs-devel keyutils-libs-devel \
+		krb5-devel libselinux-devel libsepol-devel zlib-devel
 fi
 
 
