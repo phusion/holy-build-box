@@ -1,5 +1,5 @@
-VERSION = 1.0.0
-MAJOR_VERSION = 1.0
+VERSION = 1.1.0
+MAJOR_VERSION = 1.1
 
 .PHONY: all 32 64 test tag_latest release
 
