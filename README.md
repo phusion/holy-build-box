@@ -13,6 +13,7 @@ Holy Build Box is a system for building "portable" binaries for Linux: binaries 
    - [Why statically linking to glibc is a bad idea](#why-statically-linking-to-glibc-is-a-bad-idea)
    - [Dynamic libraries](#dynamic-libraries)
  * [Features](#features)
+ * [Featured use cases](#featured-use-cases)
  * [Getting started](#getting-started)
    - [Tutorials](#tutorials)
    - [Guides](#guides)
@@ -116,6 +117,24 @@ Holy Build Box makes it easy to compile your application with special security h
 
 This is covered in [Tutorial 5: Library variants](TUTORIAL-5-LIBRARY-VARIANTS.md) and in the [Security hardening binaries](SECURITY-HARDENING-BINARIES.md).
 
+## Featured use cases
+
+### Bioinformatics laboratory, University of Iceland
+
+[Paul Melsted](https://twitter.com/pmelsted), assistant professor at the University of Iceland, [uses Holy Build Box to build binaries for their bioinformatics research software](https://pmelsted.wordpress.com/2015/10/14/building-binaries-for-bioinformatics/). Their research software has to run on various old Linux systems over which Melsted's team has no control.
+
+Holy Build Box allows Melsted's team to publish binaries that the university's system administrators can deploy on any Linux system, without having to install a newer compiler, and without having to worry about installing dependencies.
+
+At the same time, Melsted's team can pick their favorite and most productive programming language, C++11, without worrying about which Linux systems their software will be deployed on.
+
+### Traveling Ruby
+
+[Traveling Ruby](http://phusion.github.io/traveling-ruby/) is a system for producing self-contained Ruby application packages for Windows, Linux and OS X. You could think of it as the Holy Build Box equivalent for Ruby applications.
+
+Traveling Ruby works by providing precompiled Ruby binaries that work on any Linux system. Ruby developers can then take our binaries, bundle it with their application code, and distribute the result as a single zip or tar.gz file to end users. This way, end users do not have to install Ruby in order to use their applications.
+
+The Linux binaries published by the Traveling Ruby project are produced with Holy Build Box.
+
 ## Getting started
 
 <a name="tutorials"></a>
@@ -209,7 +228,9 @@ For example, the main reason why we made Holy Build Box was to be able to produc
 
 No. Holy Build Box is mainly designed to compile headless applications such as CLI tools, servers and daemons. For example: [Phusion Passenger](https://www.phusionpassenger.com/), Nginx, [Traveling Ruby](http://phusion.github.io/traveling-ruby/).
 
-Supporting graphical applications such as those based on GTK, Qt, SDL, OpenGL etc is outside the scope of this project. This doesn't mean that they cannot be made to work, but it's not something we are interested in so we have put no effort into that.
+Supporting graphical applications such as those based on GTK, Qt, SDL, OpenGL etc is outside the scope of this project.
+
+This is however not a technical limitation, but merely a focus one. We, the Holy Build Box maintainers, have no interest in spending time to support graphical applications, but we welcome contributors who would like to take on this challenge. [Email us](mailto:info@phusion.nl) if you are interested, or submit a pull request.
 
 ### How should I deal with interpreted applications, such as ones written in Ruby, Python or Node.js?
 
