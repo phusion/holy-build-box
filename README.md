@@ -121,13 +121,13 @@ This is covered in [Tutorial 5: Library variants](TUTORIAL-5-LIBRARY-VARIANTS.md
 
 ### Kallisto bioinformatics research software
 
-[Pall Melsted](https://twitter.com/pmelsted), part of a team of researchers from the University of Iceland and the University of California Berkeley, [uses Holy Build Box to build binaries](https://pmelsted.wordpress.com/2015/10/14/building-binaries-for-bioinformatics/) for [Kalisto, their RNA transcript quantification software](https://pachterlab.github.io/kallisto/about.html).
+[Pall Melsted](https://twitter.com/pmelsted), part of a team of researchers from the University of Iceland and the University of California Berkeley, [uses Holy Build Box to build binaries](https://pmelsted.wordpress.com/2015/10/14/building-binaries-for-bioinformatics/) for [Kallisto, their RNA transcript quantification software](https://pachterlab.github.io/kallisto/about.html).
 
 Their research software is meant to be used by other academics, so Melsted has no control over which systems their software is used on. These other academics are primarily researchers and have few system administration skills.
 
 Holy Build Box allows Melsted's team to publish binaries that other researchers can use with few hassles. Other researchers do not have to worry about upgrading their OS, installing a new compiler or installing dependencies.
 
-At the same time, Melsted's team can pick their favorite and most productive programming language, C++11, without worrying about which Linux systems their users use. Melsted's team also does not have to think about publishing different binaries for all the different Linux systems their users may be on.
+At the same time, Melsted's team can pick their favorite and most productive programming language, C++11, without worrying about which Linux systems their users use. Melsted's team also does not have to think about publishing different binaries/packages for all the different Linux systems their users may be using.
 
 ### Traveling Ruby
 
