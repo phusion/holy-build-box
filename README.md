@@ -119,13 +119,15 @@ This is covered in [Tutorial 5: Library variants](TUTORIAL-5-LIBRARY-VARIANTS.md
 
 ## Featured use cases
 
-### Bioinformatics laboratory, University of Iceland
+### Kallisto bioinformatics research software
 
-[Paul Melsted](https://twitter.com/pmelsted), assistant professor at the University of Iceland, [uses Holy Build Box to build binaries for their bioinformatics research software](https://pmelsted.wordpress.com/2015/10/14/building-binaries-for-bioinformatics/). Their research software has to run on various old Linux systems over which Melsted's team has no control.
+[Pall Melsted](https://twitter.com/pmelsted), part of a team of researchers from the University of Iceland and the University of California Berkeley, [uses Holy Build Box to build binaries](https://pmelsted.wordpress.com/2015/10/14/building-binaries-for-bioinformatics/) for [Kalisto, their RNA transcript quantification software](https://pachterlab.github.io/kallisto/about.html).
 
-Holy Build Box allows Melsted's team to publish binaries that the university's system administrators can deploy on any Linux system, without having to install a newer compiler, and without having to worry about installing dependencies.
+Their research software is meant to be used by other academics, so Melsted has no control over which systems their software is used on. These other academics are primarily researchers and have few system administration skills.
 
-At the same time, Melsted's team can pick their favorite and most productive programming language, C++11, without worrying about which Linux systems their software will be deployed on.
+Holy Build Box allows Melsted's team to publish binaries that other researchers can use with few hassles. Other researchers do not have to worry about upgrading their OS, installing a new compiler or installing dependencies.
+
+At the same time, Melsted's team can pick their favorite and most productive programming language, C++11, without worrying about which Linux systems their users use. Melsted's team also does not have to think about publishing different binaries for all the different Linux systems their users may be on.
 
 ### Traveling Ruby
 
