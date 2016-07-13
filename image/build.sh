@@ -145,7 +145,7 @@ if ! eval_bool "$SKIP_M4"; then
 	header "Installing m4 $M4_VERSION"
 	download_and_extract m4-$M4_VERSION.tar.gz \
 		m4-$M4_VERSION \
-		http://ftp.gnu.org/gnu/m4/m4-$M4_VERSION.tar.gz
+		http://ftpmirror.gnu.org/m4/m4-$M4_VERSION.tar.gz
 
 	run ./configure --prefix=/hbb --disable-shared --enable-static
 	run make -j$MAKE_CONCURRENCY
@@ -163,7 +163,7 @@ if ! eval_bool "$SKIP_AUTOCONF"; then
 	header "Installing autoconf $AUTOCONF_VERSION"
 	download_and_extract autoconf-$AUTOCONF_VERSION.tar.gz \
 		autoconf-$AUTOCONF_VERSION \
-		http://ftp.gnu.org/gnu/autoconf/autoconf-$AUTOCONF_VERSION.tar.gz
+		http://ftpmirror.gnu.org/autoconf/autoconf-$AUTOCONF_VERSION.tar.gz
 
 	run ./configure --prefix=/hbb --disable-shared --enable-static
 	run make -j$MAKE_CONCURRENCY
@@ -181,7 +181,7 @@ if ! eval_bool "$SKIP_AUTOMAKE"; then
 	header "Installing automake $AUTOMAKE_VERSION"
 	download_and_extract automake-$AUTOMAKE_VERSION.tar.gz \
 		automake-$AUTOMAKE_VERSION \
-		http://ftp.gnu.org/gnu/automake/automake-$AUTOMAKE_VERSION.tar.gz
+		http://ftpmirror.gnu.org/automake/automake-$AUTOMAKE_VERSION.tar.gz
 
 	run ./configure --prefix=/hbb --disable-shared --enable-static
 	run make -j$MAKE_CONCURRENCY
@@ -199,7 +199,7 @@ if ! eval_bool "$SKIP_LIBTOOL"; then
 	header "Installing libtool $LIBTOOL_VERSION"
 	download_and_extract libtool-$LIBTOOL_VERSION.tar.gz \
 		libtool-$LIBTOOL_VERSION \
-		http://ftp.gnu.org/gnu/libtool/libtool-$LIBTOOL_VERSION.tar.gz
+		http://ftpmirror.gnu.org/libtool/libtool-$LIBTOOL_VERSION.tar.gz
 
 	run ./configure --prefix=/hbb --disable-shared --enable-static
 	run make -j$MAKE_CONCURRENCY
