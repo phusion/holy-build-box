@@ -24,6 +24,8 @@ SKIP_TOOLS=${SKIP_TOOLS:-false}
 SKIP_LIBS=${SKIP_LIBS:-false}
 SKIP_FINALIZE=${SKIP_FINALIZE:-false}
 
+SKIP_SYSTEM_OPENSSL=${SKIP_SYSTEM_OPENSSL:-$SKIP_TOOLS}
+SKIP_SYSTEM_CURL=${SKIP_SYSTEM_CURL:-$SKIP_TOOLS}
 SKIP_M4=${SKIP_M4:-$SKIP_TOOLS}
 SKIP_AUTOCONF=${SKIP_AUTOCONF:-$SKIP_TOOLS}
 SKIP_AUTOMAKE=${SKIP_AUTOMAKE:-$SKIP_TOOLS}
@@ -67,8 +69,74 @@ cd /etc/yum.repos.d
 run curl -LOS http://people.centos.org/tru/devtools-2/devtools-2.repo
 cd /
 run yum install -y devtoolset-2-gcc devtoolset-2-gcc-c++ devtoolset-2-binutils \
-	make file diffutils patch perl bzip2 which openssl-devel
+	make file diffutils patch perl bzip2 which zlib-devel
 source /opt/rh/devtoolset-2/enable
+export PATH=/hbb/bin:$PATH
+
+
+function activate_image_build_environment()
+{
+	export C_INCLUDE_PATH=/hbb/include
+	export CPLUS_INCLUDE_PATH=/hbb/include
+	export LIBRARY_PATH=/hbb/lib
+	export PKG_CONFIG_PATH=/hbb/lib/pkgconfig:/usr/lib/pkgconfig
+	export CPPFLAGS=-I/hbb/include
+	export LDPATHFLAGS="-L/hbb/lib -Wl,-rpath,/hbb/lib"
+	export LDFLAGS="$LDPATHFLAGS"
+}
+
+
+### OpenSSL (system version, so that we can download from HTTPS servers with SNI)
+
+if ! eval_bool "$SKIP_SYSTEM_OPENSSL"; then
+	header "Installing system OpenSSL $OPENSSL_VERSION"
+	# We download from FTP because the OpenSSL in CentOS 5 does not
+	# support the HTTPS crypto suite on https://www.openssl.org.
+	download_and_extract openssl-$OPENSSL_VERSION.tar.gz \
+		openssl-$OPENSSL_VERSION \
+		ftp://ftp.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz
+
+	run ./config --prefix=/hbb --openssldir=/hbb/openssl threads zlib shared
+	run make
+	run make install_sw
+	run strip --strip-all /hbb/bin/openssl
+	run strip --strip-debug /hbb/lib/libssl.so /hbb/lib/libcrypto.so
+	run rm -f /hbb/lib/libssl.a /hbb/lib/libcrypto.a
+	run ln -s /etc/pki/tls/certs/ca-bundle.crt /hbb/openssl/cert.pem
+
+	echo "Leaving source directory"
+	popd >/dev/null
+	run rm -rf openssl-$OPENSSL_VERSION
+fi
+
+
+### Curl (system version, so that we can download from HTTPS servers with SNI)
+
+if ! eval_bool "$SKIP_SYSTEM_CURL"; then
+	header "Installing system Curl $CURL_VERSION"
+	# We download from HTTP because the OpenSSL in CentOS 5 does not
+	# support the HTTPS crypto suite on https://curl.haxx.se.
+	download_and_extract curl-$CURL_VERSION.tar.bz2 \
+		curl-$CURL_VERSION \
+		http://curl.askapache.com/download/curl-$CURL_VERSION.tar.bz2
+
+	(
+		activate_image_build_environment
+		run ./configure --prefix=/hbb --disable-static --disable-debug --enable-optimize \
+			--disable-manual --with-ssl --with-ca-bundle=/etc/pki/tls/certs/ca-bundle.crt
+		run make -j$MAKE_CONCURRENCY
+		run make install
+		run strip --strip-all /hbb/bin/curl
+		run strip --strip-debug /hbb/lib/libcurl.so
+	)
+	if [[ "$?" != 0 ]]; then false; fi
+
+	run hash -r
+
+	echo "Leaving source directory"
+	popd >/dev/null
+	run rm -rf curl-$CURL_VERSION
+fi
 
 
 ### m4
@@ -149,7 +217,7 @@ if ! eval_bool "$SKIP_PKG_CONFIG"; then
 	header "Installing pkg-config $PKG_CONFIG_VERSION"
 	download_and_extract pkg-config-$PKG_CONFIG_VERSION.tar.gz \
 		pkg-config-$PKG_CONFIG_VERSION \
-		http://pkgconfig.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz
+		https://pkgconfig.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz
 
 	run ./configure --prefix=/hbb --with-internal-glib
 	run rm -f /hbb/bin/*pkg-config
@@ -185,12 +253,15 @@ if ! eval_bool "$SKIP_CMAKE"; then
 	header "Installing CMake $CMAKE_VERSION"
 	download_and_extract cmake-$CMAKE_VERSION.tar.gz \
 		cmake-$CMAKE_VERSION \
-		http://www.cmake.org/files/v$CMAKE_MAJOR_VERSION/cmake-$CMAKE_VERSION.tar.gz
+		https://cmake.org/files/v$CMAKE_MAJOR_VERSION/cmake-$CMAKE_VERSION.tar.gz
 
-	run ./configure --prefix=/hbb --no-qt-gui --parallel=$MAKE_CONCURRENCY
-	run make -j$MAKE_CONCURRENCY
-	run make install
-	run strip --strip-all /hbb/bin/cmake
+	(
+		activate_image_build_environment
+		run ./configure --prefix=/hbb --no-qt-gui --parallel=$MAKE_CONCURRENCY
+		run make -j$MAKE_CONCURRENCY
+		run make install
+		run strip --strip-all /hbb/bin/cmake
+	)
 
 	echo "Leaving source directory"
 	popd >/dev/null
@@ -202,29 +273,31 @@ fi
 
 if ! eval_bool "$SKIP_PYTHON"; then
 	header "Installing Python $PYTHON_VERSION"
-	run yum install -y openssl-devel
 	download_and_extract Python-$PYTHON_VERSION.tgz \
 		Python-$PYTHON_VERSION \
 		https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
 
-	run ./configure --prefix=/hbb
-	run make -j$MAKE_CONCURRENCY install
-	run strip --strip-all /hbb/bin/python
-	run strip --strip-debug /hbb/lib/python*/lib-dynload/*.so
+	(
+		activate_image_build_environment
+		run ./configure --prefix=/hbb
+		run make -j$MAKE_CONCURRENCY install
+		run strip --strip-all /hbb/bin/python
+		run strip --strip-debug /hbb/lib/python*/lib-dynload/*.so
+	)
+	if [[ "$?" != 0 ]]; then false; fi
+
+	run hash -r
 
 	echo "Leaving source directory"
 	popd >/dev/null
 	run rm -rf Python-$PYTHON_VERSION
 
-	# These were installed as part of openssl-devel
-	run yum remove -y openssl-devel e2fsprogs-devel keyutils-libs-devel \
-		krb5-devel libselinux-devel libsepol-devel zlib-devel
-
 	# Install setuptools and pip
-	curl -OL --fail https://bootstrap.pypa.io/ez_setup.py
-	python ez_setup.py
-	rm -f ez_setup.py
-	easy_install pip
+	echo "Installing setuptools and pip..."
+	run curl -OL --fail https://bootstrap.pypa.io/ez_setup.py
+	run python ez_setup.py
+	run rm -f ez_setup.py
+	run easy_install pip
 fi
 
 
@@ -236,9 +309,9 @@ function install_libstdcxx()
 	local PREFIX="/hbb_$VARIANT"
 
 	header "Installing libstdc++ static libraries: $VARIANT"
-	download_and_extract gcc-$GCC_LIBSTDCXX_VERSION.tar.gz \
+	download_and_extract gcc-$GCC_LIBSTDCXX_VERSION.tar.bz2 \
 		gcc-$GCC_LIBSTDCXX_VERSION \
-		http://mirror2.babylon.network/gcc/releases/gcc-$GCC_LIBSTDCXX_VERSION/gcc-$GCC_LIBSTDCXX_VERSION.tar.bz2
+		http://ftpmirror.gnu.org/gcc/gcc-$GCC_LIBSTDCXX_VERSION/gcc-$GCC_LIBSTDCXX_VERSION.tar.bz2
 
 	(
 		source "$PREFIX/activate"

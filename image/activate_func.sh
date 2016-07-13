@@ -15,7 +15,7 @@ function activate_holy_build_box() {
 	export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig:/usr/lib/pkgconfig
 
 	export CPPFLAGS="-I$PREFIX/include"
-	export LDPATHFLAGS="-L$PREFIX"
+	export LDPATHFLAGS="-L$PREFIX/lib"
 	local MINIMAL_CFLAGS="-g -O2 -fvisibility=hidden $CPPFLAGS"
 
 	export CFLAGS="$MINIMAL_CFLAGS $EXTRA_CFLAGS"
