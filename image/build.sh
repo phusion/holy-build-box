@@ -523,8 +523,9 @@ fi
 if ! eval_bool "$SKIP_FINALIZE"; then
 	header "Finalizing"
 	run yum clean -y all
+	run rm -rf /hbb/share/doc /hbb/share/man
 	run rm -rf /hbb_build /tmp/*
 	for VARIANT in $VARIANTS; do
-		run rm -rf /hbb_$VARIANT/share/man
+		run rm -rf /hbb_$VARIANT/share/doc /hbb_$VARIANT/share/man
 	done
 fi
