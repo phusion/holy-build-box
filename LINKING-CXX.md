@@ -14,7 +14,7 @@ This problem is solved by statically linking the application to libstdc++. Holy 
 
 ## Exceptions
 
-According to [the GCC wiki](https://gcc.gnu.org/wiki/Visibility), exceptions that may be thrown across library boundaries must be declared with default (not hidden) symbol visibility. However, the developer who wrote the original patch [claims](http://stackoverflow.com/questions/14268736/symbol-visibility-exceptions-runtime-error) that these issues have been solved in later GCC issues, so that everything should work even if you do not explicitly declare your exceptions with default visibility. Our static libstdc++ should therefore not cause any problems with exception handling.
+According to [the GCC wiki](https://gcc.gnu.org/wiki/Visibility), exceptions that may be thrown across library boundaries must be declared with default (not hidden) symbol visibility. However, the developer who wrote the original patch [claims](http://stackoverflow.com/questions/14268736/symbol-visibility-exceptions-runtime-error) that these issues have been solved in later GCC versions, so that everything should work even if you do not explicitly declare your exceptions with default visibility. Our static libstdc++ should therefore not cause any problems with exception handling.
 
 ## Dynamically linking to libstdc++
 
