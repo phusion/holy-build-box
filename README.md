@@ -21,6 +21,7 @@ Holy Build Box is a system for building "portable" binaries for Linux: binaries 
  * [FAQ](#faq)
    - [Who should be interested in portable Linux binaries?](#who-should-be-interested-in-portable-linux-binaries)
    - [Which operating systems does Holy Build Box support?](#which-operating-systems-does-holy-build-box-support)
+   - [Which Linux distributions do binaries compiled with Holy Build Box support?](#which-linux-distributions-do-binaries-compiled-with-holy-build-box-support)
    - [Static linking introduces security problems. How do you deal with this?](#static-linking-introduces-security-problems-how-do-you-deal-with-this)
    - [How does Holy Build Box compare to using Docker to package up an application?](#how-does-holy-build-box-compare-to-using-docker-to-package-up-an-application)
    - [How does Holy Build Box compare to Go?](#how-does-holy-build-box-compare-to-go)
@@ -81,7 +82,7 @@ Holy Build Box partially solves problem #1 and #3 by providing static versions o
 
 ### Isolated build environment based on Docker and CentOS 5
 
-The Holy Build Box environment is built on CentOS 5. This allows it to produce binaries that work on pretty much any x86 and x86-64 Linux distribution released since 2007.
+The Holy Build Box environment is built on CentOS 5. This allows it to produce binaries that work on pretty much any x86 and x86-64 Linux distribution released since 2007. The only currently-prominent Linux distribution that the produced binaries may not run on, is Alpine Linux. [See the FAQ entry.](#which-linux-distributions-do-binaries-compiled-with-holy-build-box-support)
 
 The environment is bare-bones with almost nothing installed. Besides the basics, only a compiler toolchain is provided. The toolchain is more recent than the one provided by CentOS 5.
 
@@ -201,6 +202,17 @@ Some non-developers (i.e. users) may object to the idea of distributing portable
 Holy Build Box only supports x86 and x86-64 linux.
 
 OS X is not supported. Windows is not supported. Other Unices are not supported. Other CPU architectures, such as ARM, are not supported.
+
+### Which Linux distributions do binaries compiled with Holy Build Box support?
+
+Binaries work on pretty much any glibc-based x86 and x86-64 Linux distribution released since 2007. A non-exhaustive list:
+
+ * Debian >= 6
+ * Ubuntu >= 10.04
+ * Red Hat Enterprise Linux >= 5
+ * CentOS >= 5
+
+Note the mention "glibc-based". Binaries may not be compatible with Linux distributions not based on glibc. For example, early versions of Alpine Linux were based on uclibc, which was not compatible with glibc at all. Later versions of Alpine Linux are based on musl, which is *somewhat* compatible with glibc. So produced binaries may or may not run on later versions of Alpine Linux.
 
 ### Static linking introduces security problems. How do you deal with this?
 
