@@ -16,11 +16,13 @@ This problem is solved by statically linking the application to libstdc++. Holy 
 
 According to [the GCC wiki](https://gcc.gnu.org/wiki/Visibility), exceptions that may be thrown across library boundaries must be declared with default (not hidden) symbol visibility. However, the developer who wrote the original patch [claims](http://stackoverflow.com/questions/14268736/symbol-visibility-exceptions-runtime-error) that these issues have been solved in later GCC versions, so that everything should work even if you do not explicitly declare your exceptions with default visibility. Our static libstdc++ should therefore not cause any problems with exception handling.
 
-## Dynamically linking to libstdc++
+## Use dynamic linking to (sometimes) save space
 
 There is a situation in which you should not statically link to libstdc++. If your application bundles a bunch of C++ shared libraries, then you can save space by having everything dynamically linked to libstdc++.
 
 However, you must be very certain that none of the code ever `dlopen()`s a library that is not part of your application. This may happen more subtly than you think. A classic problematic use case is the Steam game store. Steam was dynamically linked to libstdc++, and they shipped an older version of libstdc++. Steam's OpenGL library loads the system's video driver with `dlopen()`, and on some systems the video driver is dynamically linked to libstdc++. Because the older libstdc++ shipped with steam was already loaded inside the same process, the video driver fails to find the symbols it needs, and Steam crashes.
+
+## How to dynamically link to libstdc++
 
 If you want to dynamically link to libstdc++ then remove `-static-libstdc++` from your linker flags. You should also set an environment variable so that `libcheck` does not complain about the fact that you are dynamically linked to libstdc++:
 
