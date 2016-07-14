@@ -85,7 +85,7 @@ We encourage you to inspect the environment variables set by the Holy Build Box 
     LDFLAGS: -L/hbb_exe -static-libstdc++
     STATICLIB_CFLAGS: -O2 -fvisibility=hidden -I/hbb_exe/include
     SHLIB_CFLAGS: -O2 -fvisibility=hidden -I/hbb_exe/include
-    SHLIB_LDFLAGS: -L/hbb_exe
+    SHLIB_LDFLAGS: -L/hbb_exe/lib
 
     container# echo $CFLAGS
     -O2 -fvisibility=hidden -I/hbb_exe/include
