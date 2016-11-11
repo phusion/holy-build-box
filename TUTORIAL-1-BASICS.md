@@ -61,7 +61,7 @@ Verify that it works:
 
 Note that `gcc` is preceded by a "magical" invocation to `/hbb_exe/activate-exec`. What is this?
 
-The `activate-exec` comand sets various environment variables -- such as `PATH`, `CFLAGS` and `C_INCLUDE_PATH` -- so that the compiler toolchain can find various software that is included in Holy Build Box. It then executes the command specified in its parameters -- that is, gcc.
+The `activate-exec` command sets various environment variables -- such as `PATH`, `CFLAGS` and `C_INCLUDE_PATH` -- so that the compiler toolchain can find various software that is included in Holy Build Box. It then executes the command specified in its parameters -- that is, gcc.
 
 The reason why this is needed because some of the software inside the Holy Build Box environment is not installed via YUM, but compiled from source instead. They are installed in `/hbb*`, so the compiler toolchain won't find them by default.
 
@@ -69,7 +69,7 @@ Activating the Holy Build Box environment is important. Without activation, a la
 
 This also explains why the gcc call is wrapped inside a `bash` call, and why inside the Bash command we reference `$CFLAGS` and `$LDFLAGS`. We want the compiler to respect the Holy Build Box compilation and linker flags.
 
-The various `/hbb*` directories and the environment variables are explained in the [Environment structure](ENVIRONMENT-STRUCTURE.md) guide and in [Tutorial 7: Library variants](TUTORIAL-5-LIBRARY-VARIANTS.md).
+The various `/hbb*` directories and the environment variables are explained in the [Environment structure](ENVIRONMENT-STRUCTURE.md) guide and in [Tutorial 5: Using library variants](TUTORIAL-5-LIBRARY-VARIANTS.md).
 
 ### Environment variable values
 

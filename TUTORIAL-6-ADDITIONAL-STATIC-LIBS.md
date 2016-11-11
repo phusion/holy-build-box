@@ -107,4 +107,4 @@ cp /usr/local/nginx/sbin/nginx /io/
 
 You have now learned how to compile additional static libraries. Next, you will learn how to automatically verify that your binary is indeed portable (not accidentally dynamically linked to non-essential libraries).
 
-[Tutorial 7: Verifying binary portability with libcheck](TUTORIAL-7-VERIFYING-PORTABILITY-WITH-LIBCHECK.md)
+[Tutorial 7: Verifying binary portability with libcheck >>](TUTORIAL-7-VERIFYING-PORTABILITY-WITH-LIBCHECK.md)
