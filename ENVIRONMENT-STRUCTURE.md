@@ -5,7 +5,7 @@ As described in [Features](README.md#features), the Holy Build Box environment c
 Most of the compiler toolchain, e.g. `gcc` and `g++`, are installed with YUM. However, some software in CentOS 5 is way too outdated for compiling modern applications, so we installed more recent versions of them from source.
 
  * Executable tools such as `pkg-config` and `CMake` are installed to `/hbb`.
- * Libraries such as OpenSSL are installed to to the [library variant directories](LIBRARY-VARIANTS.md), e.g. `/hbb_exe`.
+ * Libraries such as OpenSSL are installed to the [library variant directories](LIBRARY-VARIANTS.md), e.g. `/hbb_exe`.
 
 The activation script inside each library variant directory sets various environment variables to ensure that whatever is inside that library variant directory is found first. For example, it prepends `/hbb/bin` and `/hbb_<VARIANT NAME>/bin` to PATH.
 
