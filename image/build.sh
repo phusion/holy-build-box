@@ -52,6 +52,8 @@ run mkdir -p /hbb /hbb/bin
 run cp /hbb_build/libcheck /hbb/bin/
 run cp /hbb_build/hardening-check /hbb/bin/
 run cp /hbb_build/activate_func.sh /hbb/activate_func.sh
+run cp /hbb_build/hbb-activate /hbb/activate
+run cp /hbb_build/activate-exec /hbb/activate-exec
 
 for VARIANT in $VARIANTS; do
 	run mkdir -p /hbb_$VARIANT
@@ -74,18 +76,6 @@ source /opt/rh/devtoolset-2/enable
 export PATH=/hbb/bin:$PATH
 
 
-function activate_image_build_environment()
-{
-	export C_INCLUDE_PATH=/hbb/include
-	export CPLUS_INCLUDE_PATH=/hbb/include
-	export LIBRARY_PATH=/hbb/lib
-	export PKG_CONFIG_PATH=/hbb/lib/pkgconfig:/usr/lib/pkgconfig
-	export CPPFLAGS=-I/hbb/include
-	export LDPATHFLAGS="-L/hbb/lib -Wl,-rpath,/hbb/lib"
-	export LDFLAGS="$LDPATHFLAGS"
-}
-
-
 ### OpenSSL (system version, so that we can download from HTTPS servers with SNI)
 
 if ! eval_bool "$SKIP_SYSTEM_OPENSSL"; then
@@ -96,13 +86,17 @@ if ! eval_bool "$SKIP_SYSTEM_OPENSSL"; then
 		openssl-$OPENSSL_VERSION \
 		ftp://ftp.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz
 
-	run ./config --prefix=/hbb --openssldir=/hbb/openssl threads zlib shared
-	run make
-	run make install_sw
-	run strip --strip-all /hbb/bin/openssl
-	run strip --strip-debug /hbb/lib/libssl.so /hbb/lib/libcrypto.so
-	run rm -f /hbb/lib/libssl.a /hbb/lib/libcrypto.a
-	run ln -s /etc/pki/tls/certs/ca-bundle.crt /hbb/openssl/cert.pem
+	(
+		activate_holy_build_box_deps_installation_environment
+		run ./config --prefix=/hbb --openssldir=/hbb/openssl threads zlib shared
+		run make
+		run make install_sw
+		run strip --strip-all /hbb/bin/openssl
+		run strip --strip-debug /hbb/lib/libssl.so /hbb/lib/libcrypto.so
+		run rm -f /hbb/lib/libssl.a /hbb/lib/libcrypto.a
+		run ln -s /etc/pki/tls/certs/ca-bundle.crt /hbb/openssl/cert.pem
+	)
+	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
 	popd >/dev/null
@@ -121,7 +115,7 @@ if ! eval_bool "$SKIP_SYSTEM_CURL"; then
 		http://curl.askapache.com/download/curl-$CURL_VERSION.tar.bz2
 
 	(
-		activate_image_build_environment
+		activate_holy_build_box_deps_installation_environment
 		run ./configure --prefix=/hbb --disable-static --disable-debug --enable-optimize \
 			--disable-manual --with-ssl --with-ca-bundle=/etc/pki/tls/certs/ca-bundle.crt
 		run make -j$MAKE_CONCURRENCY
@@ -147,9 +141,13 @@ if ! eval_bool "$SKIP_M4"; then
 		m4-$M4_VERSION \
 		http://ftpmirror.gnu.org/m4/m4-$M4_VERSION.tar.gz
 
-	run ./configure --prefix=/hbb --disable-shared --enable-static
-	run make -j$MAKE_CONCURRENCY
-	run make install-strip
+	(
+		activate_holy_build_box_deps_installation_environment
+		run ./configure --prefix=/hbb --disable-shared --enable-static
+		run make -j$MAKE_CONCURRENCY
+		run make install-strip
+	)
+	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
 	popd >/dev/null
@@ -165,9 +163,13 @@ if ! eval_bool "$SKIP_AUTOCONF"; then
 		autoconf-$AUTOCONF_VERSION \
 		http://ftpmirror.gnu.org/autoconf/autoconf-$AUTOCONF_VERSION.tar.gz
 
-	run ./configure --prefix=/hbb --disable-shared --enable-static
-	run make -j$MAKE_CONCURRENCY
-	run make install-strip
+	(
+		activate_holy_build_box_deps_installation_environment
+		run ./configure --prefix=/hbb --disable-shared --enable-static
+		run make -j$MAKE_CONCURRENCY
+		run make install-strip
+	)
+	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
 	popd >/dev/null
@@ -183,9 +185,13 @@ if ! eval_bool "$SKIP_AUTOMAKE"; then
 		automake-$AUTOMAKE_VERSION \
 		http://ftpmirror.gnu.org/automake/automake-$AUTOMAKE_VERSION.tar.gz
 
-	run ./configure --prefix=/hbb --disable-shared --enable-static
-	run make -j$MAKE_CONCURRENCY
-	run make install-strip
+	(
+		activate_holy_build_box_deps_installation_environment
+		run ./configure --prefix=/hbb --disable-shared --enable-static
+		run make -j$MAKE_CONCURRENCY
+		run make install-strip
+	)
+	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
 	popd >/dev/null
@@ -201,9 +207,13 @@ if ! eval_bool "$SKIP_LIBTOOL"; then
 		libtool-$LIBTOOL_VERSION \
 		http://ftpmirror.gnu.org/libtool/libtool-$LIBTOOL_VERSION.tar.gz
 
-	run ./configure --prefix=/hbb --disable-shared --enable-static
-	run make -j$MAKE_CONCURRENCY
-	run make install-strip
+	(
+		activate_holy_build_box_deps_installation_environment
+		run ./configure --prefix=/hbb --disable-shared --enable-static
+		run make -j$MAKE_CONCURRENCY
+		run make install-strip
+	)
+	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
 	popd >/dev/null
@@ -219,9 +229,13 @@ if ! eval_bool "$SKIP_PKG_CONFIG"; then
 		pkg-config-$PKG_CONFIG_VERSION \
 		https://pkgconfig.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz
 
-	run ./configure --prefix=/hbb --with-internal-glib
-	run rm -f /hbb/bin/*pkg-config
-	run make -j$MAKE_CONCURRENCY install-strip
+	(
+		activate_holy_build_box_deps_installation_environment
+		run ./configure --prefix=/hbb --with-internal-glib
+		run rm -f /hbb/bin/*pkg-config
+		run make -j$MAKE_CONCURRENCY install-strip
+	)
+	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
 	popd >/dev/null
@@ -237,9 +251,13 @@ if ! eval_bool "$SKIP_CCACHE"; then
 		ccache-$CCACHE_VERSION \
 		http://samba.org/ftp/ccache/ccache-$CCACHE_VERSION.tar.gz
 
-	run ./configure --prefix=/hbb
-	run make -j$MAKE_CONCURRENCY install
-	run strip --strip-all /hbb/bin/ccache
+	(
+		activate_holy_build_box_deps_installation_environment
+		run ./configure --prefix=/hbb
+		run make -j$MAKE_CONCURRENCY install
+		run strip --strip-all /hbb/bin/ccache
+	)
+	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
 	popd >/dev/null
@@ -256,12 +274,13 @@ if ! eval_bool "$SKIP_CMAKE"; then
 		https://cmake.org/files/v$CMAKE_MAJOR_VERSION/cmake-$CMAKE_VERSION.tar.gz
 
 	(
-		activate_image_build_environment
+		activate_holy_build_box_deps_installation_environment
 		run ./configure --prefix=/hbb --no-qt-gui --parallel=$MAKE_CONCURRENCY
 		run make -j$MAKE_CONCURRENCY
 		run make install
 		run strip --strip-all /hbb/bin/cmake
 	)
+	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
 	popd >/dev/null
@@ -278,7 +297,7 @@ if ! eval_bool "$SKIP_PYTHON"; then
 		https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
 
 	(
-		activate_image_build_environment
+		activate_holy_build_box_deps_installation_environment
 		run ./configure --prefix=/hbb
 		run make -j$MAKE_CONCURRENCY install
 		run strip --strip-all /hbb/bin/python

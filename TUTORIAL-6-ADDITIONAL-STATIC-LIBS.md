@@ -18,6 +18,8 @@ So we recommend that you compile from source any static libraries that are not i
 
 Only reasons #2 and #3 *require* you to compile static libraries from source. If #2 and #3 do not apply to you, then you are free to install static libraries from YUM, as long as you don't care about executable size.
 
+When you are done with this tutorial, please refer to [Installing additional dependencies](INSTALLING-ADDITIONAL-DEPENDENCIES.md) for a more generic, more advanced guide on dealing with dependencies.
+
 ## Example: compiling Nginx with PCRE
 
 Let's suppose that you want to compile Nginx with the `rewrite_module` enabled. This module requires PCRE, which Holy Build Box does not include. You also want to compile Nginx with the `exe_gc_hardened` variant.
@@ -105,6 +107,6 @@ cp /usr/local/nginx/sbin/nginx /io/
 
 ## Conclusion
 
-You have now learned how to compile additional static libraries. Next, you will learn how to automatically verify that your binary is indeed portable (not accidentally dynamically linked to non-essential libraries).
+You have now learned how to compile additional static libraries. But this tutorial only covers the basics. You should also read [Installing additional dependencies](INSTALLING-ADDITIONAL-DEPENDENCIES.md) for a more generic, more advanced guide on dealing with dependencies. In particular, this tutorial compiles PCRE as part of the Nginx build script, but we only did that because it's easy to demonstrate. For serious usage, we recommend installing dependencies by extending the Holy Build Box image.
 
-[Tutorial 7: Verifying binary portability with libcheck >>](TUTORIAL-7-VERIFYING-PORTABILITY-WITH-LIBCHECK.md)
+Or you can head to the next tutorial: [Tutorial 7: Verifying binary portability with libcheck >>](TUTORIAL-7-VERIFYING-PORTABILITY-WITH-LIBCHECK.md)

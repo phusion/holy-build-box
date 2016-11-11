@@ -6,6 +6,8 @@ Any non-trivial application has dependencies. As explained in the [introduction]
 
 In this tutorial, we will compile [Nginx](http://nginx.org) using Holy Build Box. At the very least, Nginx depends on zlib (for compression) and OpenSSL (for cryptographic operations). Holy Build Box happens to include static versions of both libraries, so in this tutorial we will show you how to statically Nginx to them.
 
+Does your application depend on something that is not included by default in Holy Build Box? In [tutorial 6](TUTORIAL-6-ADDITIONAL-STATIC-LIBS.md) and in the [Installing additional dependencies](INSTALLING-ADDITIONAL-DEPENDENCIES.md) guide we will cover installing your own dependencies.
+
 ## Writing the compilation script
 
 Your compilation script `compile.sh` should look as follows:
