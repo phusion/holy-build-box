@@ -92,18 +92,18 @@ The environment is bare-bones with almost nothing installed. Besides the basics,
  * automake 1.15
  * libtool 2.4.6
  * pkg-config 0.29.1
- * ccache 3.2.6
- * CMake 3.6.0
- * Python 2.7.10 (+ setuptools and pip)
+ * ccache 3.3.3
+ * CMake 3.6.3
+ * Python 2.7.12 (+ setuptools and pip)
 
 ### Included static libraries
 
 Holy Build Box also includes static versions of certain libraries. These libraries are more recent than the ones shipped with CentOS 5.
 
  * zlib 1.2.8
- * OpenSSL 1.0.2h
- * curl and libcurl 7.49.1
- * SQLite 2016-3130000
+ * OpenSSL 1.0.2j
+ * curl and libcurl 7.51.0
+ * SQLite 2016-3150100
 
 These libraries are provided in multiple variants, each compiled with different compilation flags. The different variants will be covered with in [Tutorial 5: Using library variants](TUTORIAL-5-LIBRARY-VARIANTS.md) and in the [Library variants](LIBRARY-VARIANTS.md) guide.
 

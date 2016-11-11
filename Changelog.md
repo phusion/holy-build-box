@@ -1,5 +1,12 @@
 ## Version 1.2.0 (not yet released)
 
+ * Python has been upgraded to 2.7.12.
+ * OpenSSL has been upgraded to 1.0.2j.
+ * ccache has been upgraded to 3.3.3.
+ * CMake has been upgraded to 3.6.3.
+ * libcurl has been upgraded to 7.51.0.
+ * SQLite has been upgraded to 2016-3150100.
+
 ## Version 1.1.0 (release date 2016-07-13)
 
  * Fixes problems with building the Docker image due to so many web servers these days switching to HTTPS with strict cryptographic settings that aren't supported by CentOS 5's default OpenSSL version.
