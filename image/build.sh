@@ -298,6 +298,7 @@ if ! eval_bool "$SKIP_PYTHON"; then
 	run python ez_setup.py
 	run rm -f ez_setup.py
 	run easy_install pip
+	run rm -f /setuptools*.zip
 fi
 
 

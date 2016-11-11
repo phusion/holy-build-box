@@ -6,6 +6,7 @@
  * CMake has been upgraded to 3.6.3.
  * libcurl has been upgraded to 7.51.0.
  * SQLite has been upgraded to 2016-3150100.
+ * Removes the unnecessary setuptools zip file in the root directory.
 
 ## Version 1.1.0 (release date 2016-07-13)
 
