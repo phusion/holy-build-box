@@ -2,6 +2,8 @@
 
 Holy Build Box provides several different variants of its static libraries, each compiled with different compilation flags and thus meant for different situations.
 
+This page describes each library variant in detail. You can learn more about using library variants in [tutorial 5](TUTORIAL-5-USING-LIBRARY-VARIANTS.md).
+
 The static libraries in each variant are compiled with the flags as specified by its `STATICLIB_CFLAGS` environment variable.
 
 ## `exe`
