@@ -8,6 +8,7 @@
  * SQLite has been upgraded to 2016-3150100.
  * Removes the unnecessary setuptools zip file in the root directory.
  * Adds a default mechanism for running builds without root privileges. See the "Securing the build environment" guide for more information.
+ * [EPEL](https://fedoraproject.org/wiki/EPEL) is now enabled inside the Holy Build Box image.
 
 ## Version 1.1.0 (release date 2016-07-13)
 

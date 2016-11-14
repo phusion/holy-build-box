@@ -67,7 +67,7 @@ done
 
 header "Updating system"
 run yum update -y
-run yum install -y curl
+run yum install -y curl epel-release
 
 header "Installing compiler toolchain"
 cd /etc/yum.repos.d
