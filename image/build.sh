@@ -51,9 +51,13 @@ header "Initializing"
 run mkdir -p /hbb /hbb/bin
 run cp /hbb_build/libcheck /hbb/bin/
 run cp /hbb_build/hardening-check /hbb/bin/
+run cp /hbb_build/setuser /hbb/bin/
 run cp /hbb_build/activate_func.sh /hbb/activate_func.sh
 run cp /hbb_build/hbb-activate /hbb/activate
 run cp /hbb_build/activate-exec /hbb/activate-exec
+
+run groupadd -g 9327 builder
+run adduser --uid 9327 --gid 9327 builder
 
 for VARIANT in $VARIANTS; do
 	run mkdir -p /hbb_$VARIANT

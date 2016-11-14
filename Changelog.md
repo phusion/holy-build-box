@@ -7,6 +7,7 @@
  * libcurl has been upgraded to 7.51.0.
  * SQLite has been upgraded to 2016-3150100.
  * Removes the unnecessary setuptools zip file in the root directory.
+ * Adds a default mechanism for running builds without root privileges. See the "Securing the build environment" guide for more information.
 
 ## Version 1.1.0 (release date 2016-07-13)
 

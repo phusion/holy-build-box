@@ -160,6 +160,7 @@ Guides:
  * [Library variants](LIBRARY-VARIANTS.md)
  * [Installing additional dependencies](INSTALLING-ADDITIONAL-DEPENDENCIES.md)
  * [Which system libraries are considered essential?](ESSENTIAL-SYSTEM-LIBRARIES.md)
+ * [Securing the build environment](SECURING-THE-BUILD-ENVIRONMENT.md)
  * [Security hardening binaries](SECURITY-HARDENING-BINARIES.md)
  * [Building 32-bit binaries](BUILDING-32-BIT-BINARIES.md)
  * [Caching compilation results with ccache](CACHING-WITH-CCACHE.md)
