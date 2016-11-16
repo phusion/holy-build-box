@@ -1,4 +1,4 @@
-## Version 1.2.0 (not yet released)
+## Version 1.2.0 (release date 2016-11-16)
 
  * Python has been upgraded to 2.7.12.
  * OpenSSL has been upgraded to 1.0.2j.
