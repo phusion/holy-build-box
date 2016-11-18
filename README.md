@@ -138,6 +138,12 @@ Traveling Ruby works by providing precompiled Ruby binaries that work on any Lin
 
 The Linux binaries published by the Traveling Ruby project are produced with Holy Build Box.
 
+### Passenger web app server
+
+[Phusion Passenger](https://www.phusionpassenger.com/) is a web app server that lets you launch, operate, optimize and protect web apps, microservices & APIs. It aims to be as easy to use as possible, meaning that it has to be easy to install as well.
+
+Passenger provides Debian and RPM packages which covers most of their users. However there still remain a significant amount of users that are not able to use Debian and RPM packages, but that still want or need binaries. One such user group is Heroku users: it is not feasible to compile Passenger on Heroku. So Heroku users use the precompiled Passenger binaries instead.
+
 ## Getting started
 
 <a name="tutorials"></a>
