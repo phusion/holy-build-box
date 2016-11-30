@@ -1,9 +1,9 @@
 SCL_COLLECTIONS=("devtoolset-4" "autotools-latest" "python27")
 function activate_scl() {
-    for mod in ${SCL_COLLECTIONS[@]}
-    do
-        source /opt/rh/${mod}/enable
-    done
+	for mod in ${SCL_COLLECTIONS[@]}
+	do
+		source /opt/rh/${mod}/enable
+	done
 }
 
 function activate_holy_build_box_deps_installation_environment() {
@@ -54,6 +54,10 @@ function activate_holy_build_box() {
 	if [[ "$O3_ALLOWED" = "" ]]; then
 		export O3_ALLOWED=true
 	fi
+
+	# CMake Search Path:
+	export CMAKE_PREFIX_PATH=$PREFIX
+	export HBB_PREFIX=$PREFIX
 
 	echo "Holy build box activated"
 	echo "Prefix: $PREFIX"
