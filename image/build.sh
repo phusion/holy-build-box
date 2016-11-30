@@ -35,6 +35,8 @@ MAKE_CONCURRENCY=${MAKE_CONCURRENCY:-2}
 VARIANTS='exe exe_gc_hardened shlib'
 export PATH=/hbb/bin:$PATH
 
+OSARCH=$(cat /etc/yum/vars/basearch)
+
 #########################
 
 header "Initializing"
@@ -60,7 +62,7 @@ run yum update -y
 run yum install -y curl epel-release centos-release-scl-rh
 
 # Enable autotools-latest EPEL
-run yum install -y https://www.softwarecollections.org/en/scls/praiskup/autotools/epel-6-x86_64/download/praiskup-autotools-epel-6-x86_64.noarch.rpm
+run yum install -y https://www.softwarecollections.org/en/scls/praiskup/autotools/epel-6-${OSARCH}/download/praiskup-autotools-epel-6-${OSARCH}.noarch.rpm
 
 header "Installing compiler toolchain"
 cd /

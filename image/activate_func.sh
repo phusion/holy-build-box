@@ -16,7 +16,7 @@ function activate_holy_build_box_deps_installation_environment() {
 	export CPPFLAGS=-I/hbb/include
 	export LDPATHFLAGS="-L/hbb/lib -Wl,-rpath,/hbb/lib"
 	export LDFLAGS="$LDPATHFLAGS"
-	export LD_LIBRARY_PATH=/hbb/lib
+	export LD_LIBRARY_PATH=/hbb/lib:${LD_LIBRARY_PATH}
 
 	echo "Holy build box dependency installation environment activated"
 }
@@ -36,7 +36,7 @@ function activate_holy_build_box() {
 	export CPLUS_INCLUDE_PATH=$PREFIX/include
 	export LIBRARY_PATH=$PREFIX/lib
 	export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig:/usr/lib/pkgconfig
-	export LD_LIBRARY_PATH=/hbb/lib:$PREFIX/lib
+	export LD_LIBRARY_PATH=/hbb/lib:$PREFIX/lib:${LD_LIBRARY_PATH}
 
 	export CPPFLAGS="-I$PREFIX/include"
 	export LDPATHFLAGS="-L$PREFIX/lib"
