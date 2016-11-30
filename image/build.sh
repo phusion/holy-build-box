@@ -65,7 +65,7 @@ run yum install -y https://www.softwarecollections.org/en/scls/praiskup/autotool
 header "Installing compiler toolchain"
 cd /
 run yum install -y devtoolset-4-gcc devtoolset-4-gcc-c++ \
-		devtoolset-4-binutils  make file diffutils \
+		devtoolset-4-binutils  make file diffutils git \
 		patch perl bzip2 which gzip autotools-latest python27
 
 activate_scl
