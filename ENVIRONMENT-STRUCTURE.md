@@ -1,8 +1,8 @@
 # Environment structure
 
-As described in [Features](README.md#features), the Holy Build Box environment consists of a bare-bones CentOS 5 system, on top of which a compiler toolchain and various libraries are installed.
+As described in [Features](README.md#features), the Holy Build Box environment consists of a bare-bones CentOS 6 system, on top of which a compiler toolchain and various libraries are installed.
 
-Most of the compiler toolchain, e.g. `gcc` and `g++`, are installed with YUM. However, some software in CentOS 5 is way too outdated for compiling modern applications, so we installed more recent versions of them from source.
+Most of the compiler toolchain, e.g. `gcc` and `g++`, are installed with YUM. However, some software in CentOS 6 is way too outdated for compiling modern applications, so we installed more recent versions of them from source.
 
  * Executable tools such as `pkg-config` and `CMake` are installed to `/hbb`.
  * Libraries such as OpenSSL are installed to the [library variant directories](LIBRARY-VARIANTS.md), e.g. `/hbb_exe`.
@@ -28,6 +28,8 @@ Some environment variables deserve special explanation:
  * `CFLAGS`, `CXXFLAGS` and `LDFLAGS` are meant for compiling binaries.
  * `STATICLIB_CFLAGS` and `STATICLIB_CXXFLAGS` are meant for compiling static libraries. When compiling static libraries, you should set `CFLAGS` and `CXXFLAGS` to equal these variables.
  * `SHLIB_CFLAGS`, `SHLIB_CXXFLAGS` and `SHLIB_LDFLAGS` are meant for compiling shared libraries. When compiling shared libraries, you should set `CFLAGS`, `CXXFLAGS` and `LDFLAGS` to equal these variables.
+ * `CMAKE_PREFIX_PATH` is set to the appropriate prefix, to ensure CMake can
+   find libraries installed within HBB
 
 You can inspect the environment variables by starting a bash shell and sourcing one of the activation scripts:
 
