@@ -1,17 +1,13 @@
 #!/bin/bash
 set -e
 
-M4_VERSION=1.4.17
-AUTOCONF_VERSION=2.69
-AUTOMAKE_VERSION=1.15
-LIBTOOL_VERSION=2.4.6
+BOOST_VERSION=1.62.0
 PKG_CONFIG_VERSION=0.29.1
 CCACHE_VERSION=3.3.3
 CMAKE_VERSION=3.6.3
 CMAKE_MAJOR_VERSION=3.6
-PYTHON_VERSION=2.7.12
-GCC_LIBSTDCXX_VERSION=4.8.2
 ZLIB_VERSION=1.2.8
+BZIP2_VERSION=1.0.6
 OPENSSL_VERSION=1.0.2j
 CURL_VERSION=7.51.0
 SQLITE_VERSION=3150100
@@ -24,24 +20,18 @@ SKIP_TOOLS=${SKIP_TOOLS:-false}
 SKIP_LIBS=${SKIP_LIBS:-false}
 SKIP_FINALIZE=${SKIP_FINALIZE:-false}
 
-SKIP_SYSTEM_OPENSSL=${SKIP_SYSTEM_OPENSSL:-$SKIP_TOOLS}
-SKIP_SYSTEM_CURL=${SKIP_SYSTEM_CURL:-$SKIP_TOOLS}
-SKIP_M4=${SKIP_M4:-$SKIP_TOOLS}
-SKIP_AUTOCONF=${SKIP_AUTOCONF:-$SKIP_TOOLS}
-SKIP_AUTOMAKE=${SKIP_AUTOMAKE:-$SKIP_TOOLS}
-SKIP_LIBTOOL=${SKIP_LIBTOOL:-$SKIP_TOOLS}
 SKIP_PKG_CONFIG=${SKIP_PKG_CONFIG:-$SKIP_TOOLS}
 SKIP_CCACHE=${SKIP_CCACHE:-$SKIP_TOOLS}
 SKIP_CMAKE=${SKIP_CMAKE:-$SKIP_TOOLS}
-SKIP_PYTHON=${SKIP_PYTHON:-$SKIP_TOOLS}
 
-SKIP_LIBSTDCXX=${SKIP_LIBSTDCXX:-$SKIP_LIBS}
 SKIP_ZLIB=${SKIP_ZLIB:-$SKIP_LIBS}
+SKIP_BOOST=${SKIP_BOOST:-$SKIP_LIBS}
+SKIP_BZIP2=${SKIP_BZIP2:-$SKIP_LIBS}
 SKIP_OPENSSL=${SKIP_OPENSSL:-$SKIP_LIBS}
 SKIP_CURL=${SKIP_CURL:-$SKIP_LIBS}
 SKIP_SQLITE=${SKIP_SQLITE:-$SKIP_LIBS}
 
-MAKE_CONCURRENCY=2
+MAKE_CONCURRENCY=${MAKE_CONCURRENCY:-2}
 VARIANTS='exe exe_gc_hardened shlib'
 export PATH=/hbb/bin:$PATH
 
@@ -67,310 +57,53 @@ done
 
 header "Updating system"
 run yum update -y
-run yum install -y curl epel-release
+run yum install -y curl epel-release centos-release-scl-rh
+
+# Enable autotools-latest EPEL
+run yum install -y https://www.softwarecollections.org/en/scls/praiskup/autotools/epel-6-x86_64/download/praiskup-autotools-epel-6-x86_64.noarch.rpm
 
 header "Installing compiler toolchain"
-cd /etc/yum.repos.d
-# GCC 4.8 for CentOS 5: http://braaten-family.org/ed/blog/2014-05-28-devtools-for-centos/
-run curl -LOS http://people.centos.org/tru/devtools-2/devtools-2.repo
 cd /
-run yum install -y devtoolset-2-gcc devtoolset-2-gcc-c++ devtoolset-2-binutils \
-	make file diffutils patch perl bzip2 which zlib-devel
-source /opt/rh/devtoolset-2/enable
+run yum install -y devtoolset-4-gcc devtoolset-4-gcc-c++ \
+		devtoolset-4-binutils  make file diffutils \
+		patch perl bzip2 which gzip autotools-latest python27
+
+activate_scl
 export PATH=/hbb/bin:$PATH
 
-
-### OpenSSL (system version, so that we can download from HTTPS servers with SNI)
-
-if ! eval_bool "$SKIP_SYSTEM_OPENSSL"; then
-	header "Installing system OpenSSL $OPENSSL_VERSION"
-	# We download from FTP because the OpenSSL in CentOS 5 does not
-	# support the HTTPS crypto suite on https://www.openssl.org.
-	download_and_extract openssl-$OPENSSL_VERSION.tar.gz \
-		openssl-$OPENSSL_VERSION \
-		ftp://ftp.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./config --prefix=/hbb --openssldir=/hbb/openssl threads zlib shared
-		run make
-		run make install_sw
-		run strip --strip-all /hbb/bin/openssl
-		run strip --strip-debug /hbb/lib/libssl.so /hbb/lib/libcrypto.so
-		run rm -f /hbb/lib/libssl.a /hbb/lib/libcrypto.a
-		run ln -s /etc/pki/tls/certs/ca-bundle.crt /hbb/openssl/cert.pem
-	)
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf openssl-$OPENSSL_VERSION
-fi
-
-
-### Curl (system version, so that we can download from HTTPS servers with SNI)
-
-if ! eval_bool "$SKIP_SYSTEM_CURL"; then
-	header "Installing system Curl $CURL_VERSION"
-	# We download from HTTP because the OpenSSL in CentOS 5 does not
-	# support the HTTPS crypto suite on https://curl.haxx.se.
-	download_and_extract curl-$CURL_VERSION.tar.bz2 \
-		curl-$CURL_VERSION \
-		http://curl.askapache.com/download/curl-$CURL_VERSION.tar.bz2
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb --disable-static --disable-debug --enable-optimize \
-			--disable-manual --with-ssl --with-ca-bundle=/etc/pki/tls/certs/ca-bundle.crt
-		run make -j$MAKE_CONCURRENCY
-		run make install
-		run strip --strip-all /hbb/bin/curl
-		run strip --strip-debug /hbb/lib/libcurl.so
-	)
-	if [[ "$?" != 0 ]]; then false; fi
-
-	run hash -r
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf curl-$CURL_VERSION
-fi
-
-
-### m4
-
-if ! eval_bool "$SKIP_M4"; then
-	header "Installing m4 $M4_VERSION"
-	download_and_extract m4-$M4_VERSION.tar.gz \
-		m4-$M4_VERSION \
-		http://ftpmirror.gnu.org/m4/m4-$M4_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb --disable-shared --enable-static
-		run make -j$MAKE_CONCURRENCY
-		run make install-strip
-	)
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf m4-$M4_VERSION
-fi
-
-
-### autoconf
-
-if ! eval_bool "$SKIP_AUTOCONF"; then
-	header "Installing autoconf $AUTOCONF_VERSION"
-	download_and_extract autoconf-$AUTOCONF_VERSION.tar.gz \
-		autoconf-$AUTOCONF_VERSION \
-		http://ftpmirror.gnu.org/autoconf/autoconf-$AUTOCONF_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb --disable-shared --enable-static
-		run make -j$MAKE_CONCURRENCY
-		run make install-strip
-	)
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf autoconf-$AUTOCONF_VERSION
-fi
-
-
-### automake
-
-if ! eval_bool "$SKIP_AUTOMAKE"; then
-	header "Installing automake $AUTOMAKE_VERSION"
-	download_and_extract automake-$AUTOMAKE_VERSION.tar.gz \
-		automake-$AUTOMAKE_VERSION \
-		http://ftpmirror.gnu.org/automake/automake-$AUTOMAKE_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb --disable-shared --enable-static
-		run make -j$MAKE_CONCURRENCY
-		run make install-strip
-	)
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf automake-$AUTOMAKE_VERSION
-fi
-
-
-### libtool
-
-if ! eval_bool "$SKIP_LIBTOOL"; then
-	header "Installing libtool $LIBTOOL_VERSION"
-	download_and_extract libtool-$LIBTOOL_VERSION.tar.gz \
-		libtool-$LIBTOOL_VERSION \
-		http://ftpmirror.gnu.org/libtool/libtool-$LIBTOOL_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb --disable-shared --enable-static
-		run make -j$MAKE_CONCURRENCY
-		run make install-strip
-	)
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf libtool-$LIBTOOL_VERSION
-fi
-
-
-### pkg-config
-
-if ! eval_bool "$SKIP_PKG_CONFIG"; then
-	header "Installing pkg-config $PKG_CONFIG_VERSION"
-	download_and_extract pkg-config-$PKG_CONFIG_VERSION.tar.gz \
-		pkg-config-$PKG_CONFIG_VERSION \
-		https://pkgconfig.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb --with-internal-glib
-		run rm -f /hbb/bin/*pkg-config
-		run make -j$MAKE_CONCURRENCY install-strip
-	)
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf pkg-config-$PKG_CONFIG_VERSION
-fi
-
-
-### ccache
-
-if ! eval_bool "$SKIP_CCACHE"; then
-	header "Installing ccache $CCACHE_VERSION"
-	download_and_extract ccache-$CCACHE_VERSION.tar.gz \
-		ccache-$CCACHE_VERSION \
-		http://samba.org/ftp/ccache/ccache-$CCACHE_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb
-		run make -j$MAKE_CONCURRENCY install
-		run strip --strip-all /hbb/bin/ccache
-	)
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf ccache-$CCACHE_VERSION
-fi
-
-
-### CMake
-
-if ! eval_bool "$SKIP_CMAKE"; then
-	header "Installing CMake $CMAKE_VERSION"
-	download_and_extract cmake-$CMAKE_VERSION.tar.gz \
-		cmake-$CMAKE_VERSION \
-		https://cmake.org/files/v$CMAKE_MAJOR_VERSION/cmake-$CMAKE_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb --no-qt-gui --parallel=$MAKE_CONCURRENCY
-		run make -j$MAKE_CONCURRENCY
-		run make install
-		run strip --strip-all /hbb/bin/cmake
-	)
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf cmake-$CMAKE_VERSION
-fi
-
-
-### Python
-
-if ! eval_bool "$SKIP_PYTHON"; then
-	header "Installing Python $PYTHON_VERSION"
-	download_and_extract Python-$PYTHON_VERSION.tgz \
-		Python-$PYTHON_VERSION \
-		https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb
-		run make -j$MAKE_CONCURRENCY install
-		run strip --strip-all /hbb/bin/python
-		run strip --strip-debug /hbb/lib/python*/lib-dynload/*.so
-	)
-	if [[ "$?" != 0 ]]; then false; fi
-
-	run hash -r
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf Python-$PYTHON_VERSION
-
-	# Install setuptools and pip
-	echo "Installing setuptools and pip..."
-	run curl -OL --fail https://bootstrap.pypa.io/ez_setup.py
-	run python ez_setup.py
-	run rm -f ez_setup.py
-	run easy_install pip
-	run rm -f /setuptools*.zip
-fi
-
-
-## libstdc++
-
-function install_libstdcxx()
+### bzip2
+function install_bzip2()
 {
 	local VARIANT="$1"
 	local PREFIX="/hbb_$VARIANT"
 
-	header "Installing libstdc++ static libraries: $VARIANT"
-	download_and_extract gcc-$GCC_LIBSTDCXX_VERSION.tar.bz2 \
-		gcc-$GCC_LIBSTDCXX_VERSION \
-		http://ftpmirror.gnu.org/gcc/gcc-$GCC_LIBSTDCXX_VERSION/gcc-$GCC_LIBSTDCXX_VERSION.tar.bz2
+	header "Installing bzip2 $BZIP2_VERSION static libraries: $VARIANT"
+	download_and_extract bzip2-$BZIP2_VERSION.tar.gz \
+		bzip2-$BZIP2_VERSION \
+		http://bzip.org/${BZIP2_VERSION}/bzip2-$BZIP2_VERSION.tar.gz
 
 	(
 		source "$PREFIX/activate"
-		run rm -rf ../gcc-build
-		run mkdir ../gcc-build
-		echo "+ Entering /gcc-build"
-		cd ../gcc-build
-
 		export CFLAGS="$STATICLIB_CFLAGS"
-		export CXXFLAGS="$STATICLIB_CXXFLAGS"
-		../gcc-$GCC_LIBSTDCXX_VERSION/libstdc++-v3/configure \
-			--prefix=$PREFIX --disable-multilib \
-			--disable-libstdcxx-visibility --disable-shared
 		run make -j$MAKE_CONCURRENCY
-		run mkdir -p $PREFIX/lib
-		run cp src/.libs/libstdc++.a $PREFIX/lib/
-		run cp libsupc++/.libs/libsupc++.a $PREFIX/lib/
+		run make install PREFIX=$PREFIX
+		run rm -f $PREFIX/bin/bz* $PREFIX/bin/bunzip2
 	)
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
 	popd >/dev/null
-	run rm -rf gcc-$GCC_LIBSTDCXX_VERSION
-	run rm -rf gcc-build
+	run rm -rf bzip2-$BZIP2_VERSION
 }
 
-if ! eval_bool "$SKIP_LIBSTDCXX"; then
+if ! eval_bool "$SKIP_BZIP2"; then
 	for VARIANT in $VARIANTS; do
-		install_libstdcxx $VARIANT
+		install_bzip2 $VARIANT
 	done
 fi
 
 
 ### zlib
-
 function install_zlib()
 {
 	local VARIANT="$1"
@@ -541,6 +274,107 @@ if ! eval_bool "$SKIP_SQLITE"; then
 	done
 fi
 
+
+### BOOST
+function install_boost()
+{
+	local VARIANT="$1"
+	local PREFIX="/hbb_$VARIANT"
+
+	header "Installing boost $BOOST_VERSION static libraries: $VARIANT"
+
+	local underscore_version=$(echo $BOOST_VERSION | sed 's/\./_/g')
+	local url=http://downloads.sourceforge.net/project/boost/boost/${BOOST_VERSION}/boost_${underscore_version}.tar.bz2
+	download_and_extract boost_$BOOST_VERSION.tar.bz2 \
+		boost_$underscore_version $url
+
+	(
+		source "$PREFIX/activate"
+		export CFLAGS="$STATICLIB_CFLAGS"
+		run ./bootstrap.sh
+		run ./b2 -j$MAKE_CONCURRENCY --prefix=$PREFIX   \
+			--without-mpi --without-python              \
+			threading=multi variant=release link=static \
+			install
+	)
+	if [[ "$?" != 0 ]]; then false; fi
+
+	echo "Leaving source directory"
+	popd >/dev/null
+	run rm -rf boost_$underscore_version
+}
+
+if ! eval_bool "$SKIP_BOOST"; then
+	for VARIANT in $VARIANTS; do
+		install_boost $VARIANT
+	done
+fi
+
+### pkg-config
+
+if ! eval_bool "$SKIP_PKG_CONFIG"; then
+	header "Installing pkg-config $PKG_CONFIG_VERSION"
+	download_and_extract pkg-config-$PKG_CONFIG_VERSION.tar.gz \
+		pkg-config-$PKG_CONFIG_VERSION \
+		https://pkgconfig.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz
+
+	(
+		activate_holy_build_box_deps_installation_environment
+		run ./configure --prefix=/hbb --with-internal-glib
+		run rm -f /hbb/bin/*pkg-config
+		run make -j$MAKE_CONCURRENCY install-strip
+	)
+	if [[ "$?" != 0 ]]; then false; fi
+
+	echo "Leaving source directory"
+	popd >/dev/null
+	run rm -rf pkg-config-$PKG_CONFIG_VERSION
+fi
+
+
+### ccache
+
+if ! eval_bool "$SKIP_CCACHE"; then
+	header "Installing ccache $CCACHE_VERSION"
+	download_and_extract ccache-$CCACHE_VERSION.tar.gz \
+		ccache-$CCACHE_VERSION \
+		http://samba.org/ftp/ccache/ccache-$CCACHE_VERSION.tar.gz
+
+	(
+		activate_holy_build_box_deps_installation_environment
+		run ./configure --prefix=/hbb
+		run make -j$MAKE_CONCURRENCY install
+		run strip --strip-all /hbb/bin/ccache
+	)
+	if [[ "$?" != 0 ]]; then false; fi
+
+	echo "Leaving source directory"
+	popd >/dev/null
+	run rm -rf ccache-$CCACHE_VERSION
+fi
+
+
+### CMake
+
+if ! eval_bool "$SKIP_CMAKE"; then
+	header "Installing CMake $CMAKE_VERSION"
+	download_and_extract cmake-$CMAKE_VERSION.tar.gz \
+		cmake-$CMAKE_VERSION \
+		https://cmake.org/files/v$CMAKE_MAJOR_VERSION/cmake-$CMAKE_VERSION.tar.gz
+
+	(
+		activate_holy_build_box_deps_installation_environment
+		run ./configure --prefix=/hbb --no-qt-gui --parallel=$MAKE_CONCURRENCY
+		run make -j$MAKE_CONCURRENCY
+		run make install
+		run strip --strip-all /hbb/bin/cmake
+	)
+	if [[ "$?" != 0 ]]; then false; fi
+
+	echo "Leaving source directory"
+	popd >/dev/null
+	run rm -rf cmake-$CMAKE_VERSION
+fi
 
 ### Finalizing
 

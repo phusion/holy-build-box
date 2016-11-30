@@ -1,5 +1,13 @@
+SCL_COLLECTIONS=("devtoolset-4" "autotools-latest" "python27")
+function activate_scl() {
+    for mod in ${SCL_COLLECTIONS[@]}
+    do
+        source /opt/rh/${mod}/enable
+    done
+}
+
 function activate_holy_build_box_deps_installation_environment() {
-	source /opt/rh/devtoolset-2/enable
+	activate_scl
 	export PATH=/hbb/bin:$PATH
 	export C_INCLUDE_PATH=/hbb/include
 	export CPLUS_INCLUDE_PATH=/hbb/include
@@ -21,7 +29,7 @@ function activate_holy_build_box() {
 	local EXTRA_SHLIB_CFLAGS="$5"
 	local EXTRA_SHLIB_LDFLAGS="$6"
 
-	source /opt/rh/devtoolset-2/enable
+	activate_scl
 
 	export PATH=$PREFIX/bin:/hbb/bin:$PATH
 	export C_INCLUDE_PATH=$PREFIX/include
