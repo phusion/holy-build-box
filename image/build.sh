@@ -12,6 +12,7 @@ OPENSSL_VERSION=1.0.2j
 CURL_VERSION=7.51.0
 SQLITE_VERSION=3150100
 SQLITE_YEAR=2016
+OSARCH=$(uname -i)
 
 source /hbb_build/functions.sh
 source /hbb_build/activate_func.sh
@@ -35,7 +36,6 @@ MAKE_CONCURRENCY=${MAKE_CONCURRENCY:-2}
 VARIANTS='exe exe_gc_hardened shlib'
 export PATH=/hbb/bin:$PATH
 
-OSARCH=$(cat /etc/yum/vars/basearch)
 
 #########################
 
