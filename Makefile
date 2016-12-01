@@ -1,8 +1,8 @@
-VERSION = 2.0.0-kdm
-MAJOR_VERSION = 2.0
-USER ?= phusion
-PROJ ?= holy-build-box
-IMGNAME = $(USER)/$(PROJ)
+VERSION = 2.0.0-beta
+MAJOR_VERSION = 2
+HUBUSER ?= kdmurray91
+PROJECT ?= kdm-hbb
+IMGNAME = $(HUBUSER)/$(PROJECT)
 
 .PHONY: all 32 64 test tags release
 
@@ -16,7 +16,7 @@ all: 32 64
 
 test:
 	echo "*** You should run: SKIP_FINALIZE=1 linux32 bash /hbb_build/build.sh"
-	docker run -t -i --rm -v `pwd`/image:/hbb_build:ro phusion/centos-5-32:latest bash
+	docker run -t -i --rm -v `pwd`/image:/hbb_build:ro toopher/centos-i386:centos6 bash
 
 tags:
 	docker tag $(IMGNAME)-32:$(VERSION) $(IMGNAME)-32:$(MAJOR_VERSION)
@@ -27,4 +27,6 @@ tags:
 release: tags
 	docker push $(IMGNAME)-32
 	docker push $(IMGNAME)-64
-	@echo "*** Don't forget to create a tag. git tag rel-$(VERSION) && git push origin rel-$(VERSION)"
+	@echo "*** Don't forget to create a tag:"
+	@echo ""
+	@echo "   git tag rel-$(VERSION) && git push origin rel-$(VERSION)"
