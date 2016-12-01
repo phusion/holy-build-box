@@ -58,6 +58,12 @@ for VARIANT in $VARIANTS; do
 done
 
 header "Updating system"
+# This required due to bugs in yum on overlayfs:
+# https://bugzilla.redhat.com/show_bug.cgi?id=1213602
+# https://github.com/docker/docker/issues/10180
+run touch /var/lib/rpm/*
+run rpm --rebuilddb
+
 run yum update -y
 run yum install -y curl epel-release centos-release-scl-rh
 
