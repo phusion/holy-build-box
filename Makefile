@@ -1,4 +1,4 @@
-VERSION = 2.0.0-a3
+VERSION = 2.0.0-a4
 MAJOR_VERSION = 2
 HUBUSER ?= kdmurray91
 PROJECT ?= kdm-hbb
