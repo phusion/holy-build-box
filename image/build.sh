@@ -346,7 +346,19 @@ function install_libstdcxx()
 
 		export CFLAGS="$STATICLIB_CFLAGS"
 		export CXXFLAGS="$STATICLIB_CXXFLAGS"
-		../gcc-$GCC_LIBSTDCXX_VERSION/libstdc++-v3/configure \
+
+		run mkdir libgcc
+		echo "+ Entering /gcc-build/libgcc"
+		cd libgcc
+		run chmod +x ../../gcc-$GCC_LIBSTDCXX_VERSION/libgcc/configure
+		../../gcc-$GCC_LIBSTDCXX_VERSION/libgcc/configure \
+			--prefix=$PREFIX --disable-multilib \
+			--disable-shared
+
+		run mkdir ../libstdc++-v3
+		echo "+ Entering /gcc-build/libstdc++-v3"
+		cd ../libstdc++-v3
+		../../gcc-$GCC_LIBSTDCXX_VERSION/libstdc++-v3/configure \
 			--prefix=$PREFIX --disable-multilib \
 			--disable-libstdcxx-visibility --disable-shared
 		run make -j$MAKE_CONCURRENCY
