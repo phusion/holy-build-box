@@ -382,7 +382,7 @@ function install_zlib()
 	header "Installing zlib $ZLIB_VERSION static libraries: $VARIANT"
 	download_and_extract zlib-$ZLIB_VERSION.tar.gz \
 		zlib-$ZLIB_VERSION \
-		http://zlib.net/zlib-$ZLIB_VERSION.tar.gz
+		http://zlib.net/fossils/zlib-$ZLIB_VERSION.tar.gz
 
 	(
 		source "$PREFIX/activate"
