@@ -23,6 +23,7 @@ source /hbb_build/activate_func.sh
 SKIP_TOOLS=${SKIP_TOOLS:-false}
 SKIP_LIBS=${SKIP_LIBS:-false}
 SKIP_FINALIZE=${SKIP_FINALIZE:-false}
+SKIP_USERS_GROUPS=${SKIP_USERS_GROUPS:-false}
 
 SKIP_SYSTEM_OPENSSL=${SKIP_SYSTEM_OPENSSL:-$SKIP_TOOLS}
 SKIP_SYSTEM_CURL=${SKIP_SYSTEM_CURL:-$SKIP_TOOLS}
@@ -56,8 +57,10 @@ run cp /hbb_build/activate_func.sh /hbb/activate_func.sh
 run cp /hbb_build/hbb-activate /hbb/activate
 run cp /hbb_build/activate-exec /hbb/activate-exec
 
-run groupadd -g 9327 builder
-run adduser --uid 9327 --gid 9327 builder
+if ! eval_bool "$SKIP_USERS_GROUPS"; then
+    run groupadd -g 9327 builder
+    run adduser --uid 9327 --gid 9327 builder
+fi
 
 for VARIANT in $VARIANTS; do
 	run mkdir -p /hbb_$VARIANT
