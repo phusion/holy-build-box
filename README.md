@@ -100,9 +100,9 @@ The environment is bare-bones with almost nothing installed. Besides the basics,
 
 Holy Build Box also includes static versions of certain libraries. These libraries are more recent than the ones shipped with CentOS 5.
 
- * zlib 1.2.8
- * OpenSSL 1.0.2j
- * curl and libcurl 7.51.0
+ * zlib 1.2.11
+ * OpenSSL 1.0.2k
+ * curl and libcurl 7.54.0
  * SQLite 2016-3150100
 
 These libraries are provided in multiple variants, each compiled with different compilation flags. The different variants will be covered with in [Tutorial 5: Using library variants](TUTORIAL-5-LIBRARY-VARIANTS.md) and in the [Library variants](LIBRARY-VARIANTS.md) guide.

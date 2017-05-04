@@ -1,3 +1,9 @@
+## Version 1.3.0 (release date 2017-05-04)
+
+ * OpenSSL has been upgraded to 1.0.2k.
+ * libcurl has been upgraded to 7.54.0.
+ * libzlib has been upgraded to 1.2.11.
+
 ## Version 1.2.0 (release date 2016-11-16)
 
  * Python has been upgraded to 2.7.12.
