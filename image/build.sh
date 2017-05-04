@@ -80,7 +80,6 @@ cd /
 run yum install -y devtoolset-2-gcc devtoolset-2-gcc-c++ devtoolset-2-binutils \
 	make file diffutils patch perl bzip2 which zlib-devel
 source /opt/rh/devtoolset-2/enable
-export PATH=/hbb/bin:$PATH
 
 
 ### OpenSSL (system version, so that we can download from HTTPS servers with SNI)
