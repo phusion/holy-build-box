@@ -131,7 +131,7 @@ if ! eval_bool "$SKIP_SYSTEM_CURL"; then
 	)
 	if [[ "$?" != 0 ]]; then false; fi
 
-	run hash -r
+	hash -r
 
 	echo "Leaving source directory"
 	popd >/dev/null
