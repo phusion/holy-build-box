@@ -1,4 +1,4 @@
-## Version 1.3.0 (release date 2017-05-04)
+## Version 1.2.1 (release date 2017-05-04)
 
  * OpenSSL has been upgraded to 1.0.2k.
  * libcurl has been upgraded to 7.54.0.
