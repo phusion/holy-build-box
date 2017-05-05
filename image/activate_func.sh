@@ -49,7 +49,7 @@ function activate_holy_build_box() {
 
 	echo "Holy build box activated"
 	echo "Prefix: $PREFIX"
-	echo "CFLAGS: $CFLAGS"
+	echo "CFLAGS/CXXFLAGS: $CFLAGS"
 	echo "LDFLAGS: $LDFLAGS"
 	echo "STATICLIB_CFLAGS: $STATICLIB_CFLAGS"
 	echo "SHLIB_CFLAGS: $SHLIB_CFLAGS"
