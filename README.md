@@ -276,17 +276,17 @@ Around 2004, I (Hongli Lai) participated in a now-defunct open source project ca
 
 This problem actually still exists -- it was never resolved.
 
-Anyway, the Autopackage project sought to solve this problem by introducing a cross-distribution package manager. We soon realized that solving the packaging aspect only partially solved the problem. Regarldess of the packaging, the binaries that were packaged still need to work across Linux distributions.
+Anyway, the Autopackage project sought to solve this problem by introducing a cross-distribution package manager. We soon realized that solving the packaging aspect only partially solved the problem. Regardless of the packaging, the binaries that were packaged still need to work across Linux distributions.
 
 We saw that Mozilla was able to produce Firefox binaries that work on all Linux distributions. We found out that they did that by constructing a server with a special, tightly-controlled environment that contained an old glibc.
 
-Back in 2004, virtualization was almost non-existent. All Autopackage team members were either high school or college team members. We were only barely able to afford our computers. Constructing a special server just for the purpose of compiling portable binaries was expensive: it meant buying a new computer. The entire idea of constructing such a server was so over our heads that we named Mozilla's build server a "holy build box".
+Back in 2004, virtualization was almost non-existent. All Autopackage team members were either in high school or in college. We were only barely able to afford our computers. Constructing a special server just for the purpose of compiling portable binaries was expensive: it meant buying a new computer. The entire idea of constructing such a server was so over our heads that we named Mozilla's build server a "holy build box".
 
-We wanted to give developers a way to produce portable binaries without asking them to construct a holy build box. Virtualization was not a realistic option back then: we could not imagine that many people would want to buy a new computer only for the purpose of producing portable binaries, especially seeing that Windows developers didn't have to do that either. So wrote a set of scripts which automates the linker script approach. However, this approach was found to be too buggy.
+We wanted to give developers a way to produce portable binaries without asking them to construct a holy build box. Virtualization was not a realistic option back then, and we could not imagine that many people would want to buy a new computer only for the purpose of producing portable binaries, especially seeing that Windows developers didn't have to do that either. So we wrote a set of scripts which automates [the linker script approach](#glibc-symbols). However, this approach was found to be too buggy.
 
 Autopackage eventually went defunct because of resistance from distributors. I guess that people weren't *truly* interested in Linux succeeding on the desktop, despite how many people complained about it.
 
-Anyway, fast forward to 2015. Virtualization and containerization is now cheap is ubiquitous. Thus the holy build box approach is now viable.
+Fast forward to 2015. Virtualization and containerization is now cheap is ubiquitous. Thus the holy build box approach is now viable for the average developer.
 
 ## Other comparable systems
 
