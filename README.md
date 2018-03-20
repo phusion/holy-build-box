@@ -234,7 +234,7 @@ If you are an application developer, you should consider the tradeoff. Do your u
 
 Docker also solves the portability problem, but it gives the application a very different feel. The application is no longer just a binary. Users will have to install Docker and will have to learn how to use Docker commands in order to use your application. Your users may not particularly care about Docker: maybe they just want to use your application without having to learn about anything else.
 
-Docker also requires a fairly recent kernel. Linux distributions released before ~2014 don't tend to have a recent enough kernel for Docker. So if you have any RHEL 5 users, then Docker is out of the question.
+Docker also requires at least kernel 3.12. Linux distributions released before ~2014 don't tend to have a recent enough kernel for Docker. So if you have any RHEL 5 users for example, then Docker is out of the question.
 
 And finally, Docker images are much larger than binaries produced by Holy Build Box. Docker images contain entire Linux distributions and weight in the order of hundreds of MB in the average case, or tens of MB if you really did your best to optimize things. Binaries produced by Holy Build Box can be just a few MBs.
 
