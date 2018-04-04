@@ -1,6 +1,7 @@
+[![Maintainers Wanted](https://img.shields.io/badge/maintainers-wanted-red.svg)](https://github.com/pickhardt/maintainers-wanted)
 # System for building cross-distribution Linux binaries
 
-<img src="http://phusion.github.io/holy-build-box/img/logo.png">
+<img src="http://phusion.github.io/holy-build-box/img/logo.png" width="200">
 
 Holy Build Box is a system for building "portable" binaries for Linux: binaries that work on pretty much any Linux distribution. This works by providing an easy-to-use compilation environment with an old glibc version. Holy Build Box can produce x86 and x86-64 binaries.
 
