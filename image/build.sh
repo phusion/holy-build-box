@@ -12,10 +12,10 @@ CMAKE_MAJOR_VERSION=3.6
 PYTHON_VERSION=2.7.12
 GCC_LIBSTDCXX_VERSION=4.8.2
 ZLIB_VERSION=1.2.11
-OPENSSL_VERSION=1.0.2k
-CURL_VERSION=7.54.0
-SQLITE_VERSION=3150100
-SQLITE_YEAR=2016
+OPENSSL_VERSION=1.0.2o
+CURL_VERSION=7.60.0
+SQLITE_VERSION=3240000
+SQLITE_YEAR=2018
 
 source /hbb_build/functions.sh
 source /hbb_build/activate_func.sh
@@ -120,11 +120,9 @@ fi
 
 if ! eval_bool "$SKIP_SYSTEM_CURL"; then
 	header "Installing system Curl $CURL_VERSION"
-	# We download from HTTP because the OpenSSL in CentOS 5 does not
-	# support the HTTPS crypto suite on https://curl.haxx.se.
-	download_and_extract curl-$CURL_VERSION.tar.bz2 \
-		curl-$CURL_VERSION \
-		http://curl.askapache.com/download/curl-$CURL_VERSION.tar.bz2
+	run tar xjf /hbb_build/curl-$CURL_VERSION.tar.bz2
+	echo "Entering /curl-$CURL_VERSION"
+	pushd "curl-$CURL_VERSION" >/dev/null
 
 	(
 		activate_holy_build_box_deps_installation_environment

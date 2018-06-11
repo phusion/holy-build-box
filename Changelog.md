@@ -1,3 +1,9 @@
+## Version 1.2.2 (release date 2018-06-11)
+
+ * OpenSSL has been upgraded to 1.0.2o.
+ * libcurl has been upgraded to 7.60.0.
+ * SQLite has been upgraded to 2018-3240000.
+
 ## Version 1.2.1 (release date 2017-05-04)
 
  * OpenSSL has been upgraded to 1.0.2k.
