@@ -1,3 +1,10 @@
+## Version 1.2.3 (release date 2018-09-21)
+
+ * OpenSSL has been upgraded to 1.0.2p.
+ * libcurl has been upgraded to 7.61.1.
+ * ccache has been upraded to 3.4.3.
+ * SQLite has been upgraded to 2018-3250000.
+
 ## Version 1.2.2 (release date 2018-06-11)
 
  * OpenSSL has been upgraded to 1.0.2o.
