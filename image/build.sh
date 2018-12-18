@@ -1,21 +1,22 @@
 #!/bin/bash
 set -e
 
-M4_VERSION=1.4.17
+M4_VERSION=1.4.18
 AUTOCONF_VERSION=2.69
-AUTOMAKE_VERSION=1.15
+AUTOMAKE_VERSION=1.16.1
 LIBTOOL_VERSION=2.4.6
-PKG_CONFIG_VERSION=0.29.1
-CCACHE_VERSION=3.4.3
-CMAKE_VERSION=3.6.3
-CMAKE_MAJOR_VERSION=3.6
-PYTHON_VERSION=2.7.12
+PKG_CONFIG_VERSION=0.29.2
+CCACHE_VERSION=3.5
+CMAKE_VERSION=3.13.2
+CMAKE_MAJOR_VERSION=3.13
+PYTHON_VERSION=2.7.15
 GCC_LIBSTDCXX_VERSION=4.8.2
 ZLIB_VERSION=1.2.11
-OPENSSL_VERSION=1.0.2p
-CURL_VERSION=7.61.1
-SQLITE_VERSION=3250000
+OPENSSL_VERSION=1.0.2q
+CURL_VERSION=7.63.0
+SQLITE_VERSION=3260000
 SQLITE_YEAR=2018
+CENTOS_VERSION=$(tr -d 'a-zA-Z() \n' < /etc/centos-release)
 
 source /hbb_build/functions.sh
 source /hbb_build/activate_func.sh
@@ -69,19 +70,22 @@ for VARIANT in $VARIANTS; do
 done
 
 header "Updating system"
-run sed -i.bak -re 's/^(mirrorlist)/#\1/g' -e 's/^#(baseurl)/\1/g' -e 's/mirror(\.centos)/vault\1/g' -e 's|centos/\$releasever/([^/]+)/([^/]+)|5.11/\1/\2|g' /etc/yum.repos.d/CentOS-Base.repo
+if [ $(date --date '2020-11-30T00:00:00' +'%s') -lt $(date +'%s') ]; then
+run sed -i.bak -re 's/^(mirrorlist)/#\1/g' -e 's/^#(baseurl)/\1/g' -e 's/mirror(\.centos)/vault\1/g' -e 's|centos/\$releasever/([^/]+)/([^/]+)|'$CENTOS_VERSION'/\1/\2|g' /etc/yum.repos.d/CentOS-Base.repo
 rm /etc/yum.repos.d/CentOS-Base.repo.bak
 if [[ -f /etc/yum.repos.d/libselinux.repo ]]; then
-	run sed -i.bak -re 's/^(mirrorlist)/#\1/g' -e 's/^#(baseurl)/\1/g' -e 's/mirror(\.centos)/vault\1/g' -e 's|centos/\$releasever/([^/]+)/([^/]+)|5.11/\1/\2|g' /etc/yum.repos.d/libselinux.repo
+	run sed -i.bak -re 's/^(mirrorlist)/#\1/g' -e 's/^#(baseurl)/\1/g' -e 's/mirror(\.centos)/vault\1/g' -e 's|centos/\$releasever/([^/]+)/([^/]+)|'$CENTOS_VERSION'/\1/\2|g' /etc/yum.repos.d/libselinux.repo
 	rm /etc/yum.repos.d/libselinux.repo.bak
 fi
+fi
+touch /var/lib/rpm/*
 run yum update -y
-run yum install -y curl epel-release
+run yum install -y curl epel-release tar
 
 header "Installing compiler toolchain"
 cd /etc/yum.repos.d
-# GCC 4.8 for CentOS 5: http://braaten-family.org/ed/blog/2014-05-28-devtools-for-centos/
-run curl -LOS http://people.centos.org/tru/devtools-2/devtools-2.repo
+# GCC 4.8.2 for CentOS 6: https://superuser.com/questions/381160/how-to-install-gcc-4-7-x-4-8-x-on-centos
+run curl -LOS https://people.centos.org/tru/devtools-2/devtools-2.repo
 cd /
 run yum install -y devtoolset-2-gcc devtoolset-2-gcc-c++ devtoolset-2-binutils \
 	make file diffutils patch perl bzip2 which zlib-devel
@@ -92,12 +96,9 @@ source /opt/rh/devtoolset-2/enable
 
 if ! eval_bool "$SKIP_SYSTEM_OPENSSL"; then
 	header "Installing system OpenSSL $OPENSSL_VERSION"
-	# We download from FTP because the OpenSSL in CentOS 5 does not
-	# support the HTTPS crypto suite on https://www.openssl.org.
 	download_and_extract openssl-$OPENSSL_VERSION.tar.gz \
 		openssl-$OPENSSL_VERSION \
-		ftp://ftp.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz
-
+		https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz
 	(
 		activate_holy_build_box_deps_installation_environment
 		run ./config --prefix=/hbb --openssldir=/hbb/openssl threads zlib shared
@@ -149,7 +150,7 @@ if ! eval_bool "$SKIP_M4"; then
 	header "Installing m4 $M4_VERSION"
 	download_and_extract m4-$M4_VERSION.tar.gz \
 		m4-$M4_VERSION \
-		http://ftpmirror.gnu.org/m4/m4-$M4_VERSION.tar.gz
+		https://ftpmirror.gnu.org/m4/m4-$M4_VERSION.tar.gz
 
 	(
 		activate_holy_build_box_deps_installation_environment
@@ -171,7 +172,7 @@ if ! eval_bool "$SKIP_AUTOCONF"; then
 	header "Installing autoconf $AUTOCONF_VERSION"
 	download_and_extract autoconf-$AUTOCONF_VERSION.tar.gz \
 		autoconf-$AUTOCONF_VERSION \
-		http://ftpmirror.gnu.org/autoconf/autoconf-$AUTOCONF_VERSION.tar.gz
+		https://ftpmirror.gnu.org/autoconf/autoconf-$AUTOCONF_VERSION.tar.gz
 
 	(
 		activate_holy_build_box_deps_installation_environment
@@ -193,7 +194,7 @@ if ! eval_bool "$SKIP_AUTOMAKE"; then
 	header "Installing automake $AUTOMAKE_VERSION"
 	download_and_extract automake-$AUTOMAKE_VERSION.tar.gz \
 		automake-$AUTOMAKE_VERSION \
-		http://ftpmirror.gnu.org/automake/automake-$AUTOMAKE_VERSION.tar.gz
+		https://ftpmirror.gnu.org/automake/automake-$AUTOMAKE_VERSION.tar.gz
 
 	(
 		activate_holy_build_box_deps_installation_environment
@@ -215,7 +216,7 @@ if ! eval_bool "$SKIP_LIBTOOL"; then
 	header "Installing libtool $LIBTOOL_VERSION"
 	download_and_extract libtool-$LIBTOOL_VERSION.tar.gz \
 		libtool-$LIBTOOL_VERSION \
-		http://ftpmirror.gnu.org/libtool/libtool-$LIBTOOL_VERSION.tar.gz
+		https://ftpmirror.gnu.org/libtool/libtool-$LIBTOOL_VERSION.tar.gz
 
 	(
 		activate_holy_build_box_deps_installation_environment
@@ -259,7 +260,7 @@ if ! eval_bool "$SKIP_CCACHE"; then
 	header "Installing ccache $CCACHE_VERSION"
 	download_and_extract ccache-$CCACHE_VERSION.tar.gz \
 		ccache-$CCACHE_VERSION \
-		http://samba.org/ftp/ccache/ccache-$CCACHE_VERSION.tar.gz
+		https://samba.org/ftp/ccache/ccache-$CCACHE_VERSION.tar.gz
 
 	(
 		activate_holy_build_box_deps_installation_environment
@@ -341,7 +342,7 @@ function install_libstdcxx()
 	header "Installing libstdc++ static libraries: $VARIANT"
 	download_and_extract gcc-$GCC_LIBSTDCXX_VERSION.tar.bz2 \
 		gcc-$GCC_LIBSTDCXX_VERSION \
-		http://ftpmirror.gnu.org/gcc/gcc-$GCC_LIBSTDCXX_VERSION/gcc-$GCC_LIBSTDCXX_VERSION.tar.bz2
+		https://ftpmirror.gnu.org/gcc/gcc-$GCC_LIBSTDCXX_VERSION/gcc-$GCC_LIBSTDCXX_VERSION.tar.bz2
 
 	(
 		source "$PREFIX/activate"
@@ -385,7 +386,7 @@ function install_zlib()
 	header "Installing zlib $ZLIB_VERSION static libraries: $VARIANT"
 	download_and_extract zlib-$ZLIB_VERSION.tar.gz \
 		zlib-$ZLIB_VERSION \
-		http://zlib.net/fossils/zlib-$ZLIB_VERSION.tar.gz
+		https://zlib.net/fossils/zlib-$ZLIB_VERSION.tar.gz
 
 	(
 		source "$PREFIX/activate"
@@ -418,7 +419,7 @@ function install_openssl()
 	header "Installing OpenSSL $OPENSSL_VERSION static libraries: $PREFIX"
 	download_and_extract openssl-$OPENSSL_VERSION.tar.gz \
 		openssl-$OPENSSL_VERSION \
-		http://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz
+		https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz
 
 	(
 		source "$PREFIX/activate"
@@ -472,7 +473,7 @@ function install_curl()
 	header "Installing Curl $CURL_VERSION static libraries: $PREFIX"
 	download_and_extract curl-$CURL_VERSION.tar.gz \
 		curl-$CURL_VERSION \
-		http://curl.haxx.se/download/curl-$CURL_VERSION.tar.bz2
+		https://curl.haxx.se/download/curl-$CURL_VERSION.tar.bz2
 
 	(
 		source "$PREFIX/activate"
@@ -515,7 +516,7 @@ function install_sqlite()
 	header "Installing SQLite $SQLITE_VERSION static libraries: $PREFIX"
 	download_and_extract sqlite-autoconf-$SQLITE_VERSION.tar.gz \
 		sqlite-autoconf-$SQLITE_VERSION \
-		http://www.sqlite.org/$SQLITE_YEAR/sqlite-autoconf-$SQLITE_VERSION.tar.gz
+		https://www.sqlite.org/$SQLITE_YEAR/sqlite-autoconf-$SQLITE_VERSION.tar.gz
 
 	(
 		source "$PREFIX/activate"

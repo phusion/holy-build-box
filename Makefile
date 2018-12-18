@@ -1,5 +1,5 @@
-VERSION = 1.2.3
-MAJOR_VERSION = 1.2
+VERSION = 2.0.0
+MAJOR_VERSION = 2.0
 
 .PHONY: all 32 64 test tags release
 
@@ -13,11 +13,11 @@ all: 32 64
 
 test:
 	echo "*** You should run: SKIP_FINALIZE=1 linux32 bash /hbb_build/build.sh"
-	docker run -t -i --rm -v `pwd`/image:/hbb_build:ro phusion/centos-5-32:latest bash
+	docker run -t -i --rm -v `pwd`/image:/hbb_build:ro phusion/centos-6-32:latest bash
 
 test64:
 	echo "*** You should run: SKIP_FINALIZE=1 bash /hbb_build/build.sh"
-	docker run -t -i --rm -v `pwd`/image:/hbb_build:ro centos:5 bash
+	docker run -t -i --rm -v `pwd`/image:/hbb_build:ro centos:6 bash
 
 tags:
 	docker tag phusion/holy-build-box-32:$(VERSION) phusion/holy-build-box-32:$(MAJOR_VERSION)
