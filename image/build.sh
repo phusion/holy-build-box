@@ -10,7 +10,7 @@ CCACHE_VERSION=3.5
 CMAKE_VERSION=3.13.2
 CMAKE_MAJOR_VERSION=3.13
 PYTHON_VERSION=2.7.15
-GCC_LIBSTDCXX_VERSION=4.8.2
+GCC_LIBSTDCXX_VERSION=7.3.0
 ZLIB_VERSION=1.2.11
 OPENSSL_VERSION=1.0.2q
 CURL_VERSION=7.63.0
@@ -83,14 +83,13 @@ run yum update -y
 run yum install -y curl epel-release tar
 
 header "Installing compiler toolchain"
-cd /etc/yum.repos.d
-# GCC 4.8.2 for CentOS 6: https://superuser.com/questions/381160/how-to-install-gcc-4-7-x-4-8-x-on-centos
-run curl -LOS https://people.centos.org/tru/devtools-2/devtools-2.repo
-cd /
-run yum install -y devtoolset-2-gcc devtoolset-2-gcc-c++ devtoolset-2-binutils \
-	make file diffutils patch perl bzip2 which zlib-devel
-source /opt/rh/devtoolset-2/enable
-
+if [ `uname -m` != x86_64 ]; then
+curl -s https://packagecloud.io/install/repositories/phusion/centos-6-scl-i386/script.rpm.sh | bash
+sed -i 's|$arch|i686|; s|\$basearch|i386|g' $CHROOT/etc/yum.repos.d/phusion*.repo
+else
+run yum install -y centos-release-scl
+fi
+run yum install -y devtoolset-7 file patch bzip2 zlib-devel
 
 ### OpenSSL (system version, so that we can download from HTTPS servers with SNI)
 
@@ -340,9 +339,9 @@ function install_libstdcxx()
 	local PREFIX="/hbb_$VARIANT"
 
 	header "Installing libstdc++ static libraries: $VARIANT"
-	download_and_extract gcc-$GCC_LIBSTDCXX_VERSION.tar.bz2 \
+	download_and_extract gcc-$GCC_LIBSTDCXX_VERSION.tar.gz \
 		gcc-$GCC_LIBSTDCXX_VERSION \
-		https://ftpmirror.gnu.org/gcc/gcc-$GCC_LIBSTDCXX_VERSION/gcc-$GCC_LIBSTDCXX_VERSION.tar.bz2
+		https://ftpmirror.gnu.org/gcc/gcc-$GCC_LIBSTDCXX_VERSION/gcc-$GCC_LIBSTDCXX_VERSION.tar.gz
 
 	(
 		source "$PREFIX/activate"
@@ -471,7 +470,7 @@ function install_curl()
 	local PREFIX="/hbb_$VARIANT"
 
 	header "Installing Curl $CURL_VERSION static libraries: $PREFIX"
-	download_and_extract curl-$CURL_VERSION.tar.gz \
+	download_and_extract curl-$CURL_VERSION.tar.bz2 \
 		curl-$CURL_VERSION \
 		https://curl.haxx.se/download/curl-$CURL_VERSION.tar.bz2
 
