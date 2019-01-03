@@ -1,4 +1,4 @@
-VERSION = 2.0.0
+VERSION = 2.0.1
 MAJOR_VERSION = 2.0
 
 .PHONY: all 32 64 test tags release
