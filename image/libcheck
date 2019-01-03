@@ -1,21 +1,22 @@
 #!/hbb/bin/python
 import os, sys, subprocess, re
 
+SYSTEM_LIBRARIES_REGEX = \
+	"linux-gate|linux-vdso|libpthread|librt|libdl|libcrypt|libm|libc" + \
+	"|ld-linux.*|libutil|libnsl|libgcc_s|libresolv"
+
 if len(sys.argv) <= 1:
 	print("Usage: libcheck <FILES>")
 	print("Check whether the given executables or shared libraries are linked against non-system libraries.")
 	print("")
-	print( "By default, these libraries are allowed:")
-	print( "$SYSTEM_LIBRARIES")
+	print("By default, these libraries are allowed:")
+	print("%s" %(SYSTEM_LIBRARIES_REGEX))
 	print("")
-	print( "You can allow more libraries by setting \$LIBCHECK_ALLOW, e.g.:")
-	print( "  env LIBCHECK_ALLOW='libcurl|libcrypto' libcheck /usr/bin/foo")
+	print("You can allow more libraries by setting $LIBCHECK_ALLOW, e.g.:")
+	print("  env LIBCHECK_ALLOW='libcurl|libcrypto' libcheck /usr/bin/foo")
 	sys.exit(1)
 
-ARROW = re.compile(" => ")
-SYSTEM_LIBRARIES_REGEX = \
-	"linux-gate|linux-vdso|libpthread|librt|libdl|libcrypt|libm|libc" + \
-	"|ld-linux.*|libutil|libnsl|libgcc_s|libresolv"
+BRACKET = re.compile('\\[')
 
 if 'LIBCHECK_ALLOW' in os.environ:
 	WHITELIST_REGEX = re.compile('(' + SYSTEM_LIBRARIES_REGEX +
@@ -23,21 +24,21 @@ if 'LIBCHECK_ALLOW' in os.environ:
 else:
 	WHITELIST_REGEX = re.compile('(' + SYSTEM_LIBRARIES_REGEX + ')\\.so')
 
+INDICATOR_REGEX = re.compile("Shared library:")
+
 error = False
 
 for path in sys.argv[1:]:
-	ldd = subprocess.check_output(['ldd', path]).split('\n')
+        readelf = subprocess.check_output(['readelf', '-d', path]).split('\n')
 	offenders = []
-	for line in ldd:
+	for line in readelf:
 		line = line.strip()
-		if len(line) > 0 and not re.search(WHITELIST_REGEX, line):
-			if re.search(ARROW, line) is None:
+		if len(line) > 0 and re.search(INDICATOR_REGEX, line) and not re.search(WHITELIST_REGEX, line):
+			if re.search(BRACKET, line) is None:
 				library = line
-			elif re.search('not found', line) is not None:
-				library = re.split(ARROW, line, 1)[0]
 			else:
-				library = re.split(ARROW, line, 1)[1]
-			library = re.sub(r' \(.*', '', library)
+				library = re.split(BRACKET, line, 1)[1]
+			library = re.sub(r'\]', '', library)
 			offenders.append(library)
 			error = True
 	if len(offenders) > 0:
