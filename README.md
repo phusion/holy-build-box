@@ -81,30 +81,30 @@ Holy Build Box partially solves problem #1 and #3 by providing static versions o
 
 ## Features
 
-### Isolated build environment based on Docker and CentOS 5
+### Isolated build environment based on Docker and CentOS 6
 
-The Holy Build Box environment is built on CentOS 5. This allows it to produce binaries that work on pretty much any x86 and x86-64 Linux distribution released since 2007. The only currently-prominent Linux distribution that the produced binaries may not run on, is Alpine Linux. [See the FAQ entry.](#which-linux-distributions-do-binaries-compiled-with-holy-build-box-support)
+The Holy Build Box environment is built on CentOS 6. This allows it to produce binaries that work on pretty much any x86 and x86-64 Linux distribution released since 2011. The only currently-prominent Linux distribution that the produced binaries may not run on, is Alpine Linux. [See the FAQ entry.](#which-linux-distributions-do-binaries-compiled-with-holy-build-box-support)
 
-The environment is bare-bones with almost nothing installed. Besides the basics, only a compiler toolchain is provided. The toolchain is more recent than the one provided by CentOS 5.
+The environment is bare-bones with almost nothing installed. Besides the basics, only a compiler toolchain is provided. The toolchain is more recent than the one provided by CentOS 6.
 
- * GCC 4.8.2 (C and C++ support; in particular, C++11 is supported)
+ * GCC 7.3.1 (C and C++ support; in particular, C++11 is supported)
  * GNU make
  * autoconf 2.69
- * automake 1.15
+ * automake 1.16.1
  * libtool 2.4.6
- * pkg-config 0.29.1
- * ccache 3.3.3
- * CMake 3.6.3
- * Python 2.7.12 (+ setuptools and pip)
+ * pkg-config 0.29.2
+ * ccache 3.5
+ * CMake 3.13.2
+ * Python 2.7.15 (+ setuptools and pip)
 
 ### Included static libraries
 
-Holy Build Box also includes static versions of certain libraries. These libraries are more recent than the ones shipped with CentOS 5.
+Holy Build Box also includes static versions of certain libraries. These libraries are more recent than the ones shipped with CentOS 6.
 
  * zlib 1.2.11
- * OpenSSL 1.0.2k
- * curl and libcurl 7.54.0
- * SQLite 2016-3150100
+ * OpenSSL 1.0.2q
+ * curl and libcurl 7.63.0
+ * SQLite 2018-3260000
 
 These libraries are provided in multiple variants, each compiled with different compilation flags. The different variants will be covered with in [Tutorial 5: Using library variants](TUTORIAL-5-LIBRARY-VARIANTS.md) and in the [Library variants](LIBRARY-VARIANTS.md) guide.
 
@@ -214,12 +214,12 @@ OS X is not supported. Windows is not supported. Other Unices are not supported.
 
 ### Which Linux distributions do binaries compiled with Holy Build Box support?
 
-Binaries work on pretty much any glibc-based x86 and x86-64 Linux distribution released since 2007. A non-exhaustive list:
+Binaries work on pretty much any glibc-2.12-or-later-based x86 and x86-64 Linux distribution released since approx 2011. A non-exhaustive list:
 
- * Debian >= 6
- * Ubuntu >= 10.04
- * Red Hat Enterprise Linux >= 5
- * CentOS >= 5
+ * Debian >= 7
+ * Ubuntu >= 10.10
+ * Red Hat Enterprise Linux >= 6
+ * CentOS >= 6
 
 Note the mention "glibc-based". Binaries may not be compatible with Linux distributions not based on glibc. For example, early versions of Alpine Linux were based on uclibc, which was not compatible with glibc at all. Later versions of Alpine Linux are based on musl, which is *somewhat* compatible with glibc. So produced binaries may or may not run on later versions of Alpine Linux.
 

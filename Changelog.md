@@ -1,3 +1,23 @@
+## Version 2.0.1 (release date 2019-01-03)
+
+ * Changed libcheck script to use readelf internally instead of ldd, to remove confusing output.
+
+## Version 2.0.0 (release date 2018-12-20)
+
+ * Moved to CentOS 6.
+ * Updated system curl means we can grab tarballs from https urls.
+ * Updated devtoolset to version 7.
+ * automake updated to 1.16.1
+ * ccache updated to 3.5
+ * CMake updated to 3.13.2
+ * libcurl updated to 7.63.0
+ * gcc_libstdcxx updated to 7.3.0
+ * m4 updated to 1.4.18
+ * Openssl updated to 1.0.2q
+ * pkg_config updated to 0.29.2
+ * Python updated to 2.7.15
+ * SQLite updated to 2018-3260000
+
 ## Version 1.2.3 (release date 2018-09-21)
 
  * OpenSSL has been upgraded to 1.0.2p.
