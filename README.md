@@ -133,7 +133,7 @@ At the same time, Melsted's team can pick their favorite and most productive pro
 
 ### Traveling Ruby
 
-[Traveling Ruby](http://phusion.github.io/traveling-ruby/) is a system for producing self-contained Ruby application packages for Windows, Linux and OS X. You could think of it as the Holy Build Box equivalent for Ruby applications.
+[Traveling Ruby](http://phusion.github.io/traveling-ruby/) is a system for producing self-contained Ruby application packages for Windows, Linux and macOS. You could think of it as the Holy Build Box equivalent for Ruby applications.
 
 Traveling Ruby works by providing precompiled Ruby binaries that work on any Linux system. Ruby developers can then take our binaries, bundle it with their application code, and distribute the result as a single zip or tar.gz file to end users. This way, end users do not have to install Ruby in order to use their applications.
 
@@ -208,9 +208,9 @@ Some non-developers (i.e. users) may object to the idea of distributing portable
 
 ### Which operating systems does Holy Build Box support?
 
-Holy Build Box only supports x86 and x86-64 linux.
+Holy Build Box only supports x86 and x86-64 Linux.
 
-OS X is not supported. Windows is not supported. Other Unices are not supported. Other CPU architectures, such as ARM, are not supported.
+macOS is not supported. Windows is not supported. Other Unices are not supported. Other CPU architectures, such as ARM, are not supported.
 
 ### Which Linux distributions do binaries compiled with Holy Build Box support?
 
