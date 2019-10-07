@@ -271,6 +271,8 @@ If your application has no dependencies on NPM modules with native extensions, t
 
 If your application has a dependency on an NPM module with native extension, either directly or indirectly, then you should compile Node.js and your NPM modules with Holy Build Box. When done, package the compiled Node.js, `npm_modules` directory and your application.
 
+See also [pkg](https://github.com/zeit/pkg) which can bundle Node.js applications into a single portable binary.
+
 ### Why the name "Holy Build Box"?
 
 Around 2004, I (Hongli Lai) participated in a now-defunct open source project called Autopackage. Back then we were in the middle of the Linux-on-the-desktop hype. One of the things people complained most about was software installation. Every distribution had its own way of installing things, and binaries compiled on one distribution doesn't work on another. This was considered problematic because, as a developer, it is so painful to distribute software to end users. See also the FAQ entry [Who should be interested in portable Linux binaries?](#who-should-be-interested-in-portable-linux-binaries).
