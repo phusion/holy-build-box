@@ -1,0 +1,42 @@
+name: Docker Image CI
+
+on:
+  create:
+  push:
+    tags-ignore: 
+      - '**'
+    branches:
+      - master
+      - fork/master
+
+jobs:
+
+  build_edge:
+    name: "Build edge Docker image"
+    if: github.event_name != 'create'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Login to GitHub Docker Package Registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u github-actions --password-stdin
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile-64 --tag docker.pkg.github.com/build-environment/holy-build-box/hbb-64:edge
+    - name: Push the Docker image
+      run: docker push docker.pkg.github.com/build-environment/holy-build-box/hbb-64:edge
+
+  build_release:
+    name: "Build release Docker image"
+    if: github.event_name == 'create' && github.event.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Login to GitHub Docker Package Registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u github-actions --password-stdin
+    - name: Build the Docker image
+      run: |
+        docker build . --file Dockerfile-64 --tag docker.pkg.github.com/build-environment/holy-build-box/hbb-64:latest
+        docker tag docker.pkg.github.com/build-environment/holy-build-box/hbb-64:latest docker.pkg.github.com/build-environment/holy-build-box/hbb-64:${{ github.event.ref }}
+    - name: Push the Docker image
+      run: |
+        docker push docker.pkg.github.com/build-environment/holy-build-box/hbb-64:latest
+        docker push docker.pkg.github.com/build-environment/holy-build-box/hbb-64:${{ github.event.ref }}
