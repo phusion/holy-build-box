@@ -31,7 +31,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Login to GitHub Docker Package Registry
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u github-actions --password-stdin
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
     - name: Build the Docker image
       run: |
         docker build . --file Dockerfile-64 --tag docker.pkg.github.com/build-environment/holy-build-box/hbb-64:latest
