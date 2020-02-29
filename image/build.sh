@@ -85,13 +85,15 @@ run yum update -y
 run yum install -y curl epel-release tar
 
 header "Installing compiler toolchain"
-#if [ `uname -m` != x86_64 ]; then
-#curl -s https://packagecloud.io/install/repositories/phusion/centos-6-scl-i386/script.rpm.sh | bash
-#sed -i 's|$arch|i686|; s|\$basearch|i386|g' $CHROOT/etc/yum.repos.d/phusion*.repo
-#else
+if [ `uname -m` != x86_64 ]; then
+curl -s https://packagecloud.io/install/repositories/phusion/centos-6-scl-i386/script.rpm.sh | bash
+sed -i 's|$arch|i686|; s|\$basearch|i386|g' $CHROOT/etc/yum.repos.d/phusion*.repo
+DEVTOOLSET_VER=7
+else
 run yum install -y centos-release-scl
-#fi
-run yum install -y devtoolset-8 file patch bzip2 zlib-devel gettext
+DEVTOOLSET_VER=8
+fi
+run yum install -y devtoolset-${DEVTOOLSET_VER} file patch bzip2 zlib-devel gettext
 
 ### OpenSSL (system version, so that we can download from HTTPS servers with SNI)
 
