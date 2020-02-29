@@ -17,15 +17,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch_bits: [32, 64]
+        arch: [32, 64]
     steps:
     - uses: actions/checkout@v1
     - name: Login to GitHub Docker Package Registry
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u github-actions --password-stdin
     - name: Build the Docker image
-      run: docker build . --file Dockerfile-${{ arch_bits }} --tag docker.pkg.github.com/build-environment/holy-build-box/hbb-${{ arch_bits }}:edge
+      run: docker build . --file Dockerfile-${{ matrix.arch }} --tag docker.pkg.github.com/phusion/holy-build-box/hbb-${{ matrix.arch }}:edge
     - name: Push the Docker image
-      run: docker push docker.pkg.github.com/phusion/holy-build-box/hbb-${{ arch_bits }}:edge
+      run: docker push docker.pkg.github.com/phusion/holy-build-box/hbb-${{ matrix.arch }}:edge
 
   build_release:
     name: "Build release Docker image"
@@ -40,9 +40,9 @@ jobs:
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u github-actions --password-stdin
     - name: Build the Docker image
       run: |
-        docker build . --file Dockerfile-${{ arch_bits }} --tag docker.pkg.github.com/phusion/holy-build-box/hbb-${{ arch_bits }}:latest
-        docker tag docker.pkg.github.com/phusion/holy-build-box/hbb-${{ arch_bits }}:latest docker.pkg.github.com/phusion/holy-build-box/hbb-${{ arch_bits }}:${{ github.event.ref }}
+        docker build . --file Dockerfile-${{ matrix.arch }} --tag docker.pkg.github.com/phusion/holy-build-box/hbb-${{ matrix.arch }}:latest
+        docker tag docker.pkg.github.com/phusion/holy-build-box/hbb-${{ matrix.arch }}:latest docker.pkg.github.com/phusion/holy-build-box/hbb-${{ matrix.arch }}:${{ github.event.ref }}
     - name: Push the Docker image
       run: |
-        docker push docker.pkg.github.com/build-environment/phusion/hbb-${{ arch_bits }}:latest
-        docker push docker.pkg.github.com/build-environment/phusion/hbb-${{ arch_bits }}:${{ github.event.ref }}
+        docker push docker.pkg.github.com/phusion/holy-build-box/hbb-${{ matrix.arch }}:latest
+        docker push docker.pkg.github.com/phusion/holy-build-box/hbb-${{ matrix.arch }}:${{ github.event.ref }}
