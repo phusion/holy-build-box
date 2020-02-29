@@ -14,6 +14,7 @@ GCC_LIBSTDCXX_VERSION=7.3.0
 ZLIB_VERSION=1.2.11
 OPENSSL_VERSION=1.0.2q
 CURL_VERSION=7.63.0
+GIT_VERSION=2.25.1
 SQLITE_VERSION=3260000
 SQLITE_YEAR=2018
 CENTOS_VERSION=$(tr -d 'a-zA-Z() \n' < /etc/centos-release)
@@ -36,6 +37,7 @@ SKIP_PKG_CONFIG=${SKIP_PKG_CONFIG:-$SKIP_TOOLS}
 SKIP_CCACHE=${SKIP_CCACHE:-$SKIP_TOOLS}
 SKIP_CMAKE=${SKIP_CMAKE:-$SKIP_TOOLS}
 SKIP_PYTHON=${SKIP_PYTHON:-$SKIP_TOOLS}
+SKIP_GIT=${SKIP_GIT:-$SKIP_TOOLS}
 
 SKIP_LIBSTDCXX=${SKIP_LIBSTDCXX:-$SKIP_LIBS}
 SKIP_ZLIB=${SKIP_ZLIB:-$SKIP_LIBS}
@@ -89,7 +91,7 @@ sed -i 's|$arch|i686|; s|\$basearch|i386|g' $CHROOT/etc/yum.repos.d/phusion*.rep
 else
 run yum install -y centos-release-scl
 fi
-run yum install -y devtoolset-7 file patch bzip2 zlib-devel
+run yum install -y devtoolset-7 file patch bzip2 zlib-devel gettext
 
 ### OpenSSL (system version, so that we can download from HTTPS servers with SNI)
 
@@ -295,6 +297,30 @@ if ! eval_bool "$SKIP_CMAKE"; then
 	echo "Leaving source directory"
 	popd >/dev/null
 	run rm -rf cmake-$CMAKE_VERSION
+fi
+
+
+### Git
+
+if ! eval_bool "$SKIP_GIT"; then
+	header "Installing Git $GIT_VERSION"
+	download_and_extract git-$GIT_VERSION.tar.gz \
+		git-$GIT_VERSION \
+		https://mirrors.edge.kernel.org/pub/software/scm/git/git-$GIT_VERSION.tar.gz
+
+	(
+		activate_holy_build_box_deps_installation_environment
+		run make configure
+		run ./configure --prefix=/hbb --without-tcltk
+		run make -j$MAKE_CONCURRENCY
+		run make install
+		run strip --strip-all /hbb/bin/git
+	)
+	if [[ "$?" != 0 ]]; then false; fi
+
+	echo "Leaving source directory"
+	popd >/dev/null
+	run rm -rf git-$GIT_VERSION
 fi
 
 
