@@ -294,7 +294,7 @@ if ! eval_bool "$SKIP_CMAKE"; then
 		run ./configure --prefix=/hbb --no-qt-gui --parallel=$MAKE_CONCURRENCY
 		run make -j$MAKE_CONCURRENCY
 		run make install
-		run strip --strip-all /hbb/bin/cmake
+		run strip --strip-all /hbb/bin/cmake /hbb/bin/cpack /hbb/bin/ctest
 	)
 	if [[ "$?" != 0 ]]; then false; fi
 
