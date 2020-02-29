@@ -10,7 +10,7 @@ CCACHE_VERSION=3.5
 CMAKE_VERSION=3.16.4
 CMAKE_MAJOR_VERSION=3.16
 PYTHON_VERSION=2.7.15
-GCC_LIBSTDCXX_VERSION=7.3.0
+GCC_LIBSTDCXX_VERSION=8.3.0
 ZLIB_VERSION=1.2.11
 OPENSSL_VERSION=1.0.2q
 CURL_VERSION=7.63.0
@@ -88,10 +88,14 @@ header "Installing compiler toolchain"
 if [ `uname -m` != x86_64 ]; then
 curl -s https://packagecloud.io/install/repositories/phusion/centos-6-scl-i386/script.rpm.sh | bash
 sed -i 's|$arch|i686|; s|\$basearch|i386|g' $CHROOT/etc/yum.repos.d/phusion*.repo
+DEVTOOLSET_VER=7
+# a 32-bit version of devtoolset-8 would need to get compiled
+GCC_LIBSTDCXX_VERSION=7.3.0
 else
 run yum install -y centos-release-scl
+DEVTOOLSET_VER=8
 fi
-run yum install -y devtoolset-7 file patch bzip2 zlib-devel gettext
+run yum install -y devtoolset-${DEVTOOLSET_VER} file patch bzip2 zlib-devel gettext
 
 ### OpenSSL (system version, so that we can download from HTTPS servers with SNI)
 

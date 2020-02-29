@@ -1,5 +1,10 @@
 function activate_holy_build_box_deps_installation_environment() {
-	source /opt/rh/devtoolset-7/enable
+	if [ `uname -m` != x86_64 ]; then
+		DEVTOOLSET_VER=7
+	else
+		DEVTOOLSET_VER=8
+	fi
+	source /opt/rh/devtoolset-${DEVTOOLSET_VER}/enable
 	export PATH=/hbb/bin:$PATH
 	export C_INCLUDE_PATH=/hbb/include
 	export CPLUS_INCLUDE_PATH=/hbb/include
@@ -21,7 +26,12 @@ function activate_holy_build_box() {
 	local EXTRA_SHLIB_CFLAGS="$5"
 	local EXTRA_SHLIB_LDFLAGS="$6"
 
-	source /opt/rh/devtoolset-7/enable
+	if [ `uname -m` != x86_64 ]; then
+		DEVTOOLSET_VER=7
+	else
+		DEVTOOLSET_VER=8
+	fi
+	source /opt/rh/devtoolset-${DEVTOOLSET_VER}/enable
 
 	export PATH=$PREFIX/bin:/hbb/bin:$PATH
 	export C_INCLUDE_PATH=$PREFIX/include
