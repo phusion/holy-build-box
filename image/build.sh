@@ -10,7 +10,7 @@ CCACHE_VERSION=3.5
 CMAKE_VERSION=3.16.4
 CMAKE_MAJOR_VERSION=3.16
 PYTHON_VERSION=2.7.15
-GCC_LIBSTDCXX_VERSION=7.3.0
+GCC_LIBSTDCXX_VERSION=8.3.0
 ZLIB_VERSION=1.2.11
 OPENSSL_VERSION=1.0.2q
 CURL_VERSION=7.63.0
@@ -91,7 +91,7 @@ sed -i 's|$arch|i686|; s|\$basearch|i386|g' $CHROOT/etc/yum.repos.d/phusion*.rep
 else
 run yum install -y centos-release-scl
 fi
-run yum install -y devtoolset-7 file patch bzip2 zlib-devel gettext
+run yum install -y devtoolset-8 file patch bzip2 zlib-devel gettext
 
 ### OpenSSL (system version, so that we can download from HTTPS servers with SNI)
 
