@@ -2,6 +2,8 @@ name: Docker Image CI
 
 on:
   create:
+  schedule:
+    - cron: '15 05 * * *' # Late night for the Americas, early morning for Europe
   pull_request:
     branches:
       - master
@@ -24,11 +26,23 @@ jobs:
     - uses: actions/checkout@v1
     - name: Build the Docker image
       run: docker build . --file Dockerfile-${{ matrix.arch }}
-    
+  
+  # Catch changes to external dependencies (like CentOS package repository)
+  build_daily:
+    name: "Build Daily Docker image"
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [32, 64]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile-${{ matrix.arch }}
 
   build_edge:
     name: "Build edge Docker image"
-    if: github.event_name != 'create' && github.event_name != 'pull_request'
+    if: github.event_name != 'create' && github.event_name != 'pull_request' && github.event_name != 'schedule'
     runs-on: ubuntu-latest
     strategy:
       matrix:
