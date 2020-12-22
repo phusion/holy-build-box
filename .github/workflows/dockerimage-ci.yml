@@ -30,7 +30,7 @@ jobs:
   # Catch changes to external dependencies (like CentOS package repository)
   build_daily:
     name: "Build Daily Docker image"
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'schedule'
     runs-on: ubuntu-latest
     strategy:
       matrix:
