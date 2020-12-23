@@ -2,6 +2,7 @@ name: Docker Image CI
 
 on:
   create:
+  workflow_dispatch:
   schedule:
     - cron: '15 05 * * *' # Late night for the Americas, early morning for Europe
   pull_request:
@@ -16,21 +17,8 @@ on:
 
 jobs:
   build_pr:
-    name: "Build PR Docker image"
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [32, 64]
-    steps:
-    - uses: actions/checkout@v1
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile-${{ matrix.arch }}
-  
-  # Catch changes to external dependencies (like CentOS package repository)
-  build_daily:
-    name: "Build Daily Docker image"
-    if: github.event_name == 'schedule'
+    name: "Test Build Docker image"
+    if: github.event_name == 'pull_request' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     strategy:
       matrix:
