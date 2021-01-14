@@ -1,4 +1,4 @@
-## Version 2.0.2 (release date TBD)
+## Version 2.0.2 (release date 2020-01-14)
 
  * Fixed YUM repository URLs so that YUM still works despite CentOS 6 having reached end-of-life.
  * Devtoolset updated to 8 (on x86\_64 only).
