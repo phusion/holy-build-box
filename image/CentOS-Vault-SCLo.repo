@@ -1,0 +1,20 @@
+[CentOS-sclo]
+name=CentOS - SCLo sclo
+baseurl=https://vault.centos.org/6.10/sclo/$basearch/sclo/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-SCLo
+enabled=1
+
+[CentOS-sclo-rh]
+name=CentOS - SCLo sclo-rh
+baseurl=https://vault.centos.org/6.10/sclo/$basearch/rh/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-SCLo
+enabled=1
+
+[CentOS-sclo-debuginfo]
+name=CentOS - SCLo sclo Debuginfo
+baseurl=http://debuginfo.centos.org/centos/6/sclo/$basearch/
+gpgcheck=1
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-SCLo

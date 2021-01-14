@@ -1,0 +1,62 @@
+# CentOS-Vault.repo
+#
+# CentOS Vault holds packages from previous releases within the same CentOS Version
+# these are packages obsoleted by the current release and should usually not 
+# be used in production
+#-----------------
+
+[CentOS-base]
+name=CentOS - Base
+baseurl=https://vault.centos.org/6.10/os/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
+enabled=1
+
+[CentOS-updates]
+name=CentOS - Updates
+baseurl=https://vault.centos.org/6.10/updates/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
+enabled=1
+
+#[CentOS-addons]
+#name=CentOS - Addons
+#baseurl=https://vault.centos.org/6.10/addons/$basearch/
+#gpgcheck=1
+#gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
+#enabled=1
+
+[CentOS-extras]
+name=CentOS - Extras
+baseurl=https://vault.centos.org/6.10/extras/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
+enabled=1
+
+[CentOS-contrib]
+name=CentOS - Contrib
+baseurl=https://vault.centos.org/6.10/contrib/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
+enabled=1
+
+[CentOS-centosplus]
+name=CentOS - CentOSPlus
+baseurl=https://vault.centos.org/6.10/centosplus/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
+enabled=1
+
+[CentOS-fasttrack]
+name=CentOS - FastTrack
+baseurl=https://vault.centos.org/6.10/fasttrack/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
+enabled=1
+
+[CentOS-fasttrack]
+name=CentOS - FastTrack
+baseurl=https://vault.centos.org/6.10/fasttrack/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
+enabled=1
