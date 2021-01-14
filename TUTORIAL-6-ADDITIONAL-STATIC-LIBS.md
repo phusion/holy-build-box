@@ -2,7 +2,7 @@
 
 [<< Back to Tutorial 5: Using library variants](TUTORIAL-5-USING-LIBRARY-VARIANTS.md) | [Tutorial index](README.md#tutorials) | [Skip to Tutorial 7: Verifying binary portability with libcheck >>](TUTORIAL-7-VERIFYING-PORTABILITY-WITH-LIBCHECK.md)
 
-Although Holy Build Box includes a number of static libraries, your application may need additional static libraries. Although it is tempting to install them with `yum`, it is not the approach we recommend. The static libraries provided by CentOS 5 are sub-optimal for the following reasons:
+Although Holy Build Box includes a number of static libraries, your application may need additional static libraries. Although it is tempting to install them with `yum`, it is not the approach we recommend. The static libraries provided by CentOS 6 are sub-optimal for the following reasons:
 
  1. They are not compiled with `-fvisibility=hidden`. This compilation flag reduces the amount unnecessary of symbol text inside the executable, making it smaller.
 

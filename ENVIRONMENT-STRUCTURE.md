@@ -1,8 +1,8 @@
 # Environment structure
 
-As described in [Features](README.md#features), the Holy Build Box environment consists of a bare-bones CentOS 5 system, on top of which a compiler toolchain and various libraries are installed.
+As described in [Features](README.md#features), the Holy Build Box environment consists of a bare-bones CentOS 6 system, on top of which a compiler toolchain and various libraries are installed.
 
-Most of the compiler toolchain, e.g. `gcc` and `g++`, are installed with YUM. However, some software in CentOS 5 is way too outdated for compiling modern applications, so we installed more recent versions of them from source.
+Most of the compiler toolchain, e.g. `gcc` and `g++`, are installed with YUM. However, some software in CentOS 6 is way too outdated for compiling modern applications, so we installed more recent versions of them from source.
 
  * Executable tools such as `pkg-config` and `CMake` are installed to `/hbb`.
  * Libraries such as OpenSSL are installed to the [library variant directories](LIBRARY-VARIANTS.md), e.g. `/hbb_exe`.
