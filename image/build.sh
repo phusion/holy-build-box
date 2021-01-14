@@ -72,8 +72,10 @@ for VARIANT in $VARIANTS; do
 done
 
 header "Updating system"
-# Fix base mirrors to use vault.centos.org
-run sed -i 's|^[# ]*baseurl=http://[^.]\+\.centos\.org|baseurl=http://vault.centos.org|g; s|^ *mirrorlist=http://mirrorlist\.centos\.org.*$||g' /etc/yum.repos.d/*.repo
+run rm -f /etc/yum.repos.d/CentOS-Base.repo
+run rm -f /etc/yum.repos.d/CentOS-fasttrack.repo
+run cp /hbb_build/CentOS-Vault.repo /etc/yum.repos.d/
+run cp /hbb_build/CentOS-Debuginfo.repo /etc/yum.repos.d/
 
 touch /var/lib/rpm/*
 run yum update -y
@@ -88,8 +90,9 @@ DEVTOOLSET_VER=7
 GCC_LIBSTDCXX_VERSION=7.3.0
 else
 run yum install -y centos-release-scl
-# Fix mirrors added by centos-release-scl to use vault.centos.org
-run sed -i 's|^[# ]*baseurl=http://[^.]\+\.centos\.org|baseurl=http://vault.centos.org|g; s|^ *mirrorlist=http://mirrorlist\.centos\.org.*$||g' /etc/yum.repos.d/*.repo
+run rm -f /etc/yum.repos.d/CentOS-SCLo-scl.repo
+run rm -f /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
+run cp /hbb_build/CentOS-Vault-SCLo.repo /etc/yum.repos.d/
 DEVTOOLSET_VER=8
 fi
 run yum install -y devtoolset-${DEVTOOLSET_VER} file patch bzip2 zlib-devel gettext
