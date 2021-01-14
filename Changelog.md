@@ -1,3 +1,10 @@
+## Version 2.0.2 (release date TBD)
+
+ * Fixed YUM repository URLs so that YUM still works despite CentOS 6 having reached end-of-life.
+ * Devtoolset updated to 8 (on x86\_64 only).
+ * CMake updated to 3.16.4.
+ * Git 2.25.1 added.
+
 ## Version 2.0.1 (release date 2019-01-03)
 
  * Changed libcheck script to use readelf internally instead of ldd, to remove confusing output.
