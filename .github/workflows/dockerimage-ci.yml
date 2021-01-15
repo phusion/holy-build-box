@@ -39,7 +39,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file Dockerfile-${{ matrix.arch }}
+      run: docker build . --file Dockerfile-${{ matrix.arch }} --build-arg DISABLE_OPTIMIZATIONS=1
 
   build_edge:
     name: "Build edge Docker image"
@@ -53,7 +53,7 @@ jobs:
     - name: Login to GitHub Docker Package Registry
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u github-actions --password-stdin
     - name: Build the Docker image
-      run: docker build . --file Dockerfile-${{ matrix.arch }} --tag docker.pkg.github.com/phusion/holy-build-box/hbb-${{ matrix.arch }}:edge
+      run: docker build . --file Dockerfile-${{ matrix.arch }} --build-arg DISABLE_OPTIMIZATIONS=1 --tag docker.pkg.github.com/phusion/holy-build-box/hbb-${{ matrix.arch }}:edge
     - name: Push the Docker image
       run: docker push docker.pkg.github.com/phusion/holy-build-box/hbb-${{ matrix.arch }}:edge
 
