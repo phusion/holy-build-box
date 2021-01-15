@@ -1,3 +1,5 @@
+# shellcheck shell=bash
+
 RESET=$'\e[0m'
 BOLD=$'\e[1m'
 YELLOW=$'\e[33m'
@@ -13,7 +15,7 @@ function header()
 
 function run()
 {
-	echo "+ $@"
+	echo "+ $*"
 	"$@"
 }
 
@@ -36,6 +38,7 @@ function download_and_extract()
 	fi
 
 	echo "Entering $RUNTIME_DIR/$DIRNAME"
+	# shellcheck disable=SC2164
 	pushd "$DIRNAME" >/dev/null
 }
 

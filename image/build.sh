@@ -17,9 +17,10 @@ CURL_VERSION=7.63.0
 GIT_VERSION=2.25.1
 SQLITE_VERSION=3260000
 SQLITE_YEAR=2018
-CENTOS_VERSION=$(tr -d 'a-zA-Z() \n' < /etc/centos-release)
 
+# shellcheck source=image/functions.sh
 source /hbb_build/functions.sh
+# shellcheck source=image/activate_func.sh
 source /hbb_build/activate_func.sh
 
 SKIP_TOOLS=${SKIP_TOOLS:-false}
@@ -66,9 +67,9 @@ if ! eval_bool "$SKIP_USERS_GROUPS"; then
 fi
 
 for VARIANT in $VARIANTS; do
-	run mkdir -p /hbb_$VARIANT
-	run cp /hbb_build/activate-exec /hbb_$VARIANT/
-	run cp /hbb_build/variants/$VARIANT.sh /hbb_$VARIANT/activate
+	run mkdir -p "/hbb_$VARIANT"
+	run cp /hbb_build/activate-exec "/hbb_$VARIANT/"
+	run cp "/hbb_build/variants/$VARIANT.sh" "/hbb_$VARIANT/activate"
 done
 
 header "Updating system"
@@ -82,9 +83,10 @@ run yum update -y
 run yum install -y curl epel-release tar
 
 header "Installing compiler toolchain"
-if [ `uname -m` != x86_64 ]; then
+if [ "$(uname -m)" != x86_64 ]; then
 	curl -s https://packagecloud.io/install/repositories/phusion/centos-6-scl-i386/script.rpm.sh | bash
-	sed -i 's|$arch|i686|; s|\$basearch|i386|g' $CHROOT/etc/yum.repos.d/phusion*.repo
+	# shellcheck disable=SC2016
+	sed -i 's|$arch|i686|; s|\$basearch|i386|g' /etc/yum.repos.d/phusion*.repo
 	DEVTOOLSET_VER=7
 	# a 32-bit version of devtoolset-8 would need to get compiled
 	GCC_LIBSTDCXX_VERSION=7.3.0
@@ -115,6 +117,7 @@ if ! eval_bool "$SKIP_SYSTEM_OPENSSL"; then
 		run rm -f /hbb/lib/libssl.a /hbb/lib/libcrypto.a
 		run ln -s /etc/pki/tls/certs/ca-bundle.crt /hbb/openssl/cert.pem
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -140,6 +143,7 @@ if ! eval_bool "$SKIP_SYSTEM_CURL"; then
 		run strip --strip-all /hbb/bin/curl
 		run strip --strip-debug /hbb/lib/libcurl.so
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	hash -r
@@ -164,6 +168,7 @@ if ! eval_bool "$SKIP_M4"; then
 		run make -j$MAKE_CONCURRENCY
 		run make install-strip
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -186,6 +191,7 @@ if ! eval_bool "$SKIP_AUTOCONF"; then
 		run make -j$MAKE_CONCURRENCY
 		run make install-strip
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -208,6 +214,7 @@ if ! eval_bool "$SKIP_AUTOMAKE"; then
 		run make -j$MAKE_CONCURRENCY
 		run make install-strip
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -230,6 +237,7 @@ if ! eval_bool "$SKIP_LIBTOOL"; then
 		run make -j$MAKE_CONCURRENCY
 		run make install-strip
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -252,6 +260,7 @@ if ! eval_bool "$SKIP_PKG_CONFIG"; then
 		run rm -f /hbb/bin/*pkg-config
 		run make -j$MAKE_CONCURRENCY install-strip
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -274,6 +283,7 @@ if ! eval_bool "$SKIP_CCACHE"; then
 		run make -j$MAKE_CONCURRENCY install
 		run strip --strip-all /hbb/bin/ccache
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -297,6 +307,7 @@ if ! eval_bool "$SKIP_CMAKE"; then
 		run make install
 		run strip --strip-all /hbb/bin/cmake /hbb/bin/cpack /hbb/bin/ctest
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -321,6 +332,7 @@ if ! eval_bool "$SKIP_GIT"; then
 		run make install
 		run strip --strip-all /hbb/bin/git
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -344,6 +356,7 @@ if ! eval_bool "$SKIP_PYTHON"; then
 		run strip --strip-all /hbb/bin/python
 		run strip --strip-debug /hbb/lib/python*/lib-dynload/*.so
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	run hash -r
@@ -375,22 +388,26 @@ function install_libstdcxx()
 		https://ftpmirror.gnu.org/gcc/gcc-$GCC_LIBSTDCXX_VERSION/gcc-$GCC_LIBSTDCXX_VERSION.tar.gz
 
 	(
+		# shellcheck disable=SC1090
 		source "$PREFIX/activate"
 		run rm -rf ../gcc-build
 		run mkdir ../gcc-build
 		echo "+ Entering /gcc-build"
 		cd ../gcc-build
 
+		# shellcheck disable=SC2030
 		export CFLAGS="$STATICLIB_CFLAGS"
+		# shellcheck disable=SC2030
 		export CXXFLAGS="$STATICLIB_CXXFLAGS"
 		../gcc-$GCC_LIBSTDCXX_VERSION/libstdc++-v3/configure \
-			--prefix=$PREFIX --disable-multilib \
+			--prefix="$PREFIX" --disable-multilib \
 			--disable-libstdcxx-visibility --disable-shared
 		run make -j$MAKE_CONCURRENCY
-		run mkdir -p $PREFIX/lib
-		run cp src/.libs/libstdc++.a $PREFIX/lib/
-		run cp libsupc++/.libs/libsupc++.a $PREFIX/lib/
+		run mkdir -p "$PREFIX/lib"
+		run cp src/.libs/libstdc++.a "$PREFIX/lib/"
+		run cp libsupc++/.libs/libsupc++.a "$PREFIX/lib/"
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -401,7 +418,7 @@ function install_libstdcxx()
 
 if ! eval_bool "$SKIP_LIBSTDCXX"; then
 	for VARIANT in $VARIANTS; do
-		install_libstdcxx $VARIANT
+		install_libstdcxx "$VARIANT"
 	done
 fi
 
@@ -419,12 +436,15 @@ function install_zlib()
 		https://zlib.net/fossils/zlib-$ZLIB_VERSION.tar.gz
 
 	(
+		# shellcheck disable=SC1090
 		source "$PREFIX/activate"
+		# shellcheck disable=SC2030,SC2031
 		export CFLAGS="$STATICLIB_CFLAGS"
-		run ./configure --prefix=$PREFIX --static
+		run ./configure --prefix="$PREFIX" --static
 		run make -j$MAKE_CONCURRENCY
 		run make install
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -434,7 +454,7 @@ function install_zlib()
 
 if ! eval_bool "$SKIP_ZLIB"; then
 	for VARIANT in $VARIANTS; do
-		install_zlib $VARIANT
+		install_zlib "$VARIANT"
 	done
 fi
 
@@ -452,16 +472,22 @@ function install_openssl()
 		https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz
 
 	(
+		set -o pipefail
+
+		# shellcheck disable=SC1090
 		source "$PREFIX/activate"
 
 		# OpenSSL already passes optimization flags regardless of CFLAGS
-		export CFLAGS=`echo "$STATICLIB_CFLAGS" | sed 's/-O2//'`
-		run ./config --prefix=$PREFIX --openssldir=$PREFIX/openssl \
+		# shellcheck disable=SC2030,SC2001
+		CFLAGS=$(echo "$STATICLIB_CFLAGS" | sed 's/-O2//')
+		export CFLAGS
+		# shellcheck disable=SC2086
+		run ./config --prefix="$PREFIX" --openssldir="$PREFIX/openssl" \
 			threads zlib no-shared no-sse2 $CFLAGS $LDFLAGS
 
 		if ! $O3_ALLOWED; then
 			echo "+ Modifying Makefiles"
-			find . -name Makefile | xargs sed -i -e 's|-O3|-O2|g'
+			find . -name Makefile -print0 | xargs -0 sed -i -e 's|-O3|-O2|g'
 		fi
 
 		run make
@@ -470,11 +496,16 @@ function install_openssl()
 		if [[ "$VARIANT" = exe_gc_hardened ]]; then
 			run hardening-check -b "$PREFIX/bin/openssl"
 		fi
-		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lssl -lcrypto -ldl/' $PREFIX/lib/pkgconfig/openssl.pc
-		run sed -i 's/^Libs.private:.*/Libs.private: -L${libdir} -lssl -lcrypto -ldl -lz/' $PREFIX/lib/pkgconfig/openssl.pc
-		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lssl -lcrypto -ldl/' $PREFIX/lib/pkgconfig/libssl.pc
-		run sed -i 's/^Libs.private:.*/Libs.private: -L${libdir} -lssl -lcrypto -ldl -lz/' $PREFIX/lib/pkgconfig/libssl.pc
+		# shellcheck disable=SC2016
+		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lssl -lcrypto -ldl/' "$PREFIX"/lib/pkgconfig/openssl.pc
+		# shellcheck disable=SC2016
+		run sed -i 's/^Libs.private:.*/Libs.private: -L${libdir} -lssl -lcrypto -ldl -lz/' "$PREFIX"/lib/pkgconfig/openssl.pc
+		# shellcheck disable=SC2016
+		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lssl -lcrypto -ldl/' "$PREFIX"/lib/pkgconfig/libssl.pc
+		# shellcheck disable=SC2016
+		run sed -i 's/^Libs.private:.*/Libs.private: -L${libdir} -lssl -lcrypto -ldl -lz/' "$PREFIX"/lib/pkgconfig/libssl.pc
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -484,11 +515,11 @@ function install_openssl()
 
 if ! eval_bool "$SKIP_OPENSSL"; then
 	for VARIANT in $VARIANTS; do
-		install_openssl $VARIANT
+		install_openssl "$VARIANT"
 	done
 	run mv /hbb_exe_gc_hardened/bin/openssl /hbb/bin/
 	for VARIANT in $VARIANTS; do
-		run rm -f /hbb_$VARIANT/bin/openssl
+		run rm -f "/hbb_$VARIANT/bin/openssl"
 	done
 fi
 
@@ -506,7 +537,9 @@ function install_curl()
 		https://curl.haxx.se/download/curl-$CURL_VERSION.tar.bz2
 
 	(
+		# shellcheck disable=SC1090
 		source "$PREFIX/activate"
+		# shellcheck disable=SC2030,SC2031
 		export CFLAGS="$STATICLIB_CFLAGS"
 		./configure --prefix="$PREFIX" --disable-shared --disable-debug --enable-optimize --disable-werror \
 			--disable-curldebug --enable-symbol-hiding --disable-ares --disable-manual --disable-ldap --disable-ldaps \
@@ -522,6 +555,7 @@ function install_curl()
 		fi
 		run rm -f "$PREFIX/bin/curl"
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -531,7 +565,7 @@ function install_curl()
 
 if ! eval_bool "$SKIP_CURL"; then
 	for VARIANT in $VARIANTS; do
-		install_curl $VARIANT
+		install_curl "$VARIANT"
 	done
 fi
 
@@ -549,8 +583,11 @@ function install_sqlite()
 		https://www.sqlite.org/$SQLITE_YEAR/sqlite-autoconf-$SQLITE_VERSION.tar.gz
 
 	(
+		# shellcheck disable=SC1090
 		source "$PREFIX/activate"
+		# shellcheck disable=SC2031
 		export CFLAGS="$STATICLIB_CFLAGS"
+		# shellcheck disable=SC2031
 		export CXXFLAGS="$STATICLIB_CXXFLAGS"
 		run ./configure --prefix="$PREFIX" --enable-static \
 			--disable-shared --disable-dynamic-extensions
@@ -561,6 +598,7 @@ function install_sqlite()
 		fi
 		run strip --strip-all "$PREFIX/bin/sqlite3"
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -570,11 +608,11 @@ function install_sqlite()
 
 if ! eval_bool "$SKIP_SQLITE"; then
 	for VARIANT in $VARIANTS; do
-		install_sqlite $VARIANT
+		install_sqlite "$VARIANT"
 	done
 	run mv /hbb_exe_gc_hardened/bin/sqlite3 /hbb/bin/
 	for VARIANT in $VARIANTS; do
-		run rm -f /hbb_$VARIANT/bin/sqlite3
+		run rm -f "/hbb_$VARIANT/bin/sqlite3"
 	done
 fi
 
@@ -587,6 +625,6 @@ if ! eval_bool "$SKIP_FINALIZE"; then
 	run rm -rf /hbb/share/doc /hbb/share/man
 	run rm -rf /hbb_build /tmp/*
 	for VARIANT in $VARIANTS; do
-		run rm -rf /hbb_$VARIANT/share/doc /hbb_$VARIANT/share/man
+		run rm -rf "/hbb_$VARIANT/share/doc" "/hbb_$VARIANT/share/man"
 	done
 fi
