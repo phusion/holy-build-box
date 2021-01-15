@@ -23,10 +23,10 @@ source /hbb_build/functions.sh
 # shellcheck source=image/activate_func.sh
 source /hbb_build/activate_func.sh
 
+SKIP_INITIALIZE=${SKIP_INITIALIZE:-false}
 SKIP_TOOLS=${SKIP_TOOLS:-false}
 SKIP_LIBS=${SKIP_LIBS:-false}
 SKIP_FINALIZE=${SKIP_FINALIZE:-false}
-SKIP_USERS_GROUPS=${SKIP_USERS_GROUPS:-false}
 
 SKIP_SYSTEM_OPENSSL=${SKIP_SYSTEM_OPENSSL:-$SKIP_TOOLS}
 SKIP_SYSTEM_CURL=${SKIP_SYSTEM_CURL:-$SKIP_TOOLS}
@@ -52,52 +52,54 @@ export PATH=/hbb/bin:$PATH
 
 #########################
 
-header "Initializing"
-run mkdir -p /hbb /hbb/bin
-run cp /hbb_build/libcheck /hbb/bin/
-run cp /hbb_build/hardening-check /hbb/bin/
-run cp /hbb_build/setuser /hbb/bin/
-run cp /hbb_build/activate_func.sh /hbb/activate_func.sh
-run cp /hbb_build/hbb-activate /hbb/activate
-run cp /hbb_build/activate-exec /hbb/activate-exec
+if ! eval_bool "$SKIP_INITIALIZE"; then
+	header "Initializing"
+	run mkdir -p /hbb /hbb/bin
+	run cp /hbb_build/libcheck /hbb/bin/
+	run cp /hbb_build/hardening-check /hbb/bin/
+	run cp /hbb_build/setuser /hbb/bin/
+	run cp /hbb_build/activate_func.sh /hbb/activate_func.sh
+	run cp /hbb_build/hbb-activate /hbb/activate
+	run cp /hbb_build/activate-exec /hbb/activate-exec
 
-if ! eval_bool "$SKIP_USERS_GROUPS"; then
-    run groupadd -g 9327 builder
-    run adduser --uid 9327 --gid 9327 builder
+	if ! eval_bool "$SKIP_USERS_GROUPS"; then
+		run groupadd -g 9327 builder
+		run adduser --uid 9327 --gid 9327 builder
+	fi
+
+	for VARIANT in $VARIANTS; do
+		run mkdir -p "/hbb_$VARIANT"
+		run cp /hbb_build/activate-exec "/hbb_$VARIANT/"
+		run cp "/hbb_build/variants/$VARIANT.sh" "/hbb_$VARIANT/activate"
+	done
+
+	header "Updating system"
+	run rm -f /etc/yum.repos.d/CentOS-Base.repo
+	run rm -f /etc/yum.repos.d/CentOS-fasttrack.repo
+	run cp /hbb_build/CentOS-Vault.repo /etc/yum.repos.d/
+	run cp /hbb_build/CentOS-Debuginfo.repo /etc/yum.repos.d/
+
+	touch /var/lib/rpm/*
+	run yum update -y
+	run yum install -y curl epel-release tar
+
+	header "Installing compiler toolchain"
+	if [ "$(uname -m)" != x86_64 ]; then
+		curl -s https://packagecloud.io/install/repositories/phusion/centos-6-scl-i386/script.rpm.sh | bash
+		# shellcheck disable=SC2016
+		sed -i 's|$arch|i686|; s|\$basearch|i386|g' /etc/yum.repos.d/phusion*.repo
+		DEVTOOLSET_VER=7
+		# a 32-bit version of devtoolset-8 would need to get compiled
+		GCC_LIBSTDCXX_VERSION=7.3.0
+	else
+		run yum install -y centos-release-scl
+		run rm -f /etc/yum.repos.d/CentOS-SCLo-scl.repo
+		run rm -f /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
+		run cp /hbb_build/CentOS-Vault-SCLo.repo /etc/yum.repos.d/
+		DEVTOOLSET_VER=8
+	fi
+	run yum install -y devtoolset-${DEVTOOLSET_VER} file patch bzip2 zlib-devel gettext
 fi
-
-for VARIANT in $VARIANTS; do
-	run mkdir -p "/hbb_$VARIANT"
-	run cp /hbb_build/activate-exec "/hbb_$VARIANT/"
-	run cp "/hbb_build/variants/$VARIANT.sh" "/hbb_$VARIANT/activate"
-done
-
-header "Updating system"
-run rm -f /etc/yum.repos.d/CentOS-Base.repo
-run rm -f /etc/yum.repos.d/CentOS-fasttrack.repo
-run cp /hbb_build/CentOS-Vault.repo /etc/yum.repos.d/
-run cp /hbb_build/CentOS-Debuginfo.repo /etc/yum.repos.d/
-
-touch /var/lib/rpm/*
-run yum update -y
-run yum install -y curl epel-release tar
-
-header "Installing compiler toolchain"
-if [ "$(uname -m)" != x86_64 ]; then
-	curl -s https://packagecloud.io/install/repositories/phusion/centos-6-scl-i386/script.rpm.sh | bash
-	# shellcheck disable=SC2016
-	sed -i 's|$arch|i686|; s|\$basearch|i386|g' /etc/yum.repos.d/phusion*.repo
-	DEVTOOLSET_VER=7
-	# a 32-bit version of devtoolset-8 would need to get compiled
-	GCC_LIBSTDCXX_VERSION=7.3.0
-else
-	run yum install -y centos-release-scl
-	run rm -f /etc/yum.repos.d/CentOS-SCLo-scl.repo
-	run rm -f /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
-	run cp /hbb_build/CentOS-Vault-SCLo.repo /etc/yum.repos.d/
-	DEVTOOLSET_VER=8
-fi
-run yum install -y devtoolset-${DEVTOOLSET_VER} file patch bzip2 zlib-devel gettext
 
 
 ### OpenSSL (system version, so that we can download from HTTPS servers with SNI)
