@@ -1,0 +1,20 @@
+# http://EditorConfig.org
+
+root = true
+
+[*]
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+trailing_comma = true
+insert_final_newline = true
+
+[*.sh]
+indent_style=tab
+
+[image/{activate-exec,hbb-activate,libcheck,setuser}]
+indent_style=tab
+
+[image/hardening-check]
+indent_style=space
+indent_size=4
