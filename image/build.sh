@@ -111,7 +111,13 @@ if ! eval_bool "$SKIP_SYSTEM_OPENSSL"; then
 		https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz
 	(
 		activate_holy_build_box_deps_installation_environment
+		# shellcheck disable=SC2030
+		export CFLAGS="-g"
+		# shellcheck disable=SC2030
+		export CXXFLAGS="-g"
 		run ./config --prefix=/hbb --openssldir=/hbb/openssl threads zlib shared
+		echo "+ Modifying Makefiles"
+		find . -name Makefile -print0 | xargs -0 sed -i -e 's|-O[0-9]||g'
 		run make
 		run make install_sw
 		run strip --strip-all /hbb/bin/openssl
@@ -139,7 +145,8 @@ if ! eval_bool "$SKIP_SYSTEM_CURL"; then
 	(
 		activate_holy_build_box_deps_installation_environment
 		run ./configure --prefix=/hbb --disable-static --disable-debug --enable-optimize \
-			--disable-manual --with-ssl --with-ca-bundle=/etc/pki/tls/certs/ca-bundle.crt
+			--disable-manual --with-ssl --with-ca-bundle=/etc/pki/tls/certs/ca-bundle.crt \
+			CFLAGS="-g" CXXFLAGS="-g"
 		run make -j$MAKE_CONCURRENCY
 		run make install
 		run strip --strip-all /hbb/bin/curl
@@ -166,6 +173,7 @@ if ! eval_bool "$SKIP_M4"; then
 
 	(
 		activate_holy_build_box_deps_installation_environment
+		set_default_cflags
 		run ./configure --prefix=/hbb --disable-shared --enable-static
 		run make -j$MAKE_CONCURRENCY
 		run make install-strip
@@ -258,6 +266,12 @@ if ! eval_bool "$SKIP_PKG_CONFIG"; then
 
 	(
 		activate_holy_build_box_deps_installation_environment
+		# pkg-config is not a performance bottleneck, so no need to compile it with
+		# optimizations.
+		# shellcheck disable=SC2031
+		export CFLAGS=-g
+		# shellcheck disable=SC2031
+		export CXXFLAGS=-g
 		run ./configure --prefix=/hbb --with-internal-glib
 		run rm -f /hbb/bin/*pkg-config
 		run make -j$MAKE_CONCURRENCY install-strip
@@ -281,6 +295,7 @@ if ! eval_bool "$SKIP_CCACHE"; then
 
 	(
 		activate_holy_build_box_deps_installation_environment
+		set_default_cflags
 		run ./configure --prefix=/hbb
 		run make -j$MAKE_CONCURRENCY install
 		run strip --strip-all /hbb/bin/ccache
@@ -304,6 +319,7 @@ if ! eval_bool "$SKIP_CMAKE"; then
 
 	(
 		activate_holy_build_box_deps_installation_environment
+		set_default_cflags
 		run ./configure --prefix=/hbb --no-qt-gui --parallel=$MAKE_CONCURRENCY
 		run make -j$MAKE_CONCURRENCY
 		run make install
@@ -328,6 +344,7 @@ if ! eval_bool "$SKIP_GIT"; then
 
 	(
 		activate_holy_build_box_deps_installation_environment
+		set_default_cflags
 		run make configure
 		run ./configure --prefix=/hbb --without-tcltk
 		run make -j$MAKE_CONCURRENCY
@@ -353,6 +370,7 @@ if ! eval_bool "$SKIP_PYTHON"; then
 
 	(
 		activate_holy_build_box_deps_installation_environment
+		set_default_cflags
 		run ./configure --prefix=/hbb
 		run make -j$MAKE_CONCURRENCY install
 		run strip --strip-all /hbb/bin/python
@@ -398,7 +416,8 @@ function install_libstdcxx()
 		cd ../gcc-build
 
 		# shellcheck disable=SC2030
-		export CFLAGS="$STATICLIB_CFLAGS"
+		CFLAGS=$(adjust_optimization_level "$STATICLIB_CFLAGS")
+		export CFLAGS
 
 		# The libstdc++ build system has a bug. In order for it to enable C++11 thread
 		# support, it checks for gthreads (part of libgcc) support. This is done by checking
@@ -411,7 +430,7 @@ function install_libstdcxx()
 		# https://github.com/phusion/holy-build-box/issues/19
 
 		# shellcheck disable=SC2030
-		CXXFLAGS="$STATICLIB_CXXFLAGS -Iinclude/bits"
+		CXXFLAGS=$(adjust_optimization_level "$STATICLIB_CXXFLAGS -Iinclude/bits")
 		export CXXFLAGS
 
 		../gcc-$GCC_LIBSTDCXX_VERSION/libstdc++-v3/configure \
@@ -461,7 +480,8 @@ function install_zlib()
 		# shellcheck disable=SC1090
 		source "$PREFIX/activate"
 		# shellcheck disable=SC2030,SC2031
-		export CFLAGS="$STATICLIB_CFLAGS"
+		CFLAGS=$(adjust_optimization_level "$STATICLIB_CFLAGS")
+		export CFLAGS
 		run ./configure --prefix="$PREFIX" --static
 		run make -j$MAKE_CONCURRENCY
 		run make install
@@ -507,7 +527,10 @@ function install_openssl()
 		run ./config --prefix="$PREFIX" --openssldir="$PREFIX/openssl" \
 			threads zlib no-shared no-sse2 $CFLAGS $LDFLAGS
 
-		if ! $O3_ALLOWED; then
+		if eval_bool "$DISABLE_OPTIMIZATIONS"; then
+			echo "+ Modifying Makefiles"
+			find . -name Makefile -print0 | xargs -0 sed -i -e 's|-O[0-9]||g'
+		elif ! $O3_ALLOWED; then
 			echo "+ Modifying Makefiles"
 			find . -name Makefile -print0 | xargs -0 sed -i -e 's|-O3|-O2|g'
 		fi
@@ -562,7 +585,8 @@ function install_curl()
 		# shellcheck disable=SC1090
 		source "$PREFIX/activate"
 		# shellcheck disable=SC2030,SC2031
-		export CFLAGS="$STATICLIB_CFLAGS"
+		CFLAGS=$(adjust_optimization_level "$STATICLIB_CFLAGS")
+		export CFLAGS
 		./configure --prefix="$PREFIX" --disable-shared --disable-debug --enable-optimize --disable-werror \
 			--disable-curldebug --enable-symbol-hiding --disable-ares --disable-manual --disable-ldap --disable-ldaps \
 			--disable-rtsp --disable-dict --disable-ftp --disable-ftps --disable-gopher --disable-imap \
@@ -608,9 +632,11 @@ function install_sqlite()
 		# shellcheck disable=SC1090
 		source "$PREFIX/activate"
 		# shellcheck disable=SC2031
-		export CFLAGS="$STATICLIB_CFLAGS"
+		CFLAGS=$(adjust_optimization_level "$STATICLIB_CFLAGS")
 		# shellcheck disable=SC2031
-		export CXXFLAGS="$STATICLIB_CXXFLAGS"
+		CXXFLAGS=$(adjust_optimization_level "$STATICLIB_CXXFLAGS")
+		export CFLAGS
+		export CXXFLAGS
 		run ./configure --prefix="$PREFIX" --enable-static \
 			--disable-shared --disable-dynamic-extensions
 		run make -j$MAKE_CONCURRENCY
