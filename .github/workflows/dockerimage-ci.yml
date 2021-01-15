@@ -4,7 +4,7 @@ on:
   create:
   workflow_dispatch:
   schedule:
-    - cron: '15 05 * * *' # Late night for the Americas, early morning for Europe
+    - cron: '15 05 * * 1' # Late night for the Americas, early morning for Europe
   pull_request:
     branches:
       - master
