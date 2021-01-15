@@ -28,7 +28,7 @@ jobs:
       matrix:
         arch: [32, 64]
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Build the Docker image
       run: docker build . --file Dockerfile-${{ matrix.arch }}
 
@@ -40,7 +40,7 @@ jobs:
       matrix:
         arch: [32, 64]
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Login to GitHub Docker Package Registry
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u github-actions --password-stdin
     - name: Build the Docker image
@@ -56,7 +56,7 @@ jobs:
       matrix:
         arch_bits: [32, 64]
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Login to GitHub Docker Package Registry
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u github-actions --password-stdin
     - name: Build the Docker image
