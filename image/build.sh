@@ -83,19 +83,20 @@ run yum install -y curl epel-release tar
 
 header "Installing compiler toolchain"
 if [ `uname -m` != x86_64 ]; then
-curl -s https://packagecloud.io/install/repositories/phusion/centos-6-scl-i386/script.rpm.sh | bash
-sed -i 's|$arch|i686|; s|\$basearch|i386|g' $CHROOT/etc/yum.repos.d/phusion*.repo
-DEVTOOLSET_VER=7
-# a 32-bit version of devtoolset-8 would need to get compiled
-GCC_LIBSTDCXX_VERSION=7.3.0
+	curl -s https://packagecloud.io/install/repositories/phusion/centos-6-scl-i386/script.rpm.sh | bash
+	sed -i 's|$arch|i686|; s|\$basearch|i386|g' $CHROOT/etc/yum.repos.d/phusion*.repo
+	DEVTOOLSET_VER=7
+	# a 32-bit version of devtoolset-8 would need to get compiled
+	GCC_LIBSTDCXX_VERSION=7.3.0
 else
-run yum install -y centos-release-scl
-run rm -f /etc/yum.repos.d/CentOS-SCLo-scl.repo
-run rm -f /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
-run cp /hbb_build/CentOS-Vault-SCLo.repo /etc/yum.repos.d/
-DEVTOOLSET_VER=8
+	run yum install -y centos-release-scl
+	run rm -f /etc/yum.repos.d/CentOS-SCLo-scl.repo
+	run rm -f /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
+	run cp /hbb_build/CentOS-Vault-SCLo.repo /etc/yum.repos.d/
+	DEVTOOLSET_VER=8
 fi
 run yum install -y devtoolset-${DEVTOOLSET_VER} file patch bzip2 zlib-devel gettext
+
 
 ### OpenSSL (system version, so that we can download from HTTPS servers with SNI)
 
