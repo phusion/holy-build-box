@@ -20,6 +20,15 @@ on:
       - fork/master
 
 jobs:
+  code_check:
+    name: Code checks
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ludeeus/action-shellcheck@master
+        env:
+          SHELLCHECK_OPTS: -x
+
   build_pr:
     name: "Test Build Docker image"
     if: github.event_name == 'pull_request' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'

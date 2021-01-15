@@ -1,3 +1,6 @@
+# shellcheck shell=bash
+
+# shellcheck source=image/activate_func.sh
 source /hbb/activate_func.sh
 export O3_ALLOWED=false
 activate_holy_build_box /hbb_exe_gc_hardened \
