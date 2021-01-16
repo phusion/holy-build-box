@@ -28,8 +28,6 @@ SKIP_TOOLS=${SKIP_TOOLS:-false}
 SKIP_LIBS=${SKIP_LIBS:-false}
 SKIP_FINALIZE=${SKIP_FINALIZE:-false}
 
-SKIP_SYSTEM_OPENSSL=${SKIP_SYSTEM_OPENSSL:-$SKIP_TOOLS}
-SKIP_SYSTEM_CURL=${SKIP_SYSTEM_CURL:-$SKIP_TOOLS}
 SKIP_M4=${SKIP_M4:-$SKIP_TOOLS}
 SKIP_AUTOCONF=${SKIP_AUTOCONF:-$SKIP_TOOLS}
 SKIP_AUTOMAKE=${SKIP_AUTOMAKE:-$SKIP_TOOLS}
@@ -81,7 +79,7 @@ if ! eval_bool "$SKIP_INITIALIZE"; then
 
 	touch /var/lib/rpm/*
 	run yum update -y
-	run yum install -y curl epel-release tar
+	run yum install -y curl openssl-devel epel-release tar
 
 	header "Installing compiler toolchain"
 	if [ "$(uname -m)" != x86_64 ]; then
@@ -99,67 +97,6 @@ if ! eval_bool "$SKIP_INITIALIZE"; then
 		DEVTOOLSET_VER=8
 	fi
 	run yum install -y devtoolset-${DEVTOOLSET_VER} file patch bzip2 zlib-devel gettext
-fi
-
-
-### OpenSSL (system version, so that we can download from HTTPS servers with SNI)
-
-if ! eval_bool "$SKIP_SYSTEM_OPENSSL"; then
-	header "Installing system OpenSSL $OPENSSL_VERSION"
-	download_and_extract openssl-$OPENSSL_VERSION.tar.gz \
-		openssl-$OPENSSL_VERSION \
-		https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz
-	(
-		activate_holy_build_box_deps_installation_environment
-		# shellcheck disable=SC2030
-		export CFLAGS="-g"
-		# shellcheck disable=SC2030
-		export CXXFLAGS="-g"
-		run ./config --prefix=/hbb --openssldir=/hbb/openssl threads zlib shared
-		echo "+ Modifying Makefiles"
-		find . -name Makefile -print0 | xargs -0 sed -i -e 's|-O[0-9]||g'
-		run make
-		run make install_sw
-		run strip --strip-all /hbb/bin/openssl
-		run strip --strip-debug /hbb/lib/libssl.so /hbb/lib/libcrypto.so
-		run rm -f /hbb/lib/libssl.a /hbb/lib/libcrypto.a
-		run ln -s /etc/pki/tls/certs/ca-bundle.crt /hbb/openssl/cert.pem
-	)
-	# shellcheck disable=SC2181
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf openssl-$OPENSSL_VERSION
-fi
-
-
-### Curl (system version, so that we can download from HTTPS servers with SNI)
-
-if ! eval_bool "$SKIP_SYSTEM_CURL"; then
-	header "Installing system Curl $CURL_VERSION"
-	run tar xjf /hbb_build/curl-$CURL_VERSION.tar.bz2
-	echo "Entering /curl-$CURL_VERSION"
-	pushd "curl-$CURL_VERSION" >/dev/null
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb --disable-static --disable-debug --enable-optimize \
-			--disable-manual --with-ssl --with-ca-bundle=/etc/pki/tls/certs/ca-bundle.crt \
-			CFLAGS="-g" CXXFLAGS="-g"
-		run make -j$MAKE_CONCURRENCY
-		run make install
-		run strip --strip-all /hbb/bin/curl
-		run strip --strip-debug /hbb/lib/libcurl.so
-	)
-	# shellcheck disable=SC2181
-	if [[ "$?" != 0 ]]; then false; fi
-
-	hash -r
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf curl-$CURL_VERSION
 fi
 
 
