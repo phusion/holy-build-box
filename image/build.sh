@@ -277,7 +277,7 @@ if ! eval_bool "$SKIP_GIT"; then
 	header "Installing Git $GIT_VERSION"
 	download_and_extract git-$GIT_VERSION.tar.gz \
 		git-$GIT_VERSION \
-		https://mirrors.edge.kernel.org/pub/software/scm/git/git-$GIT_VERSION.tar.gz
+		https://www.kernel.org/pub/software/scm/git/git-$GIT_VERSION.tar.gz
 
 	(
 		activate_holy_build_box_deps_installation_environment
