@@ -516,7 +516,7 @@ function install_curl()
 	header "Installing Curl $CURL_VERSION static libraries: $PREFIX"
 	download_and_extract curl-$CURL_VERSION.tar.bz2 \
 		curl-$CURL_VERSION \
-		https://curl.haxx.se/download/curl-$CURL_VERSION.tar.bz2
+		https://curl.se/download/curl-$CURL_VERSION.tar.bz2
 
 	(
 		# shellcheck disable=SC1090
