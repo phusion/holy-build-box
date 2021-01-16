@@ -228,7 +228,7 @@ if ! eval_bool "$SKIP_CCACHE"; then
 	header "Installing ccache $CCACHE_VERSION"
 	download_and_extract ccache-$CCACHE_VERSION.tar.gz \
 		ccache-$CCACHE_VERSION \
-		https://samba.org/ftp/ccache/ccache-$CCACHE_VERSION.tar.gz
+		https://github.com/ccache/ccache/releases/download/v$CCACHE_VERSION/ccache-$CCACHE_VERSION.tar.gz
 
 	(
 		activate_holy_build_box_deps_installation_environment
