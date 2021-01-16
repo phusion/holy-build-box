@@ -1,7 +1,7 @@
 # CentOS-Vault.repo
 #
 # CentOS Vault holds packages from previous releases within the same CentOS Version
-# these are packages obsoleted by the current release and should usually not 
+# these are packages obsoleted by the current release and should usually not
 # be used in production
 #-----------------
 
