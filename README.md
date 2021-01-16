@@ -87,14 +87,14 @@ The Holy Build Box environment is built on CentOS 6. This allows it to produce b
 
 The environment is bare-bones with almost nothing installed. Besides the basics, only a compiler toolchain is provided. The toolchain is more recent than the one provided by CentOS 6.
 
- * GCC 7.3.1 (C and C++ support; in particular, C++11 is supported)
+ * GCC 8.3.1 (C and C++ support; in particular, C++11 is supported)
  * GNU make
- * autoconf 2.69
- * automake 1.16.1
+ * autoconf 2.70
+ * automake 1.16.3
  * libtool 2.4.6
  * pkg-config 0.29.2
- * ccache 3.5
- * CMake 3.13.2
+ * ccache 3.7.12
+ * CMake 3.19.3
  * Python 2.7.15 (+ setuptools and pip)
 
 ### Included static libraries
@@ -102,9 +102,9 @@ The environment is bare-bones with almost nothing installed. Besides the basics,
 Holy Build Box also includes static versions of certain libraries. These libraries are more recent than the ones shipped with CentOS 6.
 
  * zlib 1.2.11
- * OpenSSL 1.0.2q
- * curl and libcurl 7.63.0
- * SQLite 2018-3260000
+ * OpenSSL 1.0.2u
+ * curl and libcurl 7.74.0
+ * SQLite 2020-3340000
 
 These libraries are provided in multiple variants, each compiled with different compilation flags. The different variants will be covered with in [Tutorial 5: Using library variants](TUTORIAL-5-LIBRARY-VARIANTS.md) and in the [Library variants](LIBRARY-VARIANTS.md) guide.
 
