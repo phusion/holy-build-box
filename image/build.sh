@@ -2,21 +2,21 @@
 set -e
 
 M4_VERSION=1.4.18
-AUTOCONF_VERSION=2.69
-AUTOMAKE_VERSION=1.16.1
+AUTOCONF_VERSION=2.70
+AUTOMAKE_VERSION=1.16.3
 LIBTOOL_VERSION=2.4.6
 PKG_CONFIG_VERSION=0.29.2
-CCACHE_VERSION=3.5
-CMAKE_VERSION=3.16.4
-CMAKE_MAJOR_VERSION=3.16
+CCACHE_VERSION=3.7.12
+CMAKE_VERSION=3.19.3
+CMAKE_MAJOR_VERSION=3.19
 PYTHON_VERSION=2.7.15
 GCC_LIBSTDCXX_VERSION=8.3.0
 ZLIB_VERSION=1.2.11
-OPENSSL_VERSION=1.0.2q
-CURL_VERSION=7.63.0
-GIT_VERSION=2.25.1
-SQLITE_VERSION=3260000
-SQLITE_YEAR=2018
+OPENSSL_VERSION=1.0.2u
+CURL_VERSION=7.74.0
+GIT_VERSION=2.30.0
+SQLITE_VERSION=3340000
+SQLITE_YEAR=2020
 
 # shellcheck source=image/functions.sh
 source /hbb_build/functions.sh
@@ -228,7 +228,7 @@ if ! eval_bool "$SKIP_CCACHE"; then
 	header "Installing ccache $CCACHE_VERSION"
 	download_and_extract ccache-$CCACHE_VERSION.tar.gz \
 		ccache-$CCACHE_VERSION \
-		https://samba.org/ftp/ccache/ccache-$CCACHE_VERSION.tar.gz
+		https://github.com/ccache/ccache/releases/download/v$CCACHE_VERSION/ccache-$CCACHE_VERSION.tar.gz
 
 	(
 		activate_holy_build_box_deps_installation_environment
@@ -277,7 +277,7 @@ if ! eval_bool "$SKIP_GIT"; then
 	header "Installing Git $GIT_VERSION"
 	download_and_extract git-$GIT_VERSION.tar.gz \
 		git-$GIT_VERSION \
-		https://mirrors.edge.kernel.org/pub/software/scm/git/git-$GIT_VERSION.tar.gz
+		https://www.kernel.org/pub/software/scm/git/git-$GIT_VERSION.tar.gz
 
 	(
 		activate_holy_build_box_deps_installation_environment
@@ -516,7 +516,7 @@ function install_curl()
 	header "Installing Curl $CURL_VERSION static libraries: $PREFIX"
 	download_and_extract curl-$CURL_VERSION.tar.bz2 \
 		curl-$CURL_VERSION \
-		https://curl.haxx.se/download/curl-$CURL_VERSION.tar.bz2
+		https://curl.se/download/curl-$CURL_VERSION.tar.bz2
 
 	(
 		# shellcheck disable=SC1090
