@@ -1,3 +1,16 @@
+## Version 2.2.0 (release date 2020-01-16)
+
+ * Fixed C++ std::thread support when statically linking libstdc++
+ * Made the image smaller by removing redundant versions of OpenSSL and curl.
+ * Updated autoconf to 2.70.
+ * Updated automake to 1.16.3.
+ * Updated ccache to 3.7.12.
+ * Updated CMake to 3.19.3.
+ * Updated OpenSSL to 1.0.2u.
+ * Updated curl to 7.74.0.
+ * Updated Git to 2.30.0.
+ * Updated SQLite to 2020-3340000.
+
 ## Version 2.1.0 (release date 2020-01-15)
 
  * Fixed YUM repository URLs so that YUM still works despite CentOS 6 having reached end-of-life.
