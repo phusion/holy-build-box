@@ -29,7 +29,7 @@ INDICATOR_REGEX = re.compile("Shared library:")
 error = False
 
 for path in sys.argv[1:]:
-        readelf = subprocess.check_output(['readelf', '-d', path]).split('\n')
+	readelf = subprocess.check_output(['readelf', '-d', path]).split('\n')
 	offenders = []
 	for line in readelf:
 		line = line.strip()
@@ -46,4 +46,3 @@ for path in sys.argv[1:]:
 
 if error:
 	sys.exit(1)
-

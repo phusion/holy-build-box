@@ -25,9 +25,15 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
+
       - uses: ludeeus/action-shellcheck@master
         env:
           SHELLCHECK_OPTS: -x
+
+      - name: Install eclint
+        run: sudo npm install -g eclint
+      - name: Check EditorConfig compliance
+        run: eclint check $(git ls-files)
 
   build_pr:
     name: "Test Build Docker image"
