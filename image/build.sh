@@ -1,15 +1,9 @@
 #!/bin/bash
 set -e
 
-M4_VERSION=1.4.18
-AUTOCONF_VERSION=2.70
-AUTOMAKE_VERSION=1.16.3
-LIBTOOL_VERSION=2.4.6
-PKG_CONFIG_VERSION=0.29.2
 CCACHE_VERSION=3.7.12
 CMAKE_VERSION=3.19.3
 CMAKE_MAJOR_VERSION=3.19
-PYTHON_VERSION=2.7.15
 GCC_LIBSTDCXX_VERSION=8.3.0
 ZLIB_VERSION=1.2.11
 OPENSSL_VERSION=1.0.2u
@@ -24,18 +18,13 @@ source /hbb_build/functions.sh
 source /hbb_build/activate_func.sh
 
 SKIP_INITIALIZE=${SKIP_INITIALIZE:-false}
+SKIP_USERS_GROUPS=${SKIP_USERS_GROUPS:-false}
 SKIP_TOOLS=${SKIP_TOOLS:-false}
 SKIP_LIBS=${SKIP_LIBS:-false}
 SKIP_FINALIZE=${SKIP_FINALIZE:-false}
 
-SKIP_M4=${SKIP_M4:-$SKIP_TOOLS}
-SKIP_AUTOCONF=${SKIP_AUTOCONF:-$SKIP_TOOLS}
-SKIP_AUTOMAKE=${SKIP_AUTOMAKE:-$SKIP_TOOLS}
-SKIP_LIBTOOL=${SKIP_LIBTOOL:-$SKIP_TOOLS}
-SKIP_PKG_CONFIG=${SKIP_PKG_CONFIG:-$SKIP_TOOLS}
 SKIP_CCACHE=${SKIP_CCACHE:-$SKIP_TOOLS}
 SKIP_CMAKE=${SKIP_CMAKE:-$SKIP_TOOLS}
-SKIP_PYTHON=${SKIP_PYTHON:-$SKIP_TOOLS}
 SKIP_GIT=${SKIP_GIT:-$SKIP_TOOLS}
 
 SKIP_LIBSTDCXX=${SKIP_LIBSTDCXX:-$SKIP_LIBS}
@@ -71,154 +60,13 @@ if ! eval_bool "$SKIP_INITIALIZE"; then
 		run cp "/hbb_build/variants/$VARIANT.sh" "/hbb_$VARIANT/activate"
 	done
 
-	header "Updating system"
-	run rm -f /etc/yum.repos.d/CentOS-Base.repo
-	run rm -f /etc/yum.repos.d/CentOS-fasttrack.repo
-	run cp /hbb_build/CentOS-Vault.repo /etc/yum.repos.d/
-	run cp /hbb_build/CentOS-Debuginfo.repo /etc/yum.repos.d/
-
-	touch /var/lib/rpm/*
+	header "Updating system, installing compiler toolchain"
+	run touch /var/lib/rpm/*
 	run yum update -y
-	run yum install -y curl openssl-devel epel-release tar
-
-	header "Installing compiler toolchain"
-	if [ "$(uname -m)" != x86_64 ]; then
-		curl -s https://packagecloud.io/install/repositories/phusion/centos-6-scl-i386/script.rpm.sh | bash
-		# shellcheck disable=SC2016
-		sed -i 's|$arch|i686|; s|\$basearch|i386|g' /etc/yum.repos.d/phusion*.repo
-		DEVTOOLSET_VER=7
-		# a 32-bit version of devtoolset-8 would need to get compiled
-		GCC_LIBSTDCXX_VERSION=7.3.0
-	else
-		run yum install -y centos-release-scl
-		run rm -f /etc/yum.repos.d/CentOS-SCLo-scl.repo
-		run rm -f /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
-		run cp /hbb_build/CentOS-Vault-SCLo.repo /etc/yum.repos.d/
-		DEVTOOLSET_VER=8
-	fi
-	run yum install -y devtoolset-${DEVTOOLSET_VER} file patch bzip2 zlib-devel gettext
-fi
-
-
-### m4
-
-if ! eval_bool "$SKIP_M4"; then
-	header "Installing m4 $M4_VERSION"
-	download_and_extract m4-$M4_VERSION.tar.gz \
-		m4-$M4_VERSION \
-		https://ftpmirror.gnu.org/m4/m4-$M4_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		set_default_cflags
-		run ./configure --prefix=/hbb --disable-shared --enable-static
-		run make -j$MAKE_CONCURRENCY
-		run make install-strip
-	)
-	# shellcheck disable=SC2181
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf m4-$M4_VERSION
-fi
-
-
-### autoconf
-
-if ! eval_bool "$SKIP_AUTOCONF"; then
-	header "Installing autoconf $AUTOCONF_VERSION"
-	download_and_extract autoconf-$AUTOCONF_VERSION.tar.gz \
-		autoconf-$AUTOCONF_VERSION \
-		https://ftpmirror.gnu.org/autoconf/autoconf-$AUTOCONF_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb --disable-shared --enable-static
-		run make -j$MAKE_CONCURRENCY
-		run make install-strip
-	)
-	# shellcheck disable=SC2181
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf autoconf-$AUTOCONF_VERSION
-fi
-
-
-### automake
-
-if ! eval_bool "$SKIP_AUTOMAKE"; then
-	header "Installing automake $AUTOMAKE_VERSION"
-	download_and_extract automake-$AUTOMAKE_VERSION.tar.gz \
-		automake-$AUTOMAKE_VERSION \
-		https://ftpmirror.gnu.org/automake/automake-$AUTOMAKE_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb --disable-shared --enable-static
-		run make -j$MAKE_CONCURRENCY
-		run make install-strip
-	)
-	# shellcheck disable=SC2181
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf automake-$AUTOMAKE_VERSION
-fi
-
-
-### libtool
-
-if ! eval_bool "$SKIP_LIBTOOL"; then
-	header "Installing libtool $LIBTOOL_VERSION"
-	download_and_extract libtool-$LIBTOOL_VERSION.tar.gz \
-		libtool-$LIBTOOL_VERSION \
-		https://ftpmirror.gnu.org/libtool/libtool-$LIBTOOL_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb --disable-shared --enable-static
-		run make -j$MAKE_CONCURRENCY
-		run make install-strip
-	)
-	# shellcheck disable=SC2181
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf libtool-$LIBTOOL_VERSION
-fi
-
-
-### pkg-config
-
-if ! eval_bool "$SKIP_PKG_CONFIG"; then
-	header "Installing pkg-config $PKG_CONFIG_VERSION"
-	download_and_extract pkg-config-$PKG_CONFIG_VERSION.tar.gz \
-		pkg-config-$PKG_CONFIG_VERSION \
-		https://pkgconfig.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		# pkg-config is not a performance bottleneck, so no need to compile it with
-		# optimizations.
-		# shellcheck disable=SC2031
-		export CFLAGS=-g
-		# shellcheck disable=SC2031
-		export CXXFLAGS=-g
-		run ./configure --prefix=/hbb --with-internal-glib
-		run rm -f /hbb/bin/*pkg-config
-		run make -j$MAKE_CONCURRENCY install-strip
-	)
-	# shellcheck disable=SC2181
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf pkg-config-$PKG_CONFIG_VERSION
+	run yum install -y tar curl m4 autoconf automake libtool pkgconfig openssl-devel \
+		file patch bzip2 zlib-devel gettext python-setuptools python-pip python-devel \
+		epel-release centos-release-scl
+	run yum install -y "devtoolset-$DEVTOOLSET_VERSION"
 fi
 
 
@@ -294,41 +142,6 @@ if ! eval_bool "$SKIP_GIT"; then
 	echo "Leaving source directory"
 	popd >/dev/null
 	run rm -rf git-$GIT_VERSION
-fi
-
-
-### Python
-
-if ! eval_bool "$SKIP_PYTHON"; then
-	header "Installing Python $PYTHON_VERSION"
-	download_and_extract Python-$PYTHON_VERSION.tgz \
-		Python-$PYTHON_VERSION \
-		https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		set_default_cflags
-		run ./configure --prefix=/hbb
-		run make -j$MAKE_CONCURRENCY install
-		run strip --strip-all /hbb/bin/python
-		run strip --strip-debug /hbb/lib/python*/lib-dynload/*.so
-	)
-	# shellcheck disable=SC2181
-	if [[ "$?" != 0 ]]; then false; fi
-
-	run hash -r
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf Python-$PYTHON_VERSION
-
-	# Install setuptools and pip
-	echo "Installing setuptools and pip..."
-	run curl -OL --fail https://bootstrap.pypa.io/ez_setup.py
-	run python ez_setup.py
-	run rm -f ez_setup.py
-	run easy_install pip
-	run rm -f /setuptools*.zip
 fi
 
 

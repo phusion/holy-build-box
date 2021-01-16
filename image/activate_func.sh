@@ -1,13 +1,10 @@
 # shellcheck shell=bash
 
+DEVTOOLSET_VERSION=9
+
 function activate_holy_build_box_deps_installation_environment() {
-	if [ "$(uname -m)" != x86_64 ]; then
-		DEVTOOLSET_VER=7
-	else
-		DEVTOOLSET_VER=8
-	fi
 	# shellcheck disable=SC1090
-	source /opt/rh/devtoolset-${DEVTOOLSET_VER}/enable
+	source /opt/rh/devtoolset-${DEVTOOLSET_VERSION}/enable
 	export PATH=/hbb/bin:$PATH
 	export C_INCLUDE_PATH=/hbb/include
 	export CPLUS_INCLUDE_PATH=/hbb/include
@@ -29,13 +26,8 @@ function activate_holy_build_box() {
 	local EXTRA_SHLIB_CFLAGS="$5"
 	local EXTRA_SHLIB_LDFLAGS="$6"
 
-	if [ "$(uname -m)" != x86_64 ]; then
-		DEVTOOLSET_VER=7
-	else
-		DEVTOOLSET_VER=8
-	fi
 	# shellcheck disable=SC1090
-	source /opt/rh/devtoolset-${DEVTOOLSET_VER}/enable
+	source /opt/rh/devtoolset-${DEVTOOLSET_VERSION}/enable
 
 	export PATH=$PREFIX/bin:/hbb/bin:$PATH
 	export C_INCLUDE_PATH=$PREFIX/include

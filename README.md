@@ -3,7 +3,7 @@
 
 <img src="http://phusion.github.io/holy-build-box/img/logo.png" width="200">
 
-Holy Build Box is a system for building "portable" binaries for Linux: binaries that work on pretty much any Linux distribution. This works by providing an easy-to-use compilation environment with an old glibc version. Holy Build Box can produce x86 and x86-64 binaries.
+Holy Build Box is a system for building "portable" binaries for Linux: binaries that work on pretty much any Linux distribution. This works by providing an easy-to-use compilation environment with an old glibc version. Holy Build Box can produce x86\_64 binaries.
 
 **Resources:**: [Website](http://phusion.github.io/holy-build-box/) | [Issue tracker](https://github.com/phusion/holy-build-box/issues)
 
@@ -81,25 +81,25 @@ Holy Build Box partially solves problem #1 and #3 by providing static versions o
 
 ## Features
 
-### Isolated build environment based on Docker and CentOS 6
+### Isolated build environment based on Docker and CentOS 7
 
-The Holy Build Box environment is built on CentOS 6. This allows it to produce binaries that work on pretty much any x86 and x86-64 Linux distribution released since 2011. The only currently-prominent Linux distribution that the produced binaries may not run on, is Alpine Linux. [See the FAQ entry.](#which-linux-distributions-do-binaries-compiled-with-holy-build-box-support)
+The Holy Build Box environment is built on CentOS 7. This allows it to produce binaries that work on pretty much any x86\_64 Linux distribution released since 2015. The only currently-prominent Linux distribution that the produced binaries may not run on, is Alpine Linux. [See the FAQ entry.](#which-linux-distributions-do-binaries-compiled-with-holy-build-box-support)
 
-The environment is bare-bones with almost nothing installed. Besides the basics, only a compiler toolchain is provided. The toolchain is more recent than the one provided by CentOS 6.
+The environment is bare-bones with almost nothing installed. Besides the basics, only a compiler toolchain is provided. The toolchain is more recent than the one provided by CentOS 7.
 
- * GCC 8.3.1 (C and C++ support; in particular, C++11 is supported)
+ * GCC 9.3.1 (C and C++ support; in particular, C++14 is supported)
  * GNU make
- * autoconf 2.70
- * automake 1.16.3
- * libtool 2.4.6
+ * autoconf 2.69
+ * automake 1.13.4
+ * libtool 2.4.2
  * pkg-config 0.29.2
  * ccache 3.7.12
  * CMake 3.19.3
- * Python 2.7.15 (+ setuptools and pip)
+ * Python 2.7.5 (+ setuptools and pip)
 
 ### Included static libraries
 
-Holy Build Box also includes static versions of certain libraries. These libraries are more recent than the ones shipped with CentOS 6.
+Holy Build Box also includes static versions of certain libraries. These libraries are more recent than the ones shipped with CentOS 7.
 
  * zlib 1.2.11
  * OpenSSL 1.0.2u
@@ -169,7 +169,6 @@ Guides:
  * [Which system libraries are considered essential?](ESSENTIAL-SYSTEM-LIBRARIES.md)
  * [Securing the build environment](SECURING-THE-BUILD-ENVIRONMENT.md)
  * [Security hardening binaries](SECURITY-HARDENING-BINARIES.md)
- * [Building 32-bit binaries](BUILDING-32-BIT-BINARIES.md)
  * [Caching compilation results with ccache](CACHING-WITH-CCACHE.md)
 
 <a name="caveats"></a>
@@ -208,18 +207,18 @@ Some non-developers (i.e. users) may object to the idea of distributing portable
 
 ### Which operating systems does Holy Build Box support?
 
-Holy Build Box only supports x86 and x86-64 Linux.
+Holy Build Box only supports x86\_64 Linux.
 
 macOS is not supported. Windows is not supported. Other Unices are not supported. Other CPU architectures, such as ARM, are not supported.
 
 ### Which Linux distributions do binaries compiled with Holy Build Box support?
 
-Binaries work on pretty much any glibc-2.12-or-later-based x86 and x86-64 Linux distribution released since approx 2011. A non-exhaustive list:
+Binaries work on pretty much any glibc-2.17-or-later-based x86\_64 Linux distribution released since approx 2015. A non-exhaustive list:
 
- * Debian >= 7
- * Ubuntu >= 10.10
- * Red Hat Enterprise Linux >= 6
- * CentOS >= 6
+ * Debian >= 8
+ * Ubuntu >= 14.06
+ * Red Hat Enterprise Linux >= 7
+ * CentOS >= 7
 
 Note the mention "glibc-based". Binaries may not be compatible with Linux distributions not based on glibc. For example, early versions of Alpine Linux were based on uclibc, which was not compatible with glibc at all. Later versions of Alpine Linux are based on musl, which is *somewhat* compatible with glibc. So produced binaries may or may not run on later versions of Alpine Linux.
 
@@ -235,9 +234,7 @@ If you are an application developer, you should consider the tradeoff. Do your u
 
 Docker also solves the portability problem, but it gives the application a very different feel. The application is no longer just a binary. Users will have to install Docker and will have to learn how to use Docker commands in order to use your application. Your users may not particularly care about Docker: maybe they just want to use your application without having to learn about anything else.
 
-Docker also requires at least kernel 3.12. Linux distributions released before ~2014 don't tend to have a recent enough kernel for Docker. So if you have any RHEL 5 users for example, then Docker is out of the question.
-
-And finally, Docker images are much larger than binaries produced by Holy Build Box. Docker images contain entire Linux distributions and weight in the order of hundreds of MB in the average case, or tens of MB if you really did your best to optimize things. Binaries produced by Holy Build Box can be just a few MBs.
+Docker images are much larger than binaries produced by Holy Build Box. Docker images contain entire Linux distributions and weight in the order of hundreds of MB in the average case, or tens of MB if you really did your best to optimize things. Binaries produced by Holy Build Box can be just a few MBs.
 
 On the other hand, compiling an application using Holy Build Box requires advanced knowledge on the C/C++ compiler toolchain. You will regularly run into situations where you need to tweak the build system a little bit before the application properly compiles with static linking. If you are not skilled at using the C/C++ compiler toolchain, then using Docker is easier because it is much more "fire and forget".
 
@@ -289,7 +286,7 @@ We wanted to give developers a way to produce portable binaries without asking t
 
 Autopackage eventually went defunct because of resistance from distributors. I guess that people weren't *truly* interested in Linux succeeding on the desktop, despite how many people complained about it.
 
-Fast forward to 2015. Virtualization and containerization is now cheap is ubiquitous. Thus the holy build box approach is now viable for the average developer.
+Fast forward to 2015. Virtualization and containerization became cheap and ubiquitous. Thus the holy build box approach became viable to the average developer.
 
 ## Other comparable systems
 
