@@ -282,14 +282,10 @@ function install_openssl()
 		if [[ "$VARIANT" = exe_gc_hardened ]]; then
 			run hardening-check -b "$PREFIX/bin/openssl"
 		fi
+
 		# shellcheck disable=SC2016
-		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lssl -lcrypto -ldl/' "$PREFIX"/lib/pkgconfig/openssl.pc
-		# shellcheck disable=SC2016
-		run sed -i 's/^Libs.private:.*/Libs.private: -L${libdir} -lssl -lcrypto -ldl -lz/' "$PREFIX"/lib/pkgconfig/openssl.pc
-		# shellcheck disable=SC2016
-		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lssl -lcrypto -ldl/' "$PREFIX"/lib/pkgconfig/libssl.pc
-		# shellcheck disable=SC2016
-		run sed -i 's/^Libs.private:.*/Libs.private: -L${libdir} -lssl -lcrypto -ldl -lz/' "$PREFIX"/lib/pkgconfig/libssl.pc
+		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lcrypto -lz -ldl -lpthread/' "$PREFIX"/lib/pkgconfig/libcrypto.pc
+		run sed -i '/^Libs.private:.*/d' "$PREFIX"/lib/pkgconfig/libcrypto.pc
 	)
 	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
