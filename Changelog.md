@@ -1,4 +1,4 @@
-## Version 3.0.0 (release date TBD)
+## Version 3.0.0 (release date 2020-01-17)
 
  * Moved to CentOS 7. This makes binaries compatible with Linux distributions that have glibc >= 2.17. This means compatibility with Linux distributions released around 2013-2015, such as:
 
