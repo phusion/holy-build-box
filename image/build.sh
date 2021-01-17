@@ -269,22 +269,13 @@ function install_openssl()
 		# shellcheck disable=SC1090
 		source "$PREFIX/activate"
 
-		# OpenSSL already passes optimization flags regardless of CFLAGS
 		# shellcheck disable=SC2030,SC2001
-		CFLAGS=$(echo "$STATICLIB_CFLAGS" | sed 's/-O2//')
+		CFLAGS=$(adjust_optimization_level "$STATICLIB_CFLAGS")
 		export CFLAGS
+
 		# shellcheck disable=SC2086
 		run ./config --prefix="$PREFIX" --openssldir="$PREFIX/openssl" \
 			threads zlib no-shared no-sse2 $CFLAGS $LDFLAGS
-
-		if eval_bool "$DISABLE_OPTIMIZATIONS"; then
-			echo "+ Modifying Makefiles"
-			find . -name Makefile -print0 | xargs -0 sed -i -e 's|-O[0-9]||g'
-		elif ! $O3_ALLOWED; then
-			echo "+ Modifying Makefiles"
-			find . -name Makefile -print0 | xargs -0 sed -i -e 's|-O3|-O2|g'
-		fi
-
 		run make
 		run make install_sw
 		run strip --strip-all "$PREFIX/bin/openssl"
