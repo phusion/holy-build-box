@@ -1,3 +1,23 @@
+## Version 3.0.0 (release date TBD)
+
+ * Moved to CentOS 7. This makes binaries compatible with Linux distributions that have glibc >= 2.17. This means compatibility with Linux distributions released around 2013-2015, such as:
+
+    - Red Hat Enterprise Linux 7
+    - Ubuntu 14.06
+    - Debian 8
+
+ * Tooling versions changed as part of the CentOS 7 move:
+
+    - GCC 9.3.1 (good C++14 support)
+    - m4 1.4.16
+    - autoconf 2.69
+    - automake 1.13.4
+    - libtool 2.4.2
+    - pkg-config 0.27.1
+    - Python 2.7.5
+
+ * Dropped support for building x86 binaries.
+
 ## Version 2.2.0 (release date 2020-01-16)
 
  * Fixed C++ std::thread support when statically linking libstdc++

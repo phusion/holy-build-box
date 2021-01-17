@@ -12,12 +12,7 @@ We also assume that you are adept at using the C/C++ compilation toolchain. You 
 
 ## The environment
 
-Holy Build Box consists of two Docker images:
-
- * phusion/holy-build-box-32 -- for building x86 binaries
- * phusion/holy-build-box-64 -- for building x86-64 binaries
-
-Throughout this tutorial, we will use the 64 variant. Using the 32 variant requires [special instructions](BUILDING-32-BIT-BINARIES.md).
+Holy Build Box consists of one Docker image: `phusion/holy-build-box-64`, for building x86\_64 binaries. (Other images for building for other architectures, may be introduced in the future.)
 
 Start a Bash shell inside the Holy Build Box environment so that you can look around and inspect things:
 
