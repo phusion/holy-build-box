@@ -102,7 +102,7 @@ The environment is bare-bones with almost nothing installed. Besides the basics,
 Holy Build Box also includes static versions of certain libraries. These libraries are more recent than the ones shipped with CentOS 7.
 
  * zlib 1.2.11
- * OpenSSL 1.0.2u
+ * OpenSSL 1.1.1i
  * curl and libcurl 7.74.0
  * SQLite 2020-3340000
 

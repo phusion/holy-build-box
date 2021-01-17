@@ -16,6 +16,8 @@
     - pkg-config 0.27.1
     - Python 2.7.5
 
+ * Upgraded OpenSSL to 1.1.1i.
+
  * Dropped support for building x86 binaries.
 
 ## Version 2.2.0 (release date 2020-01-16)
