@@ -6,7 +6,7 @@ CMAKE_VERSION=3.19.3
 CMAKE_MAJOR_VERSION=3.19
 GCC_LIBSTDCXX_VERSION=8.3.0
 ZLIB_VERSION=1.2.11
-OPENSSL_VERSION=1.0.2u
+OPENSSL_VERSION=1.1.1i
 CURL_VERSION=7.74.0
 GIT_VERSION=2.30.0
 SQLITE_VERSION=3340000
@@ -269,36 +269,23 @@ function install_openssl()
 		# shellcheck disable=SC1090
 		source "$PREFIX/activate"
 
-		# OpenSSL already passes optimization flags regardless of CFLAGS
 		# shellcheck disable=SC2030,SC2001
-		CFLAGS=$(echo "$STATICLIB_CFLAGS" | sed 's/-O2//')
+		CFLAGS=$(adjust_optimization_level "$STATICLIB_CFLAGS")
 		export CFLAGS
+
 		# shellcheck disable=SC2086
 		run ./config --prefix="$PREFIX" --openssldir="$PREFIX/openssl" \
 			threads zlib no-shared no-sse2 $CFLAGS $LDFLAGS
-
-		if eval_bool "$DISABLE_OPTIMIZATIONS"; then
-			echo "+ Modifying Makefiles"
-			find . -name Makefile -print0 | xargs -0 sed -i -e 's|-O[0-9]||g'
-		elif ! $O3_ALLOWED; then
-			echo "+ Modifying Makefiles"
-			find . -name Makefile -print0 | xargs -0 sed -i -e 's|-O3|-O2|g'
-		fi
-
 		run make
 		run make install_sw
 		run strip --strip-all "$PREFIX/bin/openssl"
 		if [[ "$VARIANT" = exe_gc_hardened ]]; then
 			run hardening-check -b "$PREFIX/bin/openssl"
 		fi
+
 		# shellcheck disable=SC2016
-		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lssl -lcrypto -ldl/' "$PREFIX"/lib/pkgconfig/openssl.pc
-		# shellcheck disable=SC2016
-		run sed -i 's/^Libs.private:.*/Libs.private: -L${libdir} -lssl -lcrypto -ldl -lz/' "$PREFIX"/lib/pkgconfig/openssl.pc
-		# shellcheck disable=SC2016
-		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lssl -lcrypto -ldl/' "$PREFIX"/lib/pkgconfig/libssl.pc
-		# shellcheck disable=SC2016
-		run sed -i 's/^Libs.private:.*/Libs.private: -L${libdir} -lssl -lcrypto -ldl -lz/' "$PREFIX"/lib/pkgconfig/libssl.pc
+		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lcrypto -lz -ldl -lpthread/' "$PREFIX"/lib/pkgconfig/libcrypto.pc
+		run sed -i '/^Libs.private:.*/d' "$PREFIX"/lib/pkgconfig/libcrypto.pc
 	)
 	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
