@@ -1,3 +1,7 @@
+## Version 3.0.1 (release date 2020-01-25)
+
+ * Fixed installing pip. Pip was not properly installed in 3.0.0.
+
 ## Version 3.0.0 (release date 2020-01-17)
 
  * Moved to CentOS 7. This makes binaries compatible with Linux distributions that have glibc >= 2.17. This means compatibility with Linux distributions released around 2013-2015, such as:

@@ -64,9 +64,9 @@ if ! eval_bool "$SKIP_INITIALIZE"; then
 	run touch /var/lib/rpm/*
 	run yum update -y
 	run yum install -y tar curl m4 autoconf automake libtool pkgconfig openssl-devel \
-		file patch bzip2 zlib-devel gettext python-setuptools python-pip python-devel \
+		file patch bzip2 zlib-devel gettext python-setuptools python-devel \
 		epel-release centos-release-scl
-	run yum install -y "devtoolset-$DEVTOOLSET_VERSION"
+	run yum install -y python2-pip "devtoolset-$DEVTOOLSET_VERSION"
 fi
 
 
