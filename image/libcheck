@@ -1,4 +1,4 @@
-#!/hbb/bin/python
+#!/usr/bin/python
 import os, sys, subprocess, re
 
 SYSTEM_LIBRARIES_REGEX = \

@@ -1,3 +1,7 @@
+## Version 3.0.2 (release date 2020-01-27)
+
+ * Fixed libcheck and setuser. They didn't start properly since 3.0.0 because of wrong shebang lines.
+
 ## Version 3.0.1 (release date 2020-01-25)
 
  * Fixed installing pip. Pip was not properly installed in 3.0.0.
