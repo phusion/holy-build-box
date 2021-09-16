@@ -177,7 +177,7 @@ function install_libstdcxx()
 		# Therefore we need to run configure twice. The first time to generate include/bits/gthr-default.h,
 		# which allows the second configure run to detect gthreads support.
 		#
-		# https://github.com/phusion/holy-build-box/issues/19
+		# https://github.com/FooBarWidget/holy-build-box/issues/19
 
 		# shellcheck disable=SC2030
 		CXXFLAGS=$(adjust_optimization_level "$STATICLIB_CXXFLAGS -Iinclude/bits")

@@ -38,7 +38,7 @@ Here's how your Dockerfile should look like:
 # Note: this example assumes Holy Build Box 1.2.0.
 # Specify the actual desired version here. You can see the list
 # of available versions in our Changelog:
-# https://github.com/phusion/holy-build-box/blob/master/Changelog.md
+# https://github.com/FooBarWidget/holy-build-box/blob/master/Changelog.md
 FROM phusion/holy-build-box-64:1.2.0
 ADD install-deps.sh /install-deps.sh
 RUN bash /install-deps.sh && rm -f /install-deps.sh

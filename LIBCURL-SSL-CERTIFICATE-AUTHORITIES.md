@@ -6,7 +6,7 @@ If you use Holy Build Box to statically link to libcurl, then libcurl cannot use
 
 Our recommended solution is to:
 
- 1. Ship a certificate authority list with your application. For example, you can use the [CentOS 8 certificate authority list](https://github.com/phusion/traveling-ruby/blob/main/shared/ca-bundle.crt).
+ 1. Ship a certificate authority list with your application. For example, you can use the [CentOS 8 certificate authority list](https://github.com/FooBarWidget/traveling-ruby/blob/main/shared/ca-bundle.crt).
  2. Start your application a wrapper script, which sets the `SSL_CERT_FILE` environment variable to the shipped certificate authority list, prior to starting the application.
 
 Suppose that your binary is called `foo.bin`, your wrapper script called `foo`, and your certificate authority list file `ca-bundle.crt`. Assuming they are all located in the same directory, here is how the wrapper script could look like:

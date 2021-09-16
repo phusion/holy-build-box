@@ -1,11 +1,11 @@
 [![Maintainers Wanted](https://img.shields.io/badge/maintainers-wanted-red.svg)](https://github.com/pickhardt/maintainers-wanted)
 # System for building cross-distribution Linux binaries
 
-<img src="http://phusion.github.io/holy-build-box/img/logo.png" width="200">
+<img src="http://FooBarWidget.github.io/holy-build-box/img/logo.png" width="200">
 
 Holy Build Box is a system for building "portable" binaries for Linux: binaries that work on pretty much any Linux distribution. This works by providing an easy-to-use compilation environment with an old glibc version. Holy Build Box can produce x86\_64 binaries.
 
-**Resources:**: [Website](http://phusion.github.io/holy-build-box/) | [Issue tracker](https://github.com/phusion/holy-build-box/issues)
+**Resources:**: [Website](http://FooBarWidget.github.io/holy-build-box/) | [Issue tracker](https://github.com/FooBarWidget/holy-build-box/issues)
 
 **Table of contents**
 
@@ -133,7 +133,7 @@ At the same time, Melsted's team can pick their favorite and most productive pro
 
 ### Traveling Ruby
 
-[Traveling Ruby](http://phusion.github.io/traveling-ruby/) is a system for producing self-contained Ruby application packages for Windows, Linux and macOS. You could think of it as the Holy Build Box equivalent for Ruby applications.
+[Traveling Ruby](http://FooBarWidget.github.io/traveling-ruby/) is a system for producing self-contained Ruby application packages for Windows, Linux and macOS. You could think of it as the Holy Build Box equivalent for Ruby applications.
 
 Traveling Ruby works by providing precompiled Ruby binaries that work on any Linux system. Ruby developers can then take our binaries, bundle it with their application code, and distribute the result as a single zip or tar.gz file to end users. This way, end users do not have to install Ruby in order to use their applications.
 
@@ -250,7 +250,7 @@ No. Holy Build Box is mainly designed to compile headless applications such as C
 
 Supporting graphical applications such as those based on GTK, Qt, SDL, OpenGL etc is outside the scope of this project.
 
-This is however not a technical limitation, but merely a focus one. We, the Holy Build Box maintainers, have no interest in spending time to support graphical applications, but we welcome contributors who would like to take on this challenge. [Email us](mailto:info@phusion.nl) if you are interested, or submit a pull request.
+This is however not a technical limitation, but merely a focus one. We, the Holy Build Box maintainers, have no interest in spending time to support graphical applications, but we welcome contributors who would like to take on this challenge. [Contact us](https://github.com/FooBarWidget/holy-build-box/discussions) if you are interested, or submit a pull request.
 
 ### How should I deal with interpreted applications, such as ones written in Ruby, Python or Node.js?
 
