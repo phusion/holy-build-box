@@ -56,12 +56,25 @@ jobs:
         arch: [64]
     steps:
     - uses: actions/checkout@v2
-    - name: Login to GitHub Docker Package Registry
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u github-actions --password-stdin
+    - name: Set lower case repository owner name
+      run: |
+        echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+      env:
+        OWNER: '${{ github.repository_owner }}'
+    - name: Log in to the Container registry
+      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build the Docker image
-      run: docker build . --file Dockerfile-${{ matrix.arch }} --build-arg DISABLE_OPTIMIZATIONS=1 --tag docker.pkg.github.com/phusion/holy-build-box/hbb-${{ matrix.arch }}:edge
+      run: >
+        docker build .
+        --file Dockerfile-${{ matrix.arch }}
+        --build-arg DISABLE_OPTIMIZATIONS=1
+        --tag ghcr.io/"$OWNER_LC"/holy-build-box-${{ matrix.arch }}:edge
     - name: Push the Docker image
-      run: docker push docker.pkg.github.com/phusion/holy-build-box/hbb-${{ matrix.arch }}:edge
+      run: docker push ghcr.io/"$OWNER_LC"/holy-build-box-${{ matrix.arch }}:edge
 
   build_release:
     name: "Build release Docker image"
@@ -72,13 +85,28 @@ jobs:
         arch: [64]
     steps:
     - uses: actions/checkout@v2
-    - name: Login to GitHub Docker Package Registry
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u github-actions --password-stdin
+    - name: Set lower case repository owner name
+      run: |
+        echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+      env:
+        OWNER: '${{ github.repository_owner }}'
+    - name: Log in to the Container registry
+      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build the Docker image
       run: |
-        docker build . --file Dockerfile-${{ matrix.arch }} --tag docker.pkg.github.com/phusion/holy-build-box/hbb-${{ matrix.arch }}:latest
-        docker tag docker.pkg.github.com/phusion/holy-build-box/hbb-${{ matrix.arch }}:latest docker.pkg.github.com/phusion/holy-build-box/hbb-${{ matrix.arch }}:${{ github.event.ref }}
+        set -x
+        docker build . \
+          --file Dockerfile-${{ matrix.arch }} \
+          --tag "ghcr.io/$OWNER_LC/holy-build-box-${{ matrix.arch }}:latest"
+        docker tag \
+          "ghcr.io/$OWNER_LC/holy-build-box-${{ matrix.arch }}:latest" \
+          "ghcr.io/$OWNER_LC/holy-build-box-${{ matrix.arch }}:${{ github.event.ref }}"
     - name: Push the Docker image
       run: |
-        docker push docker.pkg.github.com/phusion/holy-build-box/hbb-${{ matrix.arch }}:latest
-        docker push docker.pkg.github.com/phusion/holy-build-box/hbb-${{ matrix.arch }}:${{ github.event.ref }}
+        set -x
+        docker push "ghcr.io/$OWNER_LC/holy-build-box-${{ matrix.arch }}:latest"
+        docker push "ghcr.io/$OWNER_LC/holy-build-box-${{ matrix.arch }}:${{ github.event.ref }}"
