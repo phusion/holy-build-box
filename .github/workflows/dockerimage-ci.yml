@@ -35,17 +35,19 @@ jobs:
       - name: Check EditorConfig compliance
         run: eclint check $(git ls-files)
 
+
   build_pr:
     name: "Test Build Docker image"
     if: github.event_name == 'pull_request' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [64]
+        arch: [x64]
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file Dockerfile-${{ matrix.arch }} --build-arg DISABLE_OPTIMIZATIONS=1
+      run: make ARCH=${{ matrix.arch }} DISABLE_OPTIMIZATIONS=1
+
 
   build_edge:
     name: "Build edge Docker image"
@@ -53,14 +55,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [64]
+        arch: [x64]
     steps:
     - uses: actions/checkout@v2
     - name: Set lower case repository owner name
       run: |
-        echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+        echo "OWNER_LC=${OWNER,,}" >>"$GITHUB_ENV"
       env:
         OWNER: '${{ github.repository_owner }}'
+
     - name: Log in to the Container registry
       uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
       with:
@@ -68,28 +71,37 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build the Docker image
-      run: >
-        docker build .
-        --file Dockerfile-${{ matrix.arch }}
-        --build-arg DISABLE_OPTIMIZATIONS=1
-        --tag ghcr.io/"$OWNER_LC"/holy-build-box-${{ matrix.arch }}:edge
+      run: make ARCH=${{ matrix.arch }} "OWNER=$OWNER_LC" VERSION=edge
     - name: Push the Docker image
-      run: docker push ghcr.io/"$OWNER_LC"/holy-build-box-${{ matrix.arch }}:edge
+      run: docker push "ghcr.io/$OWNER_LC/holy-build-box-${{ matrix.arch }}:edge"
+
 
   build_release:
     name: "Build release Docker image"
-    if: github.event_name == 'create' && github.event.ref_type == 'tag' && github.event_name != 'pull_request'
+    if: github.event_name == 'create' && github.event.ref_type == 'tag'
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [64]
+        arch: [x64]
     steps:
     - uses: actions/checkout@v2
     - name: Set lower case repository owner name
       run: |
-        echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+        echo "OWNER_LC=${OWNER,,}" >>"$GITHUB_ENV"
       env:
         OWNER: '${{ github.repository_owner }}'
+
+    - name: Check tag
+      run: |
+        VERSION1=$(grep '^VERSION = ' Makefile | sed 's|.*= *||')
+        VERSION2=$(sed 's|^rel-||' <<< "$TAG")
+        if [[ "$VERSION1" != "VERSION2" ]]; then
+          echo "ERROR: version in Makefile ($VERSION1) doesn't match Git tag ($VERSION2)"
+          exit 1
+        fi
+      env:
+        TAG: ${{ github.event.ref }}
+
     - name: Log in to the Container registry
       uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
       with:
@@ -97,16 +109,6 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build the Docker image
-      run: |
-        set -x
-        docker build . \
-          --file Dockerfile-${{ matrix.arch }} \
-          --tag "ghcr.io/$OWNER_LC/holy-build-box-${{ matrix.arch }}:latest"
-        docker tag \
-          "ghcr.io/$OWNER_LC/holy-build-box-${{ matrix.arch }}:latest" \
-          "ghcr.io/$OWNER_LC/holy-build-box-${{ matrix.arch }}:${{ github.event.ref }}"
+      run: make build tags ARCH=${{ matrix.arch }} "OWNER=$OWNER_LC"
     - name: Push the Docker image
-      run: |
-        set -x
-        docker push "ghcr.io/$OWNER_LC/holy-build-box-${{ matrix.arch }}:latest"
-        docker push "ghcr.io/$OWNER_LC/holy-build-box-${{ matrix.arch }}:${{ github.event.ref }}"
+      run: make release ARCH=${{ matrix.arch }}

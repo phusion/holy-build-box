@@ -12,11 +12,13 @@ We also assume that you are adept at using the C/C++ compilation toolchain. You 
 
 ## The environment
 
-Holy Build Box consists of one Docker image: `phusion/holy-build-box-64`, for building x86\_64 binaries. (Other images for building for other architectures, may be introduced in the future.)
+Holy Build Box consists of one Docker image: `foobarwidget/holy-build-box-x64`, for building x86\_64 binaries.
+
+> Support for x86 was dropped in Holy Build Box 3. Support for other architectures may be introduced in the future.
 
 Start a Bash shell inside the Holy Build Box environment so that you can look around and inspect things:
 
-    $ docker run -t -i --rm phusion/holy-build-box-64:latest bash
+    $ docker run -t -i --rm foobarwidget/holy-build-box-x64 bash
     container#
 
 When you are done, type `exit` to exit the shell:
@@ -43,7 +45,7 @@ Compile it with:
 
     docker run -t -i --rm \
       -v `pwd`:/io \
-      phusion/holy-build-box-64:latest \
+      foobarwidget/holy-build-box-x64 \
       /hbb_exe/activate-exec \
       bash -x -c 'gcc $CFLAGS /io/hello.c -o /io/hello $LDFLAGS'
 
@@ -71,7 +73,7 @@ The various `/hbb*` directories and the environment variables are explained in t
 We encourage you to inspect the environment variables set by the Holy Build Box activation script:
 
     $ docker run -t -i --rm \
-      phusion/holy-build-box-64:latest \
+      foobarwidget/holy-build-box-x64 \
       /hbb_exe/activate-exec \
       bash
     Holy build box activated

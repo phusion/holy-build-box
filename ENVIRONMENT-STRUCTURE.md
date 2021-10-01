@@ -31,7 +31,7 @@ Some environment variables deserve special explanation:
 
 You can inspect the environment variables by starting a bash shell and sourcing one of the activation scripts:
 
-    $ docker run -t -i --rm phusion/holy-build-box-64:latest bash
+    $ docker run -t -i --rm foobarwidget/holy-build-box-x64 bash
 
     container$ source /hbb_exe/activate
     Holy build box activated

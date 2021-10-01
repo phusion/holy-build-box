@@ -1,23 +1,25 @@
 VERSION = 3.0.2
 MAJOR_VERSION = 3.0
+ARCH = x64
+OWNER = foobarwidget
+DISABLE_OPTIMIZATIONS = 0
+IMAGE = ghcr.io/$(OWNER)/holy-build-box-$(ARCH)
 
-.PHONY: all 64 test64 tags release
+.PHONY: build test tags release
 
-all: 64
+build:
+	docker build --rm -t $(IMAGE):$(VERSION) -f Dockerfile-$(ARCH) --pull --build-arg DISABLE_OPTIMIZATIONS=$(DISABLE_OPTIMIZATIONS) .
 
-64:
-	docker build --rm --squash -t phusion/holy-build-box-64:$(VERSION) -f Dockerfile-64 --pull .
-
-test64:
+test:
 	@echo "*** You should run: SKIP_FINALIZE=1 bash /hbb_build/build.sh"
-	docker run -t -i --rm -e DISABLE_OPTIMIZATIONS=1 -v `pwd`/image:/hbb_build:ro centos:7 bash
+	docker run -t -i --rm -e DISABLE_OPTIMIZATIONS=1 -v $$(pwd)/image:/hbb_build:ro centos:7 bash
 
 tags:
-	docker tag phusion/holy-build-box-64:$(VERSION) phusion/holy-build-box-64:$(MAJOR_VERSION)
-	docker tag phusion/holy-build-box-64:$(VERSION) phusion/holy-build-box-64:latest
+	docker tag $(IMAGE):$(VERSION) $(IMAGE):$(MAJOR_VERSION)
+	docker tag $(IMAGE):$(VERSION) $(IMAGE):latest
 
 release: tags
-	docker push phusion/holy-build-box-64:$(VERSION)
-	docker push phusion/holy-build-box-64:$(MAJOR_VERSION)
-	docker push phusion/holy-build-box-64:latest
+	docker push $(IMAGE):$(VERSION)
+	docker push $(IMAGE):$(MAJOR_VERSION)
+	docker push $(IMAGE):latest
 	@echo "*** Don't forget to create a tag. git tag rel-$(VERSION) && git push origin rel-$(VERSION)"

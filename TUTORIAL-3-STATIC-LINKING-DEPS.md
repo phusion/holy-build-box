@@ -43,7 +43,7 @@ Download Nginx and invoke the script:
     curl -LO http://nginx.org/download/nginx-1.8.0.tar.gz
     docker run -t -i --rm \
       -v `pwd`:/io \
-      phusion/holy-build-box-64:latest \
+      foobarwidget/holy-build-box-x64 \
       bash /io/compile.sh
 
 ## Verify that it works
