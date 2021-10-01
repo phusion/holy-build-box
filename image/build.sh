@@ -158,7 +158,7 @@ function install_libstdcxx()
 		https://ftpmirror.gnu.org/gcc/gcc-$GCC_LIBSTDCXX_VERSION/gcc-$GCC_LIBSTDCXX_VERSION.tar.gz
 
 	(
-		# shellcheck disable=SC1090
+		# shellcheck source=/dev/null
 		source "$PREFIX/activate"
 		run rm -rf ../gcc-build
 		run mkdir ../gcc-build
@@ -227,7 +227,7 @@ function install_zlib()
 		https://zlib.net/fossils/zlib-$ZLIB_VERSION.tar.gz
 
 	(
-		# shellcheck disable=SC1090
+		# shellcheck source=/dev/null
 		source "$PREFIX/activate"
 		# shellcheck disable=SC2030,SC2031
 		CFLAGS=$(adjust_optimization_level "$STATICLIB_CFLAGS")
@@ -266,7 +266,7 @@ function install_openssl()
 	(
 		set -o pipefail
 
-		# shellcheck disable=SC1090
+		# shellcheck source=/dev/null
 		source "$PREFIX/activate"
 
 		# shellcheck disable=SC2030,SC2001
@@ -319,7 +319,7 @@ function install_curl()
 		https://curl.se/download/curl-$CURL_VERSION.tar.bz2
 
 	(
-		# shellcheck disable=SC1090
+		# shellcheck source=/dev/null
 		source "$PREFIX/activate"
 		# shellcheck disable=SC2030,SC2031
 		CFLAGS=$(adjust_optimization_level "$STATICLIB_CFLAGS")
@@ -366,7 +366,7 @@ function install_sqlite()
 		https://www.sqlite.org/$SQLITE_YEAR/sqlite-autoconf-$SQLITE_VERSION.tar.gz
 
 	(
-		# shellcheck disable=SC1090
+		# shellcheck source=/dev/null
 		source "$PREFIX/activate"
 		# shellcheck disable=SC2031
 		CFLAGS=$(adjust_optimization_level "$STATICLIB_CFLAGS")

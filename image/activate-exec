@@ -2,6 +2,6 @@
 set -e
 
 dir=$(dirname "$0")
-# shellcheck disable=SC1090
+# shellcheck source=/dev/null
 source "$dir/activate"
 exec "$@"
