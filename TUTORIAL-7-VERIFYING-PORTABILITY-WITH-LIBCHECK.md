@@ -14,7 +14,7 @@ For example, let's compile the hello world from [tutorial 1](TUTORIAL-1-BASICS.m
 
     docker run -t -i --rm \
       -v `pwd`:/io \
-      foobarwidget/holy-build-box-x64 \
+      ghcr.io/foobarwidget/holy-build-box-x64 \
       /hbb_exe/activate-exec \
       gcc /io/hello.c -o /io/hello /usr/lib64/libz.so.1
 
@@ -32,7 +32,7 @@ If you invoke libcheck, it should complain about this fact:
 
     $ docker run -t -i --rm \
       -v `pwd`:/io \
-      foobarwidget/holy-build-box-x64 \
+      ghcr.io/foobarwidget/holy-build-box-x64 \
       /hbb_exe/activate-exec \
       libcheck /io/hello
     ...

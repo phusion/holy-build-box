@@ -23,7 +23,7 @@ If you want to use it outside a Holy Build Box container, use it as follows:
 
     docker run -t -i --rm \
       -v /path-to-your-binary:/exe:ro \
-      foobarwidget/holy-build-box-x64 \
+      ghcr.io/foobarwidget/holy-build-box-x64 \
       /hbb_exe_gc_hardened/activate-exec \
       hardening-check -b /exe
 

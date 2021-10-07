@@ -39,7 +39,7 @@ Here's how your Dockerfile should look like:
 # Specify the actual desired version here. You can see the list
 # of available versions in our Changelog:
 # https://github.com/FooBarWidget/holy-build-box/blob/master/Changelog.md
-FROM foobarwidget/holy-build-box-x64:3.0
+FROM ghcr.io/foobarwidget/holy-build-box-x64:3.0
 ADD install-deps.sh /install-deps.sh
 RUN bash /install-deps.sh && rm -f /install-deps.sh
 ~~~

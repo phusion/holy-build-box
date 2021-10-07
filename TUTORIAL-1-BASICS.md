@@ -18,7 +18,7 @@ Holy Build Box consists of one Docker image: `foobarwidget/holy-build-box-x64`, 
 
 Start a Bash shell inside the Holy Build Box environment so that you can look around and inspect things:
 
-    $ docker run -t -i --rm foobarwidget/holy-build-box-x64 bash
+    $ docker run -t -i --rm ghcr.io/foobarwidget/holy-build-box-x64 bash
     container#
 
 When you are done, type `exit` to exit the shell:
@@ -45,7 +45,7 @@ Compile it with:
 
     docker run -t -i --rm \
       -v `pwd`:/io \
-      foobarwidget/holy-build-box-x64 \
+      ghcr.io/foobarwidget/holy-build-box-x64 \
       /hbb_exe/activate-exec \
       bash -x -c 'gcc $CFLAGS /io/hello.c -o /io/hello $LDFLAGS'
 
@@ -73,7 +73,7 @@ The various `/hbb*` directories and the environment variables are explained in t
 We encourage you to inspect the environment variables set by the Holy Build Box activation script:
 
     $ docker run -t -i --rm \
-      foobarwidget/holy-build-box-x64 \
+      ghcr.io/foobarwidget/holy-build-box-x64 \
       /hbb_exe/activate-exec \
       bash
     Holy build box activated
