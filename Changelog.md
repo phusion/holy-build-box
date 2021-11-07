@@ -1,12 +1,16 @@
-## Version 3.0.2 (release date 2020-01-27)
+## Version 3.0.3 (release date 2021-11-07)
+
+ * Fixes Git HTTPS support.
+
+## Version 3.0.2 (release date 2021-01-27)
 
  * Fixed libcheck and setuser. They didn't start properly since 3.0.0 because of wrong shebang lines.
 
-## Version 3.0.1 (release date 2020-01-25)
+## Version 3.0.1 (release date 2021-01-25)
 
  * Fixed installing pip. Pip was not properly installed in 3.0.0.
 
-## Version 3.0.0 (release date 2020-01-17)
+## Version 3.0.0 (release date 2021-01-17)
 
  * Moved to CentOS 7. This makes binaries compatible with Linux distributions that have glibc >= 2.17. This means compatibility with Linux distributions released around 2013-2015, such as:
 
@@ -28,7 +32,7 @@
 
  * Dropped support for building x86 binaries.
 
-## Version 2.2.0 (release date 2020-01-16)
+## Version 2.2.0 (release date 2021-01-16)
 
  * Fixed C++ std::thread support when statically linking libstdc++
  * Made the image smaller by removing redundant versions of OpenSSL and curl.
@@ -41,7 +45,7 @@
  * Updated Git to 2.30.0.
  * Updated SQLite to 2020-3340000.
 
-## Version 2.1.0 (release date 2020-01-15)
+## Version 2.1.0 (release date 2021-01-15)
 
  * Fixed YUM repository URLs so that YUM still works despite CentOS 6 having reached end-of-life.
  * Devtoolset updated to 8 (on x86\_64 only).
