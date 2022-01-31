@@ -412,4 +412,6 @@ if ! eval_bool "$SKIP_FINALIZE"; then
 	for VARIANT in $VARIANTS; do
 		run rm -rf "/hbb_$VARIANT/share/doc" "/hbb_$VARIANT/share/man"
 	done
+
+	echo "*link_gomp: %{static|static-libgcc|static-libstdc++|static-libgfortran: libgomp.a%s; : -lgomp } %{static: -ldl }" > /opt/rh/devtoolset-9/root/usr/lib/gcc/x86_64-redhat-linux/9/libgomp.spec
 fi
