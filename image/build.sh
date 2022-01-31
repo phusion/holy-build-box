@@ -67,6 +67,8 @@ if ! eval_bool "$SKIP_INITIALIZE"; then
 		file patch bzip2 zlib-devel gettext python-setuptools python-devel \
 		epel-release centos-release-scl
 	run yum install -y python2-pip "devtoolset-$DEVTOOLSET_VERSION"
+
+	echo "*link_gomp: %{static|static-libgcc|static-libstdc++|static-libgfortran: libgomp.a%s; : -lgomp } %{static: -ldl }" > /opt/rh/devtoolset-9/root/usr/lib/gcc/x86_64-redhat-linux/9/libgomp.spec
 fi
 
 
