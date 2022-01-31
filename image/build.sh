@@ -11,6 +11,7 @@ CURL_VERSION=7.74.0
 GIT_VERSION=2.30.0
 SQLITE_VERSION=3340000
 SQLITE_YEAR=2020
+BZIP2_VERSION=1.0.8
 
 # shellcheck source=image/functions.sh
 source /hbb_build/functions.sh
@@ -32,6 +33,7 @@ SKIP_ZLIB=${SKIP_ZLIB:-$SKIP_LIBS}
 SKIP_OPENSSL=${SKIP_OPENSSL:-$SKIP_LIBS}
 SKIP_CURL=${SKIP_CURL:-$SKIP_LIBS}
 SKIP_SQLITE=${SKIP_SQLITE:-$SKIP_LIBS}
+SKIP_BZIP2=${SKIP_BZIP2:-$SKIP_LIBS}
 
 MAKE_CONCURRENCY=2
 VARIANTS='exe exe_gc_hardened shlib'
@@ -250,6 +252,39 @@ if ! eval_bool "$SKIP_ZLIB"; then
 	done
 fi
 
+### BZip2
+function install_bzip2()
+{
+        local VARIANT="$1"
+        local PREFIX="/hbb_$VARIANT"
+
+        header "Installing bzip2 $BZIP2_VERSION static libraries: $VARIANT"
+        download_and_extract bzip2-$BZIP2_VERSION.tar.gz \
+                bzip2-$BZIP2_VERSION \
+		https://www.sourceware.org/pub/bzip2/bzip2-$BZIP2_VERSION.tar.gz
+
+        (
+                # shellcheck source=/dev/null
+                source "$PREFIX/activate"
+                # shellcheck disable=SC2030,SC2031
+                CFLAGS=$(adjust_optimization_level "$STATICLIB_CFLAGS")
+                export CFLAGS
+                run make -j$MAKE_CONCURRENCY
+                run make install PREFIX=$PREFIX
+        )
+        # shellcheck disable=SC2181
+        if [[ "$?" != 0 ]]; then false; fi
+
+        echo "Leaving source directory"
+        popd >/dev/null
+        run rm -rf bzip2-$BZIP2_VERSION
+}
+
+if ! eval_bool "$SKIP_BZIP2"; then
+	for VARIANT in $VARIANTS; do
+		install_bzip2 "$VARIANT"
+	done
+fi
 
 ### OpenSSL
 
