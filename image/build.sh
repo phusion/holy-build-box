@@ -2,15 +2,15 @@
 set -e
 
 CCACHE_VERSION=3.7.12
-CMAKE_VERSION=3.19.3
-CMAKE_MAJOR_VERSION=3.19
+CMAKE_VERSION=3.22.2
+CMAKE_MAJOR_VERSION=3.22
 GCC_LIBSTDCXX_VERSION=9.3.0
 ZLIB_VERSION=1.2.11
-OPENSSL_VERSION=1.1.1i
-CURL_VERSION=7.74.0
-GIT_VERSION=2.30.0
-SQLITE_VERSION=3340000
-SQLITE_YEAR=2020
+OPENSSL_VERSION=1.1.1m
+CURL_VERSION=7.81.0
+GIT_VERSION=2.35.1
+SQLITE_VERSION=3370200
+SQLITE_YEAR=2022
 
 # shellcheck source=image/functions.sh
 source /hbb_build/functions.sh
@@ -329,7 +329,7 @@ function install_curl()
 			--disable-rtsp --disable-dict --disable-ftp --disable-ftps --disable-gopher --disable-imap \
 			--disable-imaps --disable-pop3 --disable-pop3s --without-librtmp --disable-smtp --disable-smtps \
 			--disable-telnet --disable-tftp --disable-smb --disable-versioned-symbols \
-			--without-libmetalink --without-libidn --without-libssh2 --without-libmetalink --without-nghttp2 \
+			--without-libidn --without-libssh2 --without-nghttp2 \
 			--with-ssl
 		run make -j$MAKE_CONCURRENCY
 		run make install

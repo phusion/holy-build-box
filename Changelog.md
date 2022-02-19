@@ -1,3 +1,13 @@
+## Version 3.0.4 (unreleased)
+
+ * Upgrades tools and libraries:
+
+    - CMake 3.19.3 -> 3.22.2
+    - OpenSSL 1.1.1i -> 1.1.1m
+    - libcurl 7.74.0 -> 7.81.0
+    - SQLite 3.34.0 -> 3.37.2
+    - Git 2.30.0 -> 2.35.1
+
 ## Version 3.0.3 (release date 2021-11-07)
 
  * Fixes Git HTTPS support.
