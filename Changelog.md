@@ -1,4 +1,4 @@
-## Version 3.0.4 (unreleased)
+## Version 3.0.4 (release date 2022-02-19)
 
  * Fixes C++ compiler problems. Upgrades libstdc++ to 9.3.0 in order to match the GCC version. Fix contributed by @asl, closes #47.
  * Fixes static linking to libgomp when -static-libgcc is used. Fix contributed by @asl, closes #50.
