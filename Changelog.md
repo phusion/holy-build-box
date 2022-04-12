@@ -1,3 +1,7 @@
+## Version 3.0.5 (release date 2022-04-12)
+
+ * Upgrades zlib 1.2.11 -> 1.2.12. Fixes [CVE-2018-25032](https://github.com/advisories/GHSA-jc36-42cf-vqwj), closes #55.
+
 ## Version 3.0.4 (release date 2022-02-19)
 
  * Fixes C++ compiler problems. Upgrades libstdc++ to 9.3.0 in order to match the GCC version. Fix contributed by @asl, closes #47.
