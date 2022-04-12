@@ -1,4 +1,4 @@
-VERSION = 3.0.4
+VERSION = 3.0.5
 MAJOR_VERSION = 3.0
 ARCH = x64
 OWNER = foobarwidget
