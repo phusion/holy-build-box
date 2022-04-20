@@ -10,6 +10,9 @@ IMAGE = ghcr.io/$(OWNER)/holy-build-box-$(ARCH)
 build:
 	docker build --rm -t $(IMAGE):$(VERSION) -f Dockerfile-$(ARCH) --pull --build-arg DISABLE_OPTIMIZATIONS=$(DISABLE_OPTIMIZATIONS) .
 
+build-aarch64:
+	docker buildx build --rm -t ghcr.io/$(OWNER)/holy-build-box-aarch64:$(VERSION) -f Dockerfile-aarch64 --pull --platform=linux/arm64 --build-arg DISABLE_OPTIMIZATIONS=$(DISABLE_OPTIMIZATIONS) .
+
 test:
 	@echo "*** You should run: SKIP_FINALIZE=1 bash /hbb_build/build.sh"
 	docker run -t -i --rm -e DISABLE_OPTIMIZATIONS=1 -v $$(pwd)/image:/hbb_build:ro centos:7 bash
