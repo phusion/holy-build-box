@@ -1,9 +1,9 @@
 VERSION = 3.0.5
 MAJOR_VERSION = 3.0
 ARCH = x64
-OWNER = foobarwidget
+OWNER = ghcr.io/foobarwidget
 DISABLE_OPTIMIZATIONS = 0
-IMAGE = ghcr.io/$(OWNER)/holy-build-box-$(ARCH)
+IMAGE = $(OWNER)/holy-build-box-$(ARCH)
 
 .PHONY: build test tags release
 
