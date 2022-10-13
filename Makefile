@@ -1,25 +1,46 @@
-VERSION = 3.0.5
-MAJOR_VERSION = 3.0
-ARCH = x64
-OWNER = ghcr.io/foobarwidget
+VERSION = 3.0.6
+ifneq ($VERSION, edge)
+MAJOR_VERSION := $(shell awk -v OFS=. -F. '{print $$1,$$2}' <<< $(VERSION))
+endif
+OWNER = phusion
 DISABLE_OPTIMIZATIONS = 0
-IMAGE = $(OWNER)/holy-build-box-$(ARCH)
+IMAGE = $(OWNER)/holy-build-box
 
-.PHONY: build test tags release
+.PHONY: build test tags push release
 
 build:
-	docker build --rm -t $(IMAGE):$(VERSION) -f Dockerfile-$(ARCH) --pull --build-arg DISABLE_OPTIMIZATIONS=$(DISABLE_OPTIMIZATIONS) .
+	docker buildx build --platform "linux/amd64" --rm -t $(IMAGE)-amd64:$(VERSION) -f Dockerfile-amd64 --pull --build-arg DISABLE_OPTIMIZATIONS=$(DISABLE_OPTIMIZATIONS) .
+	docker buildx build --platform "linux/arm64" --rm -t $(IMAGE)-arm64:$(VERSION) -f Dockerfile-arm64 --pull --build-arg DISABLE_OPTIMIZATIONS=$(DISABLE_OPTIMIZATIONS) .
 
 test:
-	@echo "*** You should run: SKIP_FINALIZE=1 bash /hbb_build/build.sh"
-	docker run -t -i --rm -e DISABLE_OPTIMIZATIONS=1 -v $$(pwd)/image:/hbb_build:ro centos:7 bash
+	docker run -it --platform "linux/amd64" --rm -e SKIP_FINALIZE=1 -e DISABLE_OPTIMIZATIONS=1 -v $$(pwd)/image:/hbb_build:ro centos:7 bash /hbb_build/build.sh
+	docker run -it --platform "linux/arm64" --rm -e SKIP_FINALIZE=1 -e DISABLE_OPTIMIZATIONS=1 -v $$(pwd)/image:/hbb_build:ro centos:7 bash /hbb_build/build.sh
 
 tags:
-	docker tag $(IMAGE):$(VERSION) $(IMAGE):$(MAJOR_VERSION)
-	docker tag $(IMAGE):$(VERSION) $(IMAGE):latest
+ifdef MAJOR_VERSION
+	docker tag $(IMAGE):$(VERSION)-arm64 $(IMAGE):$(MAJOR_VERSION)-arm64
+	docker tag $(IMAGE):$(VERSION)-amd64 $(IMAGE):$(MAJOR_VERSION)-amd64
+	docker tag $(IMAGE):$(VERSION)-arm64 $(IMAGE):latest-arm64
+	docker tag $(IMAGE):$(VERSION)-amd64 $(IMAGE):latest-amd64
+endif
 
-release: tags
-	docker push $(IMAGE):$(VERSION)
-	docker push $(IMAGE):$(MAJOR_VERSION)
-	docker push $(IMAGE):latest
+push: tags
+	docker push $(IMAGE):$(VERSION)-amd64
+	docker push $(IMAGE):$(VERSION)-arm64
+ifdef MAJOR_VERSION
+	docker push $(IMAGE):$(MAJOR_VERSION)-amd64
+	docker push $(IMAGE):$(MAJOR_VERSION)-arm64
+	docker push $(IMAGE):latest-amd64
+	docker push $(IMAGE):latest-arm64
+endif
+
+release: push
+	docker manifest create $(IMAGE):$(VERSION) $(IMAGE):$(VERSION)-amd64 $(IMAGE):$(VERSION)-arm64
+ifdef MAJOR_VERSION
+	docker manifest create $(IMAGE):$(MAJOR_VERSION) $(IMAGE):$(MAJOR_VERSION)-amd64 $(IMAGE):$(MAJOR_VERSION)-arm64
+	docker manifest create $(IMAGE):latest $(IMAGE):latest-amd64 $(IMAGE):latest-arm64
+	docker manifest push $(IMAGE):$(MAJOR_VERSION)
+endif
+	docker manifest push $(IMAGE):$(VERSION)
+	docker manifest push $(IMAGE):latest
 	@echo "*** Don't forget to create a tag. git tag rel-$(VERSION) && git push origin rel-$(VERSION)"

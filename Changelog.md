@@ -64,7 +64,7 @@
 ## Version 2.1.0 (release date 2021-01-15)
 
  * Fixed YUM repository URLs so that YUM still works despite CentOS 6 having reached end-of-life.
- * Devtoolset updated to 8 (on x86\_64 only).
+ * Devtoolset updated to 8 (on amd64 only).
  * CMake updated to 3.16.4.
  * Git 2.25.1 added.
 

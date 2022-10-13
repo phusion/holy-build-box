@@ -31,7 +31,7 @@ Next, enter the container, invoke the compilation script and verify that the Ngi
 
     $ docker run -t -i --rm \
       -v `pwd`:/io \
-      ghcr.io/foobarwidget/holy-build-box-x64 \
+      ghcr.io/foobarwidget/holy-build-box-amd64 \
       bash
 
     container# bash /io/compile.sh
@@ -106,7 +106,7 @@ Now test the script:
 
     docker run -t -i --rm \
       -v `pwd`:/io \
-      ghcr.io/foobarwidget/holy-build-box-x64 \
+      ghcr.io/foobarwidget/holy-build-box-amd64 \
       bash /io/compile.sh
 
 You should see that the configure script succeeds in detecting OpenSSL this time:
@@ -179,7 +179,7 @@ Now test the script:
 
     docker run -t -i --rm \
       -v `pwd`:/io \
-      ghcr.io/foobarwidget/holy-build-box-x64 \
+      ghcr.io/foobarwidget/holy-build-box-amd64 \
       bash /io/compile.sh
 
 You should see that linker flags are now passed properly:

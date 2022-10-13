@@ -3,7 +3,7 @@
 
 <img src="https://phusion.github.io/holy-build-box/img/logo.png" width="200">
 
-Holy Build Box is a system for building "portable" binaries for Linux: binaries that work on pretty much any Linux distribution. This works by providing an easy-to-use compilation environment with an old glibc version. Holy Build Box can produce x86\_64 binaries.
+Holy Build Box is a system for building "portable" binaries for Linux: binaries that work on pretty much any Linux distribution. This works by providing an easy-to-use compilation environment with an old glibc version. Holy Build Box can produce amd64 and arm64 binaries.
 
 **Resources:**: [Website](https://phusion.github.io/holy-build-box/) | [Issue tracker](https://github.com/phusion/holy-build-box/issues)
 
@@ -83,7 +83,7 @@ Holy Build Box partially solves problem #1 and #3 by providing static versions o
 
 ### Isolated build environment based on Docker and CentOS 7
 
-The Holy Build Box environment is built on CentOS 7. This allows it to produce binaries that work on pretty much any x86\_64 Linux distribution released since 2015. The only currently-prominent Linux distribution that the produced binaries may not run on, is Alpine Linux. [See the FAQ entry.](#which-linux-distributions-do-binaries-compiled-with-holy-build-box-support)
+The Holy Build Box environment is built on CentOS 7. This allows it to produce binaries that work on pretty much any amd64 or arm64 Linux distribution released since 2015. The only currently-prominent Linux distribution that the produced binaries may not run on, is Alpine Linux. [See the FAQ entry.](#which-linux-distributions-do-binaries-compiled-with-holy-build-box-support)
 
 The environment is bare-bones with almost nothing installed. Besides the basics, only a compiler toolchain is provided. The toolchain is more recent than the one provided by CentOS 7.
 
@@ -207,13 +207,13 @@ Some non-developers (i.e. users) may object to the idea of distributing portable
 
 ### Which operating systems does Holy Build Box support?
 
-Holy Build Box only supports x86\_64 Linux.
+Holy Build Box only supports amd64 and arm64 Linux.
 
-macOS is not supported. Windows is not supported. Other Unices are not supported. Other CPU architectures, such as ARM, are not supported.
+macOS is not supported. Windows is not supported. Other Unices are not supported. Other CPU architectures, such as 32 bit x86, are not supported.
 
 ### Which Linux distributions do binaries compiled with Holy Build Box support?
 
-Binaries work on pretty much any glibc-2.17-or-later-based x86\_64 Linux distribution released since approx 2015. A non-exhaustive list:
+Binaries work on pretty much any glibc-2.17-or-later-based amd64 or arm64 Linux distribution released since approx 2015. A non-exhaustive list:
 
  * Debian >= 8
  * Ubuntu >= 14.06
@@ -234,7 +234,7 @@ If you are an application developer, you should consider the tradeoff. Do your u
 
 Docker also solves the portability problem, but it gives the application a very different feel. The application is no longer just a binary. Users will have to install Docker and will have to learn how to use Docker commands in order to use your application. Your users may not particularly care about Docker: maybe they just want to use your application without having to learn about anything else.
 
-Docker images are much larger than binaries produced by Holy Build Box. Docker images contain entire Linux distributions and weigh in the order of hundreds of MB in the average case, or tens of MB if you really did your best to optimize things. Binaries produced by Holy Build Box can be just a few MBs.
+Docker images are much larger than binaries produced by Holy Build Box. Docker images contain entire Linux distributions and weigh in the order of hundreds of MB in the average case, or tens of MB if you really did your best to optimize things. Binaries produced by Holy Build Box can be just a few KBs.
 
 On the other hand, compiling an application using Holy Build Box requires advanced knowledge on the C/C++ compiler toolchain. You will regularly run into situations where you need to tweak the build system a little bit before the application properly compiles with static linking. If you are not skilled at using the C/C++ compiler toolchain, then using Docker is easier because it is much more "fire and forget".
 
