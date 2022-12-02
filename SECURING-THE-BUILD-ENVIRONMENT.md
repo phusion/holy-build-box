@@ -18,7 +18,7 @@ This example shows how you can run the compile.sh script from [tutorial 2](TUTOR
 
     docker run -t -i --rm \
       -v `pwd`:/io \
-      ghcr.io/foobarwidget/holy-build-box-amd64 \
+      ghcr.io/phusion/holy-build-box/hbb-64 \
       /hbb/bin/setuser builder \
       bash /io/compile.sh
 
@@ -63,5 +63,5 @@ Note that the above example calls `setuser` in order to run specific commands (b
 
     docker run -t -i --rm \
       -v `pwd`:/io \
-      ghcr.io/foobarwidget/holy-build-box-amd64 \
+      ghcr.io/phusion/holy-build-box/hbb-64 \
       bash /io/compile.sh

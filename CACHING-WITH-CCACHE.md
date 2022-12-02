@@ -15,5 +15,5 @@ Then invoke the compilation script as follows:
       -e CXX='ccache g++' \
       -e CCACHE_DIR='/io/cache' \
       -v `pwd`:/io \
-      ghcr.io/foobarwidget/holy-build-box-amd64 \
+      ghcr.io/phusion/holy-build-box/hbb-64 \
       bash /io/compile.sh

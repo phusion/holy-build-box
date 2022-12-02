@@ -55,7 +55,7 @@ Put `compile.sh` in the same directory as `hello-2.10.tar.gz`. Then invoke the H
 
     docker run -t -i --rm \
       -v `pwd`:/io \
-      ghcr.io/foobarwidget/holy-build-box-amd64 \
+      ghcr.io/phusion/holy-build-box/hbb-64 \
       bash /io/compile.sh
 
 ## Verify that it works
@@ -75,7 +75,7 @@ Instead of sourcing the `activate` script from within `compile.sh`, you could al
 
     docker run -t -i --rm \
       -v `pwd`:/io \
-      ghcr.io/foobarwidget/holy-build-box-amd64 \
+      ghcr.io/phusion/holy-build-box/hbb-64 \
       /hbb_exe/activate-exec \
       bash /io/compile.sh
 
