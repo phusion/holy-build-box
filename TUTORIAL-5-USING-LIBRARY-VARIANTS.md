@@ -18,7 +18,7 @@ It also wasn't compiled with any security hardening flags:
 
     $ docker run -t -i --rm \
       -v `pwd`/nginx:/exe:ro \
-      ghcr.io/foobarwidget/holy-build-box-amd64 \
+      ghcr.io/phusion/holy-build-box/hbb-64 \
       /hbb_exe_gc_hardened/activate-exec \
       hardening-check -b /exe
     ...
@@ -40,7 +40,7 @@ Then invoke the compilation script:
 
     docker run -t -i --rm \
       -v `pwd`:/io \
-      ghcr.io/foobarwidget/holy-build-box-amd64 \
+      ghcr.io/phusion/holy-build-box/hbb-64 \
       bash /io/compile.sh
 
 Let's take a look at the Nginx binary now:
@@ -55,7 +55,7 @@ We can also see that the security hardening flag are enabled inside the binary:
 
     $ docker run -t -i --rm \
       -v `pwd`/nginx:/exe:ro \
-      ghcr.io/foobarwidget/holy-build-box-amd64 \
+      ghcr.io/phusion/holy-build-box/hbb-64 \
       /hbb_exe_gc_hardened/activate-exec \
       hardening-check -b /exe
     ...

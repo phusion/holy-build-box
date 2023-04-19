@@ -57,7 +57,7 @@ Invoke the compilation script:
 
     docker run -t -i --rm \
       -v `pwd`:/io \
-      ghcr.io/foobarwidget/holy-build-box-amd64 \
+      ghcr.io/phusion/holy-build-box/hbb-64 \
       bash /io/compile.sh
 
 Then verify that Nginx is indeed compiled with the `rewrite_module` enabled:
