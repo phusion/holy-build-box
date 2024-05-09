@@ -1,16 +1,16 @@
 #!/bin/bash
 set -e
 
-CCACHE_VERSION=3.7.12
-CMAKE_VERSION=3.22.2
-CMAKE_MAJOR_VERSION=3.22
+CCACHE_VERSION=4.9.1
+CMAKE_VERSION=3.29.3
+CMAKE_MAJOR_VERSION=3.29
 GCC_LIBSTDCXX_VERSION=9.3.0
-ZLIB_VERSION=1.2.12
-OPENSSL_VERSION=1.1.1m
-CURL_VERSION=7.81.0
-GIT_VERSION=2.35.1
-SQLITE_VERSION=3370200
-SQLITE_YEAR=2022
+ZLIB_VERSION=1.3.1
+OPENSSL_VERSION=3.3.0
+CURL_VERSION=8.7.1
+GIT_VERSION=2.45.0
+SQLITE_VERSION=3450300
+SQLITE_YEAR=2024
 
 # shellcheck source=image/functions.sh
 source /hbb_build/functions.sh
@@ -64,36 +64,12 @@ if ! eval_bool "$SKIP_INITIALIZE"; then
 	run touch /var/lib/rpm/*
 	run yum update -y
 	run yum install -y tar curl curl-devel m4 autoconf automake libtool pkgconfig openssl-devel \
-		file patch bzip2 zlib-devel gettext python-setuptools python-devel \
-		epel-release centos-release-scl
-	run yum install -y python2-pip "devtoolset-$DEVTOOLSET_VERSION"
+		file patch bzip2 zlib-devel gettext python2-setuptools python2-devel \
+		epel-release perl-IPC-Cmd
+	run yum install -y python2-pip "gcc-toolset-$DEVTOOLSET_VERSION" "gcc-toolset-$DEVTOOLSET_VERSION-runtime"
 
-	echo "*link_gomp: %{static|static-libgcc|static-libstdc++|static-libgfortran: libgomp.a%s; : -lgomp } %{static: -ldl }" > /opt/rh/devtoolset-9/root/usr/lib/gcc/*-redhat-linux/9/libgomp.spec
+	echo "*link_gomp: %{static|static-libgcc|static-libstdc++|static-libgfortran: libgomp.a%s; : -lgomp } %{static: -ldl }" > /opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib/gcc/*-redhat-linux/9/libgomp.spec
 
-fi
-
-
-### ccache
-
-if ! eval_bool "$SKIP_CCACHE"; then
-	header "Installing ccache $CCACHE_VERSION"
-	download_and_extract ccache-$CCACHE_VERSION.tar.gz \
-		ccache-$CCACHE_VERSION \
-		https://github.com/ccache/ccache/releases/download/v$CCACHE_VERSION/ccache-$CCACHE_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		set_default_cflags
-		run ./configure --prefix=/hbb
-		run make -j$MAKE_CONCURRENCY install
-		run strip --strip-all /hbb/bin/ccache
-	)
-	# shellcheck disable=SC2181
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf ccache-$CCACHE_VERSION
 fi
 
 
@@ -119,6 +95,31 @@ if ! eval_bool "$SKIP_CMAKE"; then
 	echo "Leaving source directory"
 	popd >/dev/null
 	run rm -rf cmake-$CMAKE_VERSION
+fi
+
+
+### ccache
+
+if ! eval_bool "$SKIP_CCACHE"; then
+	header "Installing ccache $CCACHE_VERSION"
+	download_and_extract ccache-$CCACHE_VERSION.tar.gz \
+		ccache-$CCACHE_VERSION \
+		https://github.com/ccache/ccache/releases/download/v$CCACHE_VERSION/ccache-$CCACHE_VERSION.tar.gz
+
+	(
+		activate_holy_build_box_deps_installation_environment
+		set_default_cflags
+		run cmake -DREDIS_STORAGE_BACKEND=OFF -DCMAKE_INSTALL_PREFIX="/hbb" -S . -B build
+		run cmake --build build
+		run cmake --install build
+		run strip --strip-all /hbb/bin/ccache
+	)
+	# shellcheck disable=SC2181
+	if [[ "$?" != 0 ]]; then false; fi
+
+	echo "Leaving source directory"
+	popd >/dev/null
+	run rm -rf ccache-$CCACHE_VERSION
 fi
 
 
@@ -277,8 +278,9 @@ function install_openssl()
 		export CFLAGS
 
 		# shellcheck disable=SC2086
-		run ./config --prefix="$PREFIX" --openssldir="$PREFIX/openssl" \
-			threads zlib no-shared no-sse2 $CFLAGS $LDFLAGS
+		run ./Configure "linux-$(uname -m)" \
+		    --prefix="$PREFIX" --openssldir="$PREFIX/openssl" \
+		    threads zlib no-shared no-sse2 -fvisibility=hidden $CFLAGS $LDFLAGS
 		run make
 		run make install_sw
 		run strip --strip-all "$PREFIX/bin/openssl"

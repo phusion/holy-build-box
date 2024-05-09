@@ -4,7 +4,7 @@ DEVTOOLSET_VERSION=9
 
 function activate_holy_build_box_deps_installation_environment() {
 	# shellcheck disable=SC1090
-	source /opt/rh/devtoolset-${DEVTOOLSET_VERSION}/enable
+	source /opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/enable
 	export PATH=/hbb/bin:$PATH
 	export C_INCLUDE_PATH=/hbb/include
 	export CPLUS_INCLUDE_PATH=/hbb/include
@@ -27,7 +27,7 @@ function activate_holy_build_box() {
 	local EXTRA_SHLIB_LDFLAGS="$6"
 
 	# shellcheck disable=SC1090
-	source /opt/rh/devtoolset-${DEVTOOLSET_VERSION}/enable
+	source /opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/enable
 
 	export PATH=$PREFIX/bin:/hbb/bin:$PATH
 	export C_INCLUDE_PATH=$PREFIX/include

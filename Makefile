@@ -1,4 +1,4 @@
-VERSION = 3.0.6
+VERSION = 3.0.7
 ifneq ($VERSION, edge)
 MAJOR_VERSION := $(shell awk -v OFS=. -F. '{print $$1,$$2}' <<< $(VERSION))
 endif
@@ -9,12 +9,12 @@ IMAGE = $(OWNER)/holy-build-box
 .PHONY: build test tags push release
 
 build:
-	docker buildx build --platform "linux/amd64" --rm -t $(IMAGE)-amd64:$(VERSION) -f Dockerfile-amd64 --pull --build-arg DISABLE_OPTIMIZATIONS=$(DISABLE_OPTIMIZATIONS) .
-	docker buildx build --platform "linux/arm64" --rm -t $(IMAGE)-arm64:$(VERSION) -f Dockerfile-arm64 --pull --build-arg DISABLE_OPTIMIZATIONS=$(DISABLE_OPTIMIZATIONS) .
+	docker buildx build --platform "linux/amd64" --rm -t $(IMAGE)-amd64:$(VERSION) -f Dockerfile --pull --build-arg DISABLE_OPTIMIZATIONS=$(DISABLE_OPTIMIZATIONS) .
+	docker buildx build --platform "linux/arm64" --rm -t $(IMAGE)-arm64:$(VERSION) -f Dockerfile --pull --build-arg DISABLE_OPTIMIZATIONS=$(DISABLE_OPTIMIZATIONS) .
 
 test:
-	docker run -it --platform "linux/amd64" --rm -e SKIP_FINALIZE=1 -e DISABLE_OPTIMIZATIONS=1 -v $$(pwd)/image:/hbb_build:ro centos:7 bash /hbb_build/build.sh
-	docker run -it --platform "linux/arm64" --rm -e SKIP_FINALIZE=1 -e DISABLE_OPTIMIZATIONS=1 -v $$(pwd)/image:/hbb_build:ro centos:7 bash /hbb_build/build.sh
+	docker run -it --platform "linux/amd64" --rm -e SKIP_FINALIZE=1 -e DISABLE_OPTIMIZATIONS=1 -v $$(pwd)/image:/hbb_build:ro rockylinux:8 bash /hbb_build/build.sh
+	docker run -it --platform "linux/arm64" --rm -e SKIP_FINALIZE=1 -e DISABLE_OPTIMIZATIONS=1 -v $$(pwd)/image:/hbb_build:ro rockylinux:8 bash /hbb_build/build.sh
 
 tags:
 ifdef MAJOR_VERSION
