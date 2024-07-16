@@ -34,10 +34,10 @@ This Code of Conduct applies both within project spaces and in public spaces whe
 
 ## Enforcement
 
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project team at Phusion:
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project owner:
-
-[FooBarWidget](https://github.com/FooBarWidget) (Hongli Lai), honglilai@gmail.com, English / Dutch
+ - [FooBarWidget](https://github.com/FooBarWidget) (Hongli Lai), honglilai@gmail.com, English / Dutch
+ - [scarhand](https://github.com/scarhand) (he/his), niels@phusion.nl, English / Dutch
 
 The project team will review and investigate all complaints, and will respond in a way that it deems appropriate to the circumstances. The project team is obligated to maintain confidentiality with regard to the reporter of an incident. Further details of specific enforcement policies may be posted separately.
 
