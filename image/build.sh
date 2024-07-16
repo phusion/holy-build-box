@@ -206,10 +206,10 @@ function install_openssl()
 			threads zlib no-shared no-sse2 no-legacy no-tests
 
 		# Force Make to use the environment variables instead
-		run sed -i "s|^LIB_CFLAGS=.*||" Makefile
-		run sed -i "s|^LIB_LDFLAGS=.*||" Makefile
-		run sed -i "s|^DSO_CFLAGS=.*||" Makefile
-		run sed -i "s|^DSO_LDFLAGS=.*||" Makefile
+		run sed -i "/^LIB_CFLAGS=/d"  Makefile
+		run sed -i "/^LIB_LDFLAGS=/d" Makefile
+		run sed -i "/^DSO_CFLAGS=/d"  Makefile
+		run sed -i "/^DSO_LDFLAGS=/d" Makefile
 
 		run make "-j$MAKE_CONCURRENCY"
 		run make install_sw
@@ -220,7 +220,7 @@ function install_openssl()
 
 		# shellcheck disable=SC2016
 		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lcrypto -lz -ldl -lpthread/' "$PREFIX"/lib64/pkgconfig/libcrypto.pc
-		run sed -i '/^Libs.private:.*/d' "$PREFIX"/lib64/pkgconfig/libcrypto.pc
+		run sed -i '/^Libs.private:/d'                                         "$PREFIX"/lib64/pkgconfig/libcrypto.pc
 	)
 	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
