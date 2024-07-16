@@ -214,7 +214,6 @@ function install_openssl()
 		run make "-j$MAKE_CONCURRENCY"
 		run make install_sw
 		run strip --strip-all "$PREFIX/bin/openssl"
-		run strip --strip-all "$PREFIX/bin/c_rehash"
 		if [[ "$VARIANT" = exe_gc_hardened ]]; then
 			run hardening-check -b "$PREFIX/bin/openssl"
 		fi
