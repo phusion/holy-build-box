@@ -1,4 +1,4 @@
-#!/hbb/bin/python
+#!/usr/bin/python
 import sys, os, pwd
 
 if len(sys.argv) < 3:

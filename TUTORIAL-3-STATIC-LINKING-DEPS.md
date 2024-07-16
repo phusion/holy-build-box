@@ -4,7 +4,7 @@
 
 Any non-trivial application has dependencies. As explained in the [introduction](README.md#problem-introduction), our recommended approach is to statically link applications to all their dependencies, except for [essential system dependencies](ESSENTIAL-SYSTEM-LIBRARIES.md) such as glibc, libpthread, libm etc.
 
-In this tutorial, we will compile [Nginx](http://nginx.org) using Holy Build Box. At the very least, Nginx depends on zlib (for compression) and OpenSSL (for cryptographic operations). Holy Build Box happens to include static versions of both libraries, so in this tutorial we will show you how to statically Nginx to them.
+In this tutorial, we will compile [Nginx](http://nginx.org) using Holy Build Box. At the very least, Nginx depends on zlib (for compression) and OpenSSL (for cryptographic operations). Holy Build Box happens to include static versions of both libraries, so in this tutorial we will show you how to statically link Nginx to them.
 
 Does your application depend on something that is not included by default in Holy Build Box? In [tutorial 6](TUTORIAL-6-ADDITIONAL-STATIC-LIBS.md) and in the [Installing additional dependencies](INSTALLING-ADDITIONAL-DEPENDENCIES.md) guide we will cover installing your own dependencies.
 
@@ -43,7 +43,7 @@ Download Nginx and invoke the script:
     curl -LO http://nginx.org/download/nginx-1.8.0.tar.gz
     docker run -t -i --rm \
       -v `pwd`:/io \
-      phusion/holy-build-box-64:latest \
+      ghcr.io/phusion/holy-build-box/hbb-64 \
       bash /io/compile.sh
 
 ## Verify that it works

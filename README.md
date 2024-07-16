@@ -1,10 +1,11 @@
+[![Maintainers Wanted](https://img.shields.io/badge/maintainers-wanted-red.svg)](https://github.com/pickhardt/maintainers-wanted)
 # System for building cross-distribution Linux binaries
 
-<img src="http://phusion.github.io/holy-build-box/img/logo.png">
+<img src="https://phusion.github.io/holy-build-box/img/logo.png" width="200">
 
-Holy Build Box is a system for building "portable" binaries for Linux: binaries that work on pretty much any Linux distribution. This works by providing an easy-to-use compilation environment with an old glibc version. Holy Build Box can produce x86 and x86-64 binaries.
+Holy Build Box is a system for building "portable" binaries for Linux: binaries that work on pretty much any Linux distribution. This works by providing an easy-to-use compilation environment with an old glibc version. Holy Build Box can produce amd64 and arm64 binaries.
 
-**Resources:**: [Website](http://phusion.github.io/holy-build-box/) | [Issue tracker](https://github.com/phusion/holy-build-box/issues)
+**Resources:**: [Website](https://phusion.github.io/holy-build-box/) | [Issue tracker](https://github.com/phusion/holy-build-box/issues)
 
 **Table of contents**
 
@@ -80,30 +81,30 @@ Holy Build Box partially solves problem #1 and #3 by providing static versions o
 
 ## Features
 
-### Isolated build environment based on Docker and CentOS 5
+### Isolated build environment based on Docker and CentOS 7
 
-The Holy Build Box environment is built on CentOS 5. This allows it to produce binaries that work on pretty much any x86 and x86-64 Linux distribution released since 2007. The only currently-prominent Linux distribution that the produced binaries may not run on, is Alpine Linux. [See the FAQ entry.](#which-linux-distributions-do-binaries-compiled-with-holy-build-box-support)
+The Holy Build Box environment is built on CentOS 7. This allows it to produce binaries that work on pretty much any amd64 or arm64 Linux distribution released since 2015. The only currently-prominent Linux distribution that the produced binaries may not run on, is Alpine Linux. [See the FAQ entry.](#which-linux-distributions-do-binaries-compiled-with-holy-build-box-support)
 
-The environment is bare-bones with almost nothing installed. Besides the basics, only a compiler toolchain is provided. The toolchain is more recent than the one provided by CentOS 5.
+The environment is bare-bones with almost nothing installed. Besides the basics, only a compiler toolchain is provided. The toolchain is more recent than the one provided by CentOS 7.
 
- * GCC 4.8.2 (C and C++ support; in particular, C++11 is supported)
+ * GCC 9.3.1 (C and C++ support; in particular, C++14 is supported)
  * GNU make
  * autoconf 2.69
- * automake 1.15
- * libtool 2.4.6
- * pkg-config 0.29.1
- * ccache 3.3.3
- * CMake 3.6.3
- * Python 2.7.12 (+ setuptools and pip)
+ * automake 1.13.4
+ * libtool 2.4.2
+ * pkg-config 0.29.2
+ * ccache 3.7.12
+ * CMake 3.19.3
+ * Python 2.7.5 (+ setuptools and pip)
 
 ### Included static libraries
 
-Holy Build Box also includes static versions of certain libraries. These libraries are more recent than the ones shipped with CentOS 5.
+Holy Build Box also includes static versions of certain libraries. These libraries are more recent than the ones shipped with CentOS 7.
 
  * zlib 1.2.11
- * OpenSSL 1.0.2k
- * curl and libcurl 7.54.0
- * SQLite 2016-3150100
+ * OpenSSL 1.1.1i
+ * curl and libcurl 7.74.0
+ * SQLite 2020-3340000
 
 These libraries are provided in multiple variants, each compiled with different compilation flags. The different variants will be covered with in [Tutorial 5: Using library variants](TUTORIAL-5-LIBRARY-VARIANTS.md) and in the [Library variants](LIBRARY-VARIANTS.md) guide.
 
@@ -132,7 +133,7 @@ At the same time, Melsted's team can pick their favorite and most productive pro
 
 ### Traveling Ruby
 
-[Traveling Ruby](http://phusion.github.io/traveling-ruby/) is a system for producing self-contained Ruby application packages for Windows, Linux and OS X. You could think of it as the Holy Build Box equivalent for Ruby applications.
+[Traveling Ruby](https://phusion.github.io/traveling-ruby/) is a system for producing self-contained Ruby application packages for Windows, Linux and macOS. You could think of it as the Holy Build Box equivalent for Ruby applications.
 
 Traveling Ruby works by providing precompiled Ruby binaries that work on any Linux system. Ruby developers can then take our binaries, bundle it with their application code, and distribute the result as a single zip or tar.gz file to end users. This way, end users do not have to install Ruby in order to use their applications.
 
@@ -168,7 +169,6 @@ Guides:
  * [Which system libraries are considered essential?](ESSENTIAL-SYSTEM-LIBRARIES.md)
  * [Securing the build environment](SECURING-THE-BUILD-ENVIRONMENT.md)
  * [Security hardening binaries](SECURITY-HARDENING-BINARIES.md)
- * [Building 32-bit binaries](BUILDING-32-BIT-BINARIES.md)
  * [Caching compilation results with ccache](CACHING-WITH-CCACHE.md)
 
 <a name="caveats"></a>
@@ -207,18 +207,18 @@ Some non-developers (i.e. users) may object to the idea of distributing portable
 
 ### Which operating systems does Holy Build Box support?
 
-Holy Build Box only supports x86 and x86-64 linux.
+Holy Build Box only supports amd64 and arm64 Linux.
 
-OS X is not supported. Windows is not supported. Other Unices are not supported. Other CPU architectures, such as ARM, are not supported.
+macOS is not supported. Windows is not supported. Other Unices are not supported. Other CPU architectures, such as 32 bit x86, are not supported.
 
 ### Which Linux distributions do binaries compiled with Holy Build Box support?
 
-Binaries work on pretty much any glibc-based x86 and x86-64 Linux distribution released since 2007. A non-exhaustive list:
+Binaries work on pretty much any glibc-2.17-or-later-based amd64 or arm64 Linux distribution released since approx 2015. A non-exhaustive list:
 
- * Debian >= 6
- * Ubuntu >= 10.04
- * Red Hat Enterprise Linux >= 5
- * CentOS >= 5
+ * Debian >= 8
+ * Ubuntu >= 14.06
+ * Red Hat Enterprise Linux >= 7
+ * CentOS >= 7
 
 Note the mention "glibc-based". Binaries may not be compatible with Linux distributions not based on glibc. For example, early versions of Alpine Linux were based on uclibc, which was not compatible with glibc at all. Later versions of Alpine Linux are based on musl, which is *somewhat* compatible with glibc. So produced binaries may or may not run on later versions of Alpine Linux.
 
@@ -234,9 +234,7 @@ If you are an application developer, you should consider the tradeoff. Do your u
 
 Docker also solves the portability problem, but it gives the application a very different feel. The application is no longer just a binary. Users will have to install Docker and will have to learn how to use Docker commands in order to use your application. Your users may not particularly care about Docker: maybe they just want to use your application without having to learn about anything else.
 
-Docker also requires at least kernel 3.12. Linux distributions released before ~2014 don't tend to have a recent enough kernel for Docker. So if you have any RHEL 5 users for example, then Docker is out of the question.
-
-And finally, Docker images are much larger than binaries produced by Holy Build Box. Docker images contain entire Linux distributions and weight in the order of hundreds of MB in the average case, or tens of MB if you really did your best to optimize things. Binaries produced by Holy Build Box can be just a few MBs.
+Docker images are much larger than binaries produced by Holy Build Box. Docker images contain entire Linux distributions and weigh in the order of hundreds of MB in the average case, or tens of MB if you really did your best to optimize things. Binaries produced by Holy Build Box can be just a few KBs.
 
 On the other hand, compiling an application using Holy Build Box requires advanced knowledge on the C/C++ compiler toolchain. You will regularly run into situations where you need to tweak the build system a little bit before the application properly compiles with static linking. If you are not skilled at using the C/C++ compiler toolchain, then using Docker is easier because it is much more "fire and forget".
 
@@ -252,7 +250,7 @@ No. Holy Build Box is mainly designed to compile headless applications such as C
 
 Supporting graphical applications such as those based on GTK, Qt, SDL, OpenGL etc is outside the scope of this project.
 
-This is however not a technical limitation, but merely a focus one. We, the Holy Build Box maintainers, have no interest in spending time to support graphical applications, but we welcome contributors who would like to take on this challenge. [Email us](mailto:info@phusion.nl) if you are interested, or submit a pull request.
+This is however not a technical limitation, but merely a focus one. We, the Holy Build Box maintainers, have no interest in spending time to support graphical applications, but we welcome contributors who would like to take on this challenge. [Contact us](https://github.com/phusion/holy-build-box/discussions) if you are interested, or submit a pull request.
 
 ### How should I deal with interpreted applications, such as ones written in Ruby, Python or Node.js?
 
@@ -270,6 +268,8 @@ If your application has no dependencies on NPM modules with native extensions, t
 
 If your application has a dependency on an NPM module with native extension, either directly or indirectly, then you should compile Node.js and your NPM modules with Holy Build Box. When done, package the compiled Node.js, `npm_modules` directory and your application.
 
+See also [pkg](https://github.com/zeit/pkg) which can bundle Node.js applications into a single portable binary.
+
 ### Why the name "Holy Build Box"?
 
 Around 2004, I (Hongli Lai) participated in a now-defunct open source project called Autopackage. Back then we were in the middle of the Linux-on-the-desktop hype. One of the things people complained most about was software installation. Every distribution had its own way of installing things, and binaries compiled on one distribution doesn't work on another. This was considered problematic because, as a developer, it is so painful to distribute software to end users. See also the FAQ entry [Who should be interested in portable Linux binaries?](#who-should-be-interested-in-portable-linux-binaries).
@@ -286,7 +286,7 @@ We wanted to give developers a way to produce portable binaries without asking t
 
 Autopackage eventually went defunct because of resistance from distributors. I guess that people weren't *truly* interested in Linux succeeding on the desktop, despite how many people complained about it.
 
-Fast forward to 2015. Virtualization and containerization is now cheap is ubiquitous. Thus the holy build box approach is now viable for the average developer.
+Fast forward to 2015. Virtualization and containerization became cheap and ubiquitous. Thus the holy build box approach became viable to the average developer.
 
 ## Other comparable systems
 

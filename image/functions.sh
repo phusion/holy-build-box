@@ -1,19 +1,9 @@
-if perl -v >/dev/null 2>/dev/null; then
-	RESET=`perl -e 'print("\e[0m")'`
-	BOLD=`perl -e 'print("\e[1m")'`
-	YELLOW=`perl -e 'print("\e[33m")'`
-	BLUE_BG=`perl -e 'print("\e[44m")'`
-elif python -V >/dev/null 2>/dev/null; then
-	RESET=`echo 'import sys; sys.stdout.write("\033[0m")' | python`
-	BOLD=`echo 'import sys; sys.stdout.write("\033[1m")' | python`
-	YELLOW=`echo 'import sys; sys.stdout.write("\033[33m")' | python`
-	BLUE_BG=`echo 'import sys; sys.stdout.write("\033[44m")' | python`
-else
-	RESET=
-	BOLD=
-	YELLOW=
-	BLUE_BG=
-fi
+# shellcheck shell=bash
+
+RESET=$'\e[0m'
+BOLD=$'\e[1m'
+YELLOW=$'\e[33m'
+BLUE_BG=$'\e[44m'
 
 function header()
 {
@@ -25,7 +15,7 @@ function header()
 
 function run()
 {
-	echo "+ $@"
+	echo "+ $*"
 	"$@"
 }
 
@@ -48,6 +38,7 @@ function download_and_extract()
 	fi
 
 	echo "Entering $RUNTIME_DIR/$DIRNAME"
+	# shellcheck disable=SC2164
 	pushd "$DIRNAME" >/dev/null
 }
 
@@ -55,4 +46,26 @@ function eval_bool()
 {
 	local VAL="$1"
 	[[ "$VAL" = 1 || "$VAL" = true || "$VAL" = yes || "$VAL" = y ]]
+}
+
+function set_default_cflags()
+{
+	# shellcheck disable=SC2030
+	CFLAGS=$(adjust_optimization_level "-O2")
+	CXXFLAGS="$CFLAGS"
+	export CFLAGS
+	export CXXFLAGS
+}
+
+# Given a string containing compiler flags, adjusts optimization level flags according
+# to global settings.
+function adjust_optimization_level()
+{
+	local VAL="$1"
+	if eval_bool "$DISABLE_OPTIMIZATIONS"; then
+		# shellcheck disable=SC2001
+		sed 's|-O[0-9]*||g' <<<"$VAL"
+	else
+		echo "$VAL"
+	fi
 }

@@ -1,0 +1,102 @@
+name: Docker Image CI
+
+on:
+  create:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 05 * * 1' # Late night for the Americas, early morning for Europe
+  pull_request:
+    paths-ignore:
+      - '**.md'
+    branches:
+      - master
+  push:
+    paths-ignore:
+      - '**.md'
+    tags-ignore:
+      - '**'
+    branches:
+      - master
+      - fork/master
+
+jobs:
+  code_check:
+    name: Code checks
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ludeeus/action-shellcheck@94e0aab03ca135d11a35e5bfc14e6746dc56e7e9
+        env:
+          SHELLCHECK_OPTS: -x
+      - name: Install eclint
+        run: sudo npm install -g eclint
+      - name: Check EditorConfig compliance
+        run: eclint check $(git ls-files)
+
+  build_pr:
+    name: "Test Build Docker images"
+    if: github.event_name == 'pull_request' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set lower case repository owner name
+      run: |
+        echo "OWNER_LC=${OWNER,,}" >>"$GITHUB_ENV"
+      env:
+        OWNER: '${{ github.repository_owner }}'
+    - name: Build the Docker images
+      run: make DISABLE_OPTIMIZATIONS=1 "OWNER=$OWNER_LC"
+
+  build_edge:
+    name: "Build edge Docker images"
+    if: github.event_name != 'create' && github.event_name != 'pull_request' && github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set lower case repository owner name
+      run: |
+        echo "OWNER_LC=${OWNER,,}" >>"$GITHUB_ENV"
+      env:
+        OWNER: '${{ github.repository_owner }}'
+    - name: Log in to the Container registry
+      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build the Docker images
+      run: make "OWNER=$OWNER_LC" VERSION=edge
+    - name: Push the Docker images
+      run: docker push "ghcr.io/$OWNER_LC/holy-build-box:edge"
+
+  build_release:
+    name: "Build release Docker images"
+    if: github.event_name == 'create' && github.event.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set lower case repository owner name
+      run: |
+        echo "OWNER_LC=${OWNER,,}" >>"$GITHUB_ENV"
+      env:
+        OWNER: '${{ github.repository_owner }}'
+    - name: Check tag
+      run: |
+        VERSION1=$(grep '^VERSION = ' Makefile | sed 's|.*= *||')
+        VERSION2=$(sed 's|^rel-||' <<< "$TAG")
+        if [[ "$VERSION1" != "$VERSION2" ]]; then
+          echo "ERROR: version in Makefile ($VERSION1) doesn't match Git tag ($VERSION2)"
+          exit 1
+        fi
+      env:
+        TAG: ${{ github.event.ref }}
+    - name: Log in to the Container registry
+      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build the Docker images
+      run: make build "OWNER=$OWNER_LC"
+    - name: Tag and push the Docker images
+      run: make release "OWNER=$OWNER_LC"

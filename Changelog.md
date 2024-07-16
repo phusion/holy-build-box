@@ -1,3 +1,106 @@
+## Version 3.0.5 (release date 2022-04-12)
+
+ * Upgrades zlib 1.2.11 -> 1.2.12. Fixes [CVE-2018-25032](https://github.com/advisories/GHSA-jc36-42cf-vqwj), closes #55.
+
+## Version 3.0.4 (release date 2022-02-19)
+
+ * Fixes C++ compiler problems. Upgrades libstdc++ to 9.3.0 in order to match the GCC version. Fix contributed by @asl, closes #47.
+ * Fixes static linking to libgomp when -static-libgcc is used. Fix contributed by @asl, closes #50.
+ * Upgrades tools and libraries:
+
+    - CMake 3.19.3 -> 3.22.2
+    - OpenSSL 1.1.1i -> 1.1.1m
+    - libcurl 7.74.0 -> 7.81.0
+    - SQLite 3.34.0 -> 3.37.2
+    - Git 2.30.0 -> 2.35.1
+
+## Version 3.0.3 (release date 2021-11-07)
+
+ * Fixes Git HTTPS support.
+
+## Version 3.0.2 (release date 2021-01-27)
+
+ * Fixed libcheck and setuser. They didn't start properly since 3.0.0 because of wrong shebang lines.
+
+## Version 3.0.1 (release date 2021-01-25)
+
+ * Fixed installing pip. Pip was not properly installed in 3.0.0.
+
+## Version 3.0.0 (release date 2021-01-17)
+
+ * Moved to CentOS 7. This makes binaries compatible with Linux distributions that have glibc >= 2.17. This means compatibility with Linux distributions released around 2013-2015, such as:
+
+    - Red Hat Enterprise Linux 7
+    - Ubuntu 14.06
+    - Debian 8
+
+ * Tooling versions changed as part of the CentOS 7 move:
+
+    - GCC 9.3.1 (good C++14 support)
+    - m4 1.4.16
+    - autoconf 2.69
+    - automake 1.13.4
+    - libtool 2.4.2
+    - pkg-config 0.27.1
+    - Python 2.7.5
+
+ * Upgraded OpenSSL to 1.1.1i.
+
+ * Dropped support for building x86 binaries.
+
+## Version 2.2.0 (release date 2021-01-16)
+
+ * Fixed C++ std::thread support when statically linking libstdc++
+ * Made the image smaller by removing redundant versions of OpenSSL and curl.
+ * Updated autoconf to 2.70.
+ * Updated automake to 1.16.3.
+ * Updated ccache to 3.7.12.
+ * Updated CMake to 3.19.3.
+ * Updated OpenSSL to 1.0.2u.
+ * Updated curl to 7.74.0.
+ * Updated Git to 2.30.0.
+ * Updated SQLite to 2020-3340000.
+
+## Version 2.1.0 (release date 2021-01-15)
+
+ * Fixed YUM repository URLs so that YUM still works despite CentOS 6 having reached end-of-life.
+ * Devtoolset updated to 8 (on amd64 only).
+ * CMake updated to 3.16.4.
+ * Git 2.25.1 added.
+
+## Version 2.0.1 (release date 2019-01-03)
+
+ * Changed libcheck script to use readelf internally instead of ldd, to remove confusing output.
+
+## Version 2.0.0 (release date 2018-12-20)
+
+ * Moved to CentOS 6.
+ * Updated system curl means we can grab tarballs from https urls.
+ * Updated devtoolset to version 7.
+ * automake updated to 1.16.1
+ * ccache updated to 3.5
+ * CMake updated to 3.13.2
+ * libcurl updated to 7.63.0
+ * gcc_libstdcxx updated to 7.3.0
+ * m4 updated to 1.4.18
+ * Openssl updated to 1.0.2q
+ * pkg_config updated to 0.29.2
+ * Python updated to 2.7.15
+ * SQLite updated to 2018-3260000
+
+## Version 1.2.3 (release date 2018-09-21)
+
+ * OpenSSL has been upgraded to 1.0.2p.
+ * libcurl has been upgraded to 7.61.1.
+ * ccache has been upraded to 3.4.3.
+ * SQLite has been upgraded to 2018-3250000.
+
+## Version 1.2.2 (release date 2018-06-11)
+
+ * OpenSSL has been upgraded to 1.0.2o.
+ * libcurl has been upgraded to 7.60.0.
+ * SQLite has been upgraded to 2018-3240000.
+
 ## Version 1.2.1 (release date 2017-05-04)
 
  * OpenSSL has been upgraded to 1.0.2k.

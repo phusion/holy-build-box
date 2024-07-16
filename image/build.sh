@@ -1,40 +1,31 @@
 #!/bin/bash
 set -e
 
-M4_VERSION=1.4.17
-AUTOCONF_VERSION=2.69
-AUTOMAKE_VERSION=1.15
-LIBTOOL_VERSION=2.4.6
-PKG_CONFIG_VERSION=0.29.1
-CCACHE_VERSION=3.3.3
-CMAKE_VERSION=3.6.3
-CMAKE_MAJOR_VERSION=3.6
-PYTHON_VERSION=2.7.12
-GCC_LIBSTDCXX_VERSION=4.8.2
-ZLIB_VERSION=1.2.11
-OPENSSL_VERSION=1.0.2k
-CURL_VERSION=7.54.0
-SQLITE_VERSION=3150100
-SQLITE_YEAR=2016
+CCACHE_VERSION=4.9.1
+CMAKE_VERSION=3.29.3
+CMAKE_MAJOR_VERSION=3.29
+GCC_LIBSTDCXX_VERSION=9.3.0
+ZLIB_VERSION=1.3.1
+OPENSSL_VERSION=3.3.0
+CURL_VERSION=8.7.1
+GIT_VERSION=2.45.0
+SQLITE_VERSION=3450300
+SQLITE_YEAR=2024
 
+# shellcheck source=image/functions.sh
 source /hbb_build/functions.sh
+# shellcheck source=image/activate_func.sh
 source /hbb_build/activate_func.sh
 
+SKIP_INITIALIZE=${SKIP_INITIALIZE:-false}
+SKIP_USERS_GROUPS=${SKIP_USERS_GROUPS:-false}
 SKIP_TOOLS=${SKIP_TOOLS:-false}
 SKIP_LIBS=${SKIP_LIBS:-false}
 SKIP_FINALIZE=${SKIP_FINALIZE:-false}
-SKIP_USERS_GROUPS=${SKIP_USERS_GROUPS:-false}
 
-SKIP_SYSTEM_OPENSSL=${SKIP_SYSTEM_OPENSSL:-$SKIP_TOOLS}
-SKIP_SYSTEM_CURL=${SKIP_SYSTEM_CURL:-$SKIP_TOOLS}
-SKIP_M4=${SKIP_M4:-$SKIP_TOOLS}
-SKIP_AUTOCONF=${SKIP_AUTOCONF:-$SKIP_TOOLS}
-SKIP_AUTOMAKE=${SKIP_AUTOMAKE:-$SKIP_TOOLS}
-SKIP_LIBTOOL=${SKIP_LIBTOOL:-$SKIP_TOOLS}
-SKIP_PKG_CONFIG=${SKIP_PKG_CONFIG:-$SKIP_TOOLS}
 SKIP_CCACHE=${SKIP_CCACHE:-$SKIP_TOOLS}
 SKIP_CMAKE=${SKIP_CMAKE:-$SKIP_TOOLS}
-SKIP_PYTHON=${SKIP_PYTHON:-$SKIP_TOOLS}
+SKIP_GIT=${SKIP_GIT:-$SKIP_TOOLS}
 
 SKIP_LIBSTDCXX=${SKIP_LIBSTDCXX:-$SKIP_LIBS}
 SKIP_ZLIB=${SKIP_ZLIB:-$SKIP_LIBS}
@@ -48,232 +39,37 @@ export PATH=/hbb/bin:$PATH
 
 #########################
 
-header "Initializing"
-run mkdir -p /hbb /hbb/bin
-run cp /hbb_build/libcheck /hbb/bin/
-run cp /hbb_build/hardening-check /hbb/bin/
-run cp /hbb_build/setuser /hbb/bin/
-run cp /hbb_build/activate_func.sh /hbb/activate_func.sh
-run cp /hbb_build/hbb-activate /hbb/activate
-run cp /hbb_build/activate-exec /hbb/activate-exec
+if ! eval_bool "$SKIP_INITIALIZE"; then
+	header "Initializing"
+	run mkdir -p /hbb /hbb/bin
+	run cp /hbb_build/libcheck /hbb/bin/
+	run cp /hbb_build/hardening-check /hbb/bin/
+	run cp /hbb_build/setuser /hbb/bin/
+	run cp /hbb_build/activate_func.sh /hbb/activate_func.sh
+	run cp /hbb_build/hbb-activate /hbb/activate
+	run cp /hbb_build/activate-exec /hbb/activate-exec
 
-if ! eval_bool "$SKIP_USERS_GROUPS"; then
-    run groupadd -g 9327 builder
-    run adduser --uid 9327 --gid 9327 builder
-fi
+	if ! eval_bool "$SKIP_USERS_GROUPS"; then
+		run groupadd -g 9327 builder
+		run adduser --uid 9327 --gid 9327 builder
+	fi
 
-for VARIANT in $VARIANTS; do
-	run mkdir -p /hbb_$VARIANT
-	run cp /hbb_build/activate-exec /hbb_$VARIANT/
-	run cp /hbb_build/variants/$VARIANT.sh /hbb_$VARIANT/activate
-done
+	for VARIANT in $VARIANTS; do
+		run mkdir -p "/hbb_$VARIANT"
+		run cp /hbb_build/activate-exec "/hbb_$VARIANT/"
+		run cp "/hbb_build/variants/$VARIANT.sh" "/hbb_$VARIANT/activate"
+	done
 
-header "Updating system"
-run sed -i.bak -re 's/^(mirrorlist)/#\1/g' -e 's/^#(baseurl)/\1/g' -e 's/mirror(\.centos)/vault\1/g' -e 's|centos/\$releasever/([^/]+)/([^/]+)|5.11/\1/\2|g' /etc/yum.repos.d/CentOS-Base.repo
-rm /etc/yum.repos.d/CentOS-Base.repo.bak
-if [[ -f /etc/yum.repos.d/libselinux.repo ]]; then
-	run sed -i.bak -re 's/^(mirrorlist)/#\1/g' -e 's/^#(baseurl)/\1/g' -e 's/mirror(\.centos)/vault\1/g' -e 's|centos/\$releasever/([^/]+)/([^/]+)|5.11/\1/\2|g' /etc/yum.repos.d/libselinux.repo
-	rm /etc/yum.repos.d/libselinux.repo.bak
-fi
-run yum update -y
-run yum install -y curl epel-release
+	header "Updating system, installing compiler toolchain"
+	run touch /var/lib/rpm/*
+	run yum update -y
+	run yum install -y tar curl curl-devel m4 autoconf automake libtool pkgconfig openssl-devel \
+		file patch bzip2 zlib-devel gettext python2-setuptools python2-devel \
+		epel-release perl-IPC-Cmd
+	run yum install -y python2-pip "gcc-toolset-$DEVTOOLSET_VERSION" "gcc-toolset-$DEVTOOLSET_VERSION-runtime"
 
-header "Installing compiler toolchain"
-cd /etc/yum.repos.d
-# GCC 4.8 for CentOS 5: http://braaten-family.org/ed/blog/2014-05-28-devtools-for-centos/
-run curl -LOS http://people.centos.org/tru/devtools-2/devtools-2.repo
-cd /
-run yum install -y devtoolset-2-gcc devtoolset-2-gcc-c++ devtoolset-2-binutils \
-	make file diffutils patch perl bzip2 which zlib-devel
-source /opt/rh/devtoolset-2/enable
+	echo "*link_gomp: %{static|static-libgcc|static-libstdc++|static-libgfortran: libgomp.a%s; : -lgomp } %{static: -ldl }" > /opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib/gcc/*-redhat-linux/9/libgomp.spec
 
-
-### OpenSSL (system version, so that we can download from HTTPS servers with SNI)
-
-if ! eval_bool "$SKIP_SYSTEM_OPENSSL"; then
-	header "Installing system OpenSSL $OPENSSL_VERSION"
-	# We download from FTP because the OpenSSL in CentOS 5 does not
-	# support the HTTPS crypto suite on https://www.openssl.org.
-	download_and_extract openssl-$OPENSSL_VERSION.tar.gz \
-		openssl-$OPENSSL_VERSION \
-		ftp://ftp.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./config --prefix=/hbb --openssldir=/hbb/openssl threads zlib shared
-		run make
-		run make install_sw
-		run strip --strip-all /hbb/bin/openssl
-		run strip --strip-debug /hbb/lib/libssl.so /hbb/lib/libcrypto.so
-		run rm -f /hbb/lib/libssl.a /hbb/lib/libcrypto.a
-		run ln -s /etc/pki/tls/certs/ca-bundle.crt /hbb/openssl/cert.pem
-	)
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf openssl-$OPENSSL_VERSION
-fi
-
-
-### Curl (system version, so that we can download from HTTPS servers with SNI)
-
-if ! eval_bool "$SKIP_SYSTEM_CURL"; then
-	header "Installing system Curl $CURL_VERSION"
-	# We download from HTTP because the OpenSSL in CentOS 5 does not
-	# support the HTTPS crypto suite on https://curl.haxx.se.
-	download_and_extract curl-$CURL_VERSION.tar.bz2 \
-		curl-$CURL_VERSION \
-		http://curl.askapache.com/download/curl-$CURL_VERSION.tar.bz2
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb --disable-static --disable-debug --enable-optimize \
-			--disable-manual --with-ssl --with-ca-bundle=/etc/pki/tls/certs/ca-bundle.crt
-		run make -j$MAKE_CONCURRENCY
-		run make install
-		run strip --strip-all /hbb/bin/curl
-		run strip --strip-debug /hbb/lib/libcurl.so
-	)
-	if [[ "$?" != 0 ]]; then false; fi
-
-	hash -r
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf curl-$CURL_VERSION
-fi
-
-
-### m4
-
-if ! eval_bool "$SKIP_M4"; then
-	header "Installing m4 $M4_VERSION"
-	download_and_extract m4-$M4_VERSION.tar.gz \
-		m4-$M4_VERSION \
-		http://ftpmirror.gnu.org/m4/m4-$M4_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb --disable-shared --enable-static
-		run make -j$MAKE_CONCURRENCY
-		run make install-strip
-	)
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf m4-$M4_VERSION
-fi
-
-
-### autoconf
-
-if ! eval_bool "$SKIP_AUTOCONF"; then
-	header "Installing autoconf $AUTOCONF_VERSION"
-	download_and_extract autoconf-$AUTOCONF_VERSION.tar.gz \
-		autoconf-$AUTOCONF_VERSION \
-		http://ftpmirror.gnu.org/autoconf/autoconf-$AUTOCONF_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb --disable-shared --enable-static
-		run make -j$MAKE_CONCURRENCY
-		run make install-strip
-	)
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf autoconf-$AUTOCONF_VERSION
-fi
-
-
-### automake
-
-if ! eval_bool "$SKIP_AUTOMAKE"; then
-	header "Installing automake $AUTOMAKE_VERSION"
-	download_and_extract automake-$AUTOMAKE_VERSION.tar.gz \
-		automake-$AUTOMAKE_VERSION \
-		http://ftpmirror.gnu.org/automake/automake-$AUTOMAKE_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb --disable-shared --enable-static
-		run make -j$MAKE_CONCURRENCY
-		run make install-strip
-	)
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf automake-$AUTOMAKE_VERSION
-fi
-
-
-### libtool
-
-if ! eval_bool "$SKIP_LIBTOOL"; then
-	header "Installing libtool $LIBTOOL_VERSION"
-	download_and_extract libtool-$LIBTOOL_VERSION.tar.gz \
-		libtool-$LIBTOOL_VERSION \
-		http://ftpmirror.gnu.org/libtool/libtool-$LIBTOOL_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb --disable-shared --enable-static
-		run make -j$MAKE_CONCURRENCY
-		run make install-strip
-	)
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf libtool-$LIBTOOL_VERSION
-fi
-
-
-### pkg-config
-
-if ! eval_bool "$SKIP_PKG_CONFIG"; then
-	header "Installing pkg-config $PKG_CONFIG_VERSION"
-	download_and_extract pkg-config-$PKG_CONFIG_VERSION.tar.gz \
-		pkg-config-$PKG_CONFIG_VERSION \
-		https://pkgconfig.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb --with-internal-glib
-		run rm -f /hbb/bin/*pkg-config
-		run make -j$MAKE_CONCURRENCY install-strip
-	)
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf pkg-config-$PKG_CONFIG_VERSION
-fi
-
-
-### ccache
-
-if ! eval_bool "$SKIP_CCACHE"; then
-	header "Installing ccache $CCACHE_VERSION"
-	download_and_extract ccache-$CCACHE_VERSION.tar.gz \
-		ccache-$CCACHE_VERSION \
-		http://samba.org/ftp/ccache/ccache-$CCACHE_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb
-		run make -j$MAKE_CONCURRENCY install
-		run strip --strip-all /hbb/bin/ccache
-	)
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf ccache-$CCACHE_VERSION
 fi
 
 
@@ -287,11 +83,13 @@ if ! eval_bool "$SKIP_CMAKE"; then
 
 	(
 		activate_holy_build_box_deps_installation_environment
+		set_default_cflags
 		run ./configure --prefix=/hbb --no-qt-gui --parallel=$MAKE_CONCURRENCY
 		run make -j$MAKE_CONCURRENCY
 		run make install
-		run strip --strip-all /hbb/bin/cmake
+		run strip --strip-all /hbb/bin/cmake /hbb/bin/cpack /hbb/bin/ctest
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -300,36 +98,54 @@ if ! eval_bool "$SKIP_CMAKE"; then
 fi
 
 
-### Python
+### ccache
 
-if ! eval_bool "$SKIP_PYTHON"; then
-	header "Installing Python $PYTHON_VERSION"
-	download_and_extract Python-$PYTHON_VERSION.tgz \
-		Python-$PYTHON_VERSION \
-		https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
+if ! eval_bool "$SKIP_CCACHE"; then
+	header "Installing ccache $CCACHE_VERSION"
+	download_and_extract ccache-$CCACHE_VERSION.tar.gz \
+		ccache-$CCACHE_VERSION \
+		https://github.com/ccache/ccache/releases/download/v$CCACHE_VERSION/ccache-$CCACHE_VERSION.tar.gz
 
 	(
 		activate_holy_build_box_deps_installation_environment
-		run ./configure --prefix=/hbb
-		run make -j$MAKE_CONCURRENCY install
-		run strip --strip-all /hbb/bin/python
-		run strip --strip-debug /hbb/lib/python*/lib-dynload/*.so
+		set_default_cflags
+		run cmake -DREDIS_STORAGE_BACKEND=OFF -DCMAKE_INSTALL_PREFIX="/hbb" -S . -B build
+		run cmake --build build
+		run cmake --install build
+		run strip --strip-all /hbb/bin/ccache
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
-
-	run hash -r
 
 	echo "Leaving source directory"
 	popd >/dev/null
-	run rm -rf Python-$PYTHON_VERSION
+	run rm -rf ccache-$CCACHE_VERSION
+fi
 
-	# Install setuptools and pip
-	echo "Installing setuptools and pip..."
-	run curl -OL --fail https://bootstrap.pypa.io/ez_setup.py
-	run python ez_setup.py
-	run rm -f ez_setup.py
-	run easy_install pip
-	run rm -f /setuptools*.zip
+
+### Git
+
+if ! eval_bool "$SKIP_GIT"; then
+	header "Installing Git $GIT_VERSION"
+	download_and_extract git-$GIT_VERSION.tar.gz \
+		git-$GIT_VERSION \
+		https://www.kernel.org/pub/software/scm/git/git-$GIT_VERSION.tar.gz
+
+	(
+		activate_holy_build_box_deps_installation_environment
+		set_default_cflags
+		run make configure
+		run ./configure --prefix=/hbb --without-tcltk
+		run make -j$MAKE_CONCURRENCY
+		run make install
+		run strip --strip-all /hbb/bin/git
+	)
+	# shellcheck disable=SC2181
+	if [[ "$?" != 0 ]]; then false; fi
+
+	echo "Leaving source directory"
+	popd >/dev/null
+	run rm -rf git-$GIT_VERSION
 fi
 
 
@@ -341,27 +157,52 @@ function install_libstdcxx()
 	local PREFIX="/hbb_$VARIANT"
 
 	header "Installing libstdc++ static libraries: $VARIANT"
-	download_and_extract gcc-$GCC_LIBSTDCXX_VERSION.tar.bz2 \
+	download_and_extract gcc-$GCC_LIBSTDCXX_VERSION.tar.gz \
 		gcc-$GCC_LIBSTDCXX_VERSION \
-		http://ftpmirror.gnu.org/gcc/gcc-$GCC_LIBSTDCXX_VERSION/gcc-$GCC_LIBSTDCXX_VERSION.tar.bz2
+		https://ftpmirror.gnu.org/gcc/gcc-$GCC_LIBSTDCXX_VERSION/gcc-$GCC_LIBSTDCXX_VERSION.tar.gz
 
 	(
+		# shellcheck source=/dev/null
 		source "$PREFIX/activate"
 		run rm -rf ../gcc-build
 		run mkdir ../gcc-build
 		echo "+ Entering /gcc-build"
 		cd ../gcc-build
 
-		export CFLAGS="$STATICLIB_CFLAGS"
-		export CXXFLAGS="$STATICLIB_CXXFLAGS"
+		# shellcheck disable=SC2030
+		CFLAGS=$(adjust_optimization_level "$STATICLIB_CFLAGS")
+		export CFLAGS
+
+		# The libstdc++ build system has a bug. In order for it to enable C++11 thread
+		# support, it checks for gthreads (part of libgcc) support. This is done by checking
+		# whether gthr.h can be found and compiled. gthr.h in turn includes gthr-default.h,
+		# which is autogenerated at the end of the configure script and placed in include/bits.
+		#
+		# Therefore we need to run configure twice. The first time to generate include/bits/gthr-default.h,
+		# which allows the second configure run to detect gthreads support.
+		#
+		# https://github.com/FooBarWidget/holy-build-box/issues/19
+
+		# shellcheck disable=SC2030
+		CXXFLAGS=$(adjust_optimization_level "$STATICLIB_CXXFLAGS -Iinclude/bits")
+		export CXXFLAGS
+
 		../gcc-$GCC_LIBSTDCXX_VERSION/libstdc++-v3/configure \
-			--prefix=$PREFIX --disable-multilib \
+			--prefix="$PREFIX" --disable-multilib \
 			--disable-libstdcxx-visibility --disable-shared
+		../gcc-$GCC_LIBSTDCXX_VERSION/libstdc++-v3/configure \
+			--prefix="$PREFIX" --disable-multilib \
+			--disable-libstdcxx-visibility --disable-shared
+
+		# Assert that C++11 thread support is enabled.
+		run grep -q '^#define _GLIBCXX_HAS_GTHREADS 1$' config.h
+
 		run make -j$MAKE_CONCURRENCY
-		run mkdir -p $PREFIX/lib
-		run cp src/.libs/libstdc++.a $PREFIX/lib/
-		run cp libsupc++/.libs/libsupc++.a $PREFIX/lib/
+		run mkdir -p "$PREFIX/lib"
+		run cp src/.libs/libstdc++.a "$PREFIX/lib/"
+		run cp libsupc++/.libs/libsupc++.a "$PREFIX/lib/"
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -372,7 +213,7 @@ function install_libstdcxx()
 
 if ! eval_bool "$SKIP_LIBSTDCXX"; then
 	for VARIANT in $VARIANTS; do
-		install_libstdcxx $VARIANT
+		install_libstdcxx "$VARIANT"
 	done
 fi
 
@@ -387,15 +228,19 @@ function install_zlib()
 	header "Installing zlib $ZLIB_VERSION static libraries: $VARIANT"
 	download_and_extract zlib-$ZLIB_VERSION.tar.gz \
 		zlib-$ZLIB_VERSION \
-		http://zlib.net/fossils/zlib-$ZLIB_VERSION.tar.gz
+		https://zlib.net/fossils/zlib-$ZLIB_VERSION.tar.gz
 
 	(
+		# shellcheck source=/dev/null
 		source "$PREFIX/activate"
-		export CFLAGS="$STATICLIB_CFLAGS"
-		run ./configure --prefix=$PREFIX --static
+		# shellcheck disable=SC2030,SC2031
+		CFLAGS=$(adjust_optimization_level "$STATICLIB_CFLAGS")
+		export CFLAGS
+		run ./configure --prefix="$PREFIX" --static
 		run make -j$MAKE_CONCURRENCY
 		run make install
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -405,7 +250,7 @@ function install_zlib()
 
 if ! eval_bool "$SKIP_ZLIB"; then
 	for VARIANT in $VARIANTS; do
-		install_zlib $VARIANT
+		install_zlib "$VARIANT"
 	done
 fi
 
@@ -420,32 +265,34 @@ function install_openssl()
 	header "Installing OpenSSL $OPENSSL_VERSION static libraries: $PREFIX"
 	download_and_extract openssl-$OPENSSL_VERSION.tar.gz \
 		openssl-$OPENSSL_VERSION \
-		http://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz
+		https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz
 
 	(
+		set -o pipefail
+
+		# shellcheck source=/dev/null
 		source "$PREFIX/activate"
 
-		# OpenSSL already passes optimization flags regardless of CFLAGS
-		export CFLAGS=`echo "$STATICLIB_CFLAGS" | sed 's/-O2//'`
-		run ./config --prefix=$PREFIX --openssldir=$PREFIX/openssl \
-			threads zlib no-shared no-sse2 $CFLAGS $LDFLAGS
+		# shellcheck disable=SC2030,SC2001
+		CFLAGS=$(adjust_optimization_level "$STATICLIB_CFLAGS")
+		export CFLAGS
 
-		if ! $O3_ALLOWED; then
-			echo "+ Modifying Makefiles"
-			find . -name Makefile | xargs sed -i -e 's|-O3|-O2|g'
-		fi
-
+		# shellcheck disable=SC2086
+		run ./Configure "linux-$(uname -m)" \
+		    --prefix="$PREFIX" --openssldir="$PREFIX/openssl" \
+		    threads zlib no-shared no-sse2 -fvisibility=hidden $CFLAGS $LDFLAGS
 		run make
 		run make install_sw
 		run strip --strip-all "$PREFIX/bin/openssl"
 		if [[ "$VARIANT" = exe_gc_hardened ]]; then
 			run hardening-check -b "$PREFIX/bin/openssl"
 		fi
-		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lssl -lcrypto -ldl/' $PREFIX/lib/pkgconfig/openssl.pc
-		run sed -i 's/^Libs.private:.*/Libs.private: -L${libdir} -lssl -lcrypto -ldl -lz/' $PREFIX/lib/pkgconfig/openssl.pc
-		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lssl -lcrypto -ldl/' $PREFIX/lib/pkgconfig/libssl.pc
-		run sed -i 's/^Libs.private:.*/Libs.private: -L${libdir} -lssl -lcrypto -ldl -lz/' $PREFIX/lib/pkgconfig/libssl.pc
+
+		# shellcheck disable=SC2016
+		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lcrypto -lz -ldl -lpthread/' "$PREFIX"/lib/pkgconfig/libcrypto.pc
+		run sed -i '/^Libs.private:.*/d' "$PREFIX"/lib/pkgconfig/libcrypto.pc
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -455,11 +302,11 @@ function install_openssl()
 
 if ! eval_bool "$SKIP_OPENSSL"; then
 	for VARIANT in $VARIANTS; do
-		install_openssl $VARIANT
+		install_openssl "$VARIANT"
 	done
 	run mv /hbb_exe_gc_hardened/bin/openssl /hbb/bin/
 	for VARIANT in $VARIANTS; do
-		run rm -f /hbb_$VARIANT/bin/openssl
+		run rm -f "/hbb_$VARIANT/bin/openssl"
 	done
 fi
 
@@ -472,19 +319,22 @@ function install_curl()
 	local PREFIX="/hbb_$VARIANT"
 
 	header "Installing Curl $CURL_VERSION static libraries: $PREFIX"
-	download_and_extract curl-$CURL_VERSION.tar.gz \
+	download_and_extract curl-$CURL_VERSION.tar.bz2 \
 		curl-$CURL_VERSION \
-		http://curl.haxx.se/download/curl-$CURL_VERSION.tar.bz2
+		https://curl.se/download/curl-$CURL_VERSION.tar.bz2
 
 	(
+		# shellcheck source=/dev/null
 		source "$PREFIX/activate"
-		export CFLAGS="$STATICLIB_CFLAGS"
+		# shellcheck disable=SC2030,SC2031
+		CFLAGS=$(adjust_optimization_level "$STATICLIB_CFLAGS")
+		export CFLAGS
 		./configure --prefix="$PREFIX" --disable-shared --disable-debug --enable-optimize --disable-werror \
 			--disable-curldebug --enable-symbol-hiding --disable-ares --disable-manual --disable-ldap --disable-ldaps \
 			--disable-rtsp --disable-dict --disable-ftp --disable-ftps --disable-gopher --disable-imap \
 			--disable-imaps --disable-pop3 --disable-pop3s --without-librtmp --disable-smtp --disable-smtps \
 			--disable-telnet --disable-tftp --disable-smb --disable-versioned-symbols \
-			--without-libmetalink --without-libidn --without-libssh2 --without-libmetalink --without-nghttp2 \
+			--without-libidn --without-libssh2 --without-nghttp2 \
 			--with-ssl
 		run make -j$MAKE_CONCURRENCY
 		run make install
@@ -493,6 +343,7 @@ function install_curl()
 		fi
 		run rm -f "$PREFIX/bin/curl"
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -502,7 +353,7 @@ function install_curl()
 
 if ! eval_bool "$SKIP_CURL"; then
 	for VARIANT in $VARIANTS; do
-		install_curl $VARIANT
+		install_curl "$VARIANT"
 	done
 fi
 
@@ -517,12 +368,17 @@ function install_sqlite()
 	header "Installing SQLite $SQLITE_VERSION static libraries: $PREFIX"
 	download_and_extract sqlite-autoconf-$SQLITE_VERSION.tar.gz \
 		sqlite-autoconf-$SQLITE_VERSION \
-		http://www.sqlite.org/$SQLITE_YEAR/sqlite-autoconf-$SQLITE_VERSION.tar.gz
+		https://www.sqlite.org/$SQLITE_YEAR/sqlite-autoconf-$SQLITE_VERSION.tar.gz
 
 	(
+		# shellcheck source=/dev/null
 		source "$PREFIX/activate"
-		export CFLAGS="$STATICLIB_CFLAGS"
-		export CXXFLAGS="$STATICLIB_CXXFLAGS"
+		# shellcheck disable=SC2031
+		CFLAGS=$(adjust_optimization_level "$STATICLIB_CFLAGS")
+		# shellcheck disable=SC2031
+		CXXFLAGS=$(adjust_optimization_level "$STATICLIB_CXXFLAGS")
+		export CFLAGS
+		export CXXFLAGS
 		run ./configure --prefix="$PREFIX" --enable-static \
 			--disable-shared --disable-dynamic-extensions
 		run make -j$MAKE_CONCURRENCY
@@ -532,6 +388,7 @@ function install_sqlite()
 		fi
 		run strip --strip-all "$PREFIX/bin/sqlite3"
 	)
+	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
 
 	echo "Leaving source directory"
@@ -541,11 +398,11 @@ function install_sqlite()
 
 if ! eval_bool "$SKIP_SQLITE"; then
 	for VARIANT in $VARIANTS; do
-		install_sqlite $VARIANT
+		install_sqlite "$VARIANT"
 	done
 	run mv /hbb_exe_gc_hardened/bin/sqlite3 /hbb/bin/
 	for VARIANT in $VARIANTS; do
-		run rm -f /hbb_$VARIANT/bin/sqlite3
+		run rm -f "/hbb_$VARIANT/bin/sqlite3"
 	done
 fi
 
@@ -558,6 +415,6 @@ if ! eval_bool "$SKIP_FINALIZE"; then
 	run rm -rf /hbb/share/doc /hbb/share/man
 	run rm -rf /hbb_build /tmp/*
 	for VARIANT in $VARIANTS; do
-		run rm -rf /hbb_$VARIANT/share/doc /hbb_$VARIANT/share/man
+		run rm -rf "/hbb_$VARIANT/share/doc" "/hbb_$VARIANT/share/man"
 	done
 fi
