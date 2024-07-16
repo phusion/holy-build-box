@@ -15,7 +15,6 @@ source /hbb_build/activate_func.sh
 
 SKIP_INITIALIZE=${SKIP_INITIALIZE:-false}
 SKIP_USERS_GROUPS=${SKIP_USERS_GROUPS:-false}
-SKIP_TOOLS=${SKIP_TOOLS:-false}
 SKIP_LIBS=${SKIP_LIBS:-false}
 SKIP_FINALIZE=${SKIP_FINALIZE:-false}
 
@@ -62,7 +61,6 @@ if ! eval_bool "$SKIP_INITIALIZE"; then
 	run yum install -y --enablerepo=epel ccache
 
 	echo "*link_gomp: %{static|static-libgcc|static-libstdc++|static-libgfortran: libgomp.a%s; : -lgomp } %{static: -ldl }" > /opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib/gcc/*-redhat-linux/9/libgomp.spec
-
 fi
 
 
