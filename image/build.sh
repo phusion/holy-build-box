@@ -56,9 +56,9 @@ if ! eval_bool "$SKIP_INITIALIZE"; then
 	run touch /var/lib/rpm/*
 	run yum update -y
 	run yum install -y autoconf automake bzip2 cmake curl curl-devel epel-release \
-	    file gettext git libtool m4 openssl-devel patch perl-IPC-Cmd \
-	    pkgconfig python2-devel python2-pip python2-setuptools \
-	    tar zlib-devel "gcc-toolset-$DEVTOOLSET_VERSION" "gcc-toolset-$DEVTOOLSET_VERSION-runtime"
+		file gettext git libtool m4 openssl-devel patch perl-IPC-Cmd \
+		pkgconfig python2-devel python2-pip python2-setuptools \
+		tar zlib-devel "gcc-toolset-$DEVTOOLSET_VERSION" "gcc-toolset-$DEVTOOLSET_VERSION-runtime"
 	run yum install -y --enablerepo=epel ccache
 
 	echo "*link_gomp: %{static|static-libgcc|static-libstdc++|static-libgfortran: libgomp.a%s; : -lgomp } %{static: -ldl }" > /opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib/gcc/*-redhat-linux/9/libgomp.spec
@@ -202,8 +202,8 @@ function install_openssl()
 
 		# shellcheck disable=SC2086
 		run ./Configure "linux-$(uname -m)" \
-		    --prefix="$PREFIX" --openssldir="$PREFIX/openssl" \
-		    threads zlib no-shared no-sse2 no-legacy no-tests
+			--prefix="$PREFIX" --openssldir="$PREFIX/openssl" \
+			threads zlib no-shared no-sse2 no-legacy no-tests
 
 		# Force Make to use the environment variables instead
 		run sed -i "s|^LIB_CFLAGS=.*||" Makefile
