@@ -196,14 +196,28 @@ function install_openssl()
 		# shellcheck disable=SC2030,SC2001
 		CFLAGS=$(adjust_optimization_level "$STATICLIB_CFLAGS")
 		export CFLAGS
+		# shellcheck disable=SC2153
+		export LIB_CFLAGS="$SHLIB_CFLAGS"
+		# shellcheck disable=SC2153
+		export LIB_LDFLAGS="-Wl,-znodelete -shared -Wl,-Bsymbolic $SHLIB_LDFLAGS"
+		export DSO_CFLAGS="$SHLIB_CFLAGS"
+		export DSO_LDFLAGS="-Wl,-z,defs -Wl,-znodelete -shared -Wl,-Bsymbolic $SHLIB_LDFLAGS"
 
 		# shellcheck disable=SC2086
 		run ./Configure "linux-$(uname -m)" \
 		    --prefix="$PREFIX" --openssldir="$PREFIX/openssl" \
-		    threads zlib no-shared no-sse2 -fvisibility=hidden $CFLAGS $LDFLAGS
-		run make
+		    threads zlib no-shared no-sse2 no-legacy no-tests
+
+		# Force Make to use the environment variables instead
+		run sed -i "s|^LIB_CFLAGS=.*||" Makefile
+		run sed -i "s|^LIB_LDFLAGS=.*||" Makefile
+		run sed -i "s|^DSO_CFLAGS=.*||" Makefile
+		run sed -i "s|^DSO_LDFLAGS=.*||" Makefile
+
+		run make "-j$MAKE_CONCURRENCY"
 		run make install_sw
 		run strip --strip-all "$PREFIX/bin/openssl"
+		run strip --strip-all "$PREFIX/bin/c_rehash"
 		if [[ "$VARIANT" = exe_gc_hardened ]]; then
 			run hardening-check -b "$PREFIX/bin/openssl"
 		fi
