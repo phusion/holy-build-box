@@ -83,28 +83,28 @@ Holy Build Box partially solves problem #1 and #3 by providing static versions o
 
 ### Isolated build environment based on Docker and CentOS 7
 
-The Holy Build Box environment is built on CentOS 7. This allows it to produce binaries that work on pretty much any amd64 or arm64 Linux distribution released since 2015. The only currently-prominent Linux distribution that the produced binaries may not run on, is Alpine Linux. [See the FAQ entry.](#which-linux-distributions-do-binaries-compiled-with-holy-build-box-support)
+The Holy Build Box environment is built on Enterprise Linux 8. This allows it to produce binaries that work on pretty much any amd64 or arm64 Linux distribution released since 2020. The only currently-prominent Linux distribution that the produced binaries may not run on, is Alpine Linux. [See the FAQ entry.](#which-linux-distributions-do-binaries-compiled-with-holy-build-box-support)
 
-The environment is bare-bones with almost nothing installed. Besides the basics, only a compiler toolchain is provided. The toolchain is more recent than the one provided by CentOS 7.
+The environment is bare-bones with almost nothing installed. Besides the basics, only a compiler toolchain is provided. The toolchain is more recent than the one provided by Enterprise Linux 8.
 
- * GCC 9.3.1 (C and C++ support; in particular, C++14 is supported)
+ * GCC 9.2.1 (C and C++ support; in particular, C++14 is supported)
  * GNU make
- * autoconf 2.69
- * automake 1.13.4
- * libtool 2.4.2
- * pkg-config 0.29.2
- * ccache 3.7.12
- * CMake 3.19.3
- * Python 2.7.5 (+ setuptools and pip)
+ * autoconf
+ * automake
+ * libtool
+ * pkg-config
+ * ccache
+ * CMake
+ * Python 2.7 (+ setuptools and pip)
 
 ### Included static libraries
 
 Holy Build Box also includes static versions of certain libraries. These libraries are more recent than the ones shipped with CentOS 7.
 
- * zlib 1.2.11
- * OpenSSL 1.1.1i
- * curl and libcurl 7.74.0
- * SQLite 2020-3340000
+ * zlib 1.3.1
+ * OpenSSL 3.3.0
+ * curl and libcurl 8.7.1
+ * SQLite 2024-3450300
 
 These libraries are provided in multiple variants, each compiled with different compilation flags. The different variants will be covered with in [Tutorial 5: Using library variants](TUTORIAL-5-LIBRARY-VARIANTS.md) and in the [Library variants](LIBRARY-VARIANTS.md) guide.
 
@@ -213,12 +213,11 @@ macOS is not supported. Windows is not supported. Other Unices are not supported
 
 ### Which Linux distributions do binaries compiled with Holy Build Box support?
 
-Binaries work on pretty much any glibc-2.17-or-later-based amd64 or arm64 Linux distribution released since approx 2015. A non-exhaustive list:
+Binaries work on pretty much any glibc-2.28-or-later-based amd64 or arm64 Linux distribution released since approx 2015. A non-exhaustive list:
 
- * Debian >= 8
- * Ubuntu >= 14.06
- * Red Hat Enterprise Linux >= 7
- * CentOS >= 7
+ * Debian >= 10
+ * Ubuntu >= 20.04
+ * Red Hat Enterprise Linux >= 8
 
 Note the mention "glibc-based". Binaries may not be compatible with Linux distributions not based on glibc. For example, early versions of Alpine Linux were based on uclibc, which was not compatible with glibc at all. Later versions of Alpine Linux are based on musl, which is *somewhat* compatible with glibc. So produced binaries may or may not run on later versions of Alpine Linux.
 

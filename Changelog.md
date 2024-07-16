@@ -1,3 +1,19 @@
+## Version 4.0.0 (not yet released)
+
+ * Moves to Enterprise Linux 8 now that CentOS 7 is EOL. This makes binaries compatible with Linux distributions that have glibc >= 2.28. This means compatibility with Linux distributions released around 2020, such as:
+
+    - Ubuntu 20.04
+    - Debian 10
+
+ * Upgrades tools and libraries:
+
+    - zlib 1.2.12 -> 1.3.1
+    - libcurl 7.81.0 -> 8.7.1
+    - SQLite 3.37.2 -> 3.45.3
+    - OpenSSL 1.1.1m -> 3.3.0
+
+   Note: we now use CMake, Git and ccache from Enterprise Linux 8's repositories. We no longer install our own versions.
+
 ## Version 3.0.5 (release date 2022-04-12)
 
  * Upgrades zlib 1.2.11 -> 1.2.12. Fixes [CVE-2018-25032](https://github.com/advisories/GHSA-jc36-42cf-vqwj), closes #55.
