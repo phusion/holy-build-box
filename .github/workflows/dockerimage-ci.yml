@@ -18,14 +18,15 @@ on:
     branches:
       - master
       - fork/master
+      - el8_migration
 
 jobs:
   code_check:
     name: Code checks
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
-      - uses: ludeeus/action-shellcheck@94e0aab03ca135d11a35e5bfc14e6746dc56e7e9
+      - uses: actions/checkout@v4
+      - uses: ludeeus/action-shellcheck@2.0.0
         env:
           SHELLCHECK_OPTS: -x
       - name: Install eclint
@@ -37,11 +38,18 @@ jobs:
     name: "Test Build Docker images"
     if: github.event_name == 'pull_request' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch:
+          - 'amd64'
+          - 'arm64'
+    env:
+      BUILD_AMD64: ${{ fromJSON('[0, 1]')[matrix.arch == 'amd64'] }}
+      BUILD_ARM64: ${{ fromJSON('[0, 1]')[matrix.arch == 'arm64'] }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set lower case repository owner name
-      run: |
-        echo "OWNER_LC=${OWNER,,}" >>"$GITHUB_ENV"
+      run: echo "OWNER_LC=${OWNER,,}" >> "$GITHUB_ENV"
       env:
         OWNER: '${{ github.repository_owner }}'
     - name: Build the Docker images
@@ -51,15 +59,22 @@ jobs:
     name: "Build edge Docker images"
     if: github.event_name != 'create' && github.event_name != 'pull_request' && github.event_name != 'schedule'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch:
+          - 'amd64'
+          - 'arm64'
+    env:
+      BUILD_AMD64: ${{ fromJSON('[0, 1]')[matrix.arch == 'amd64'] }}
+      BUILD_ARM64: ${{ fromJSON('[0, 1]')[matrix.arch == 'arm64'] }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set lower case repository owner name
-      run: |
-        echo "OWNER_LC=${OWNER,,}" >>"$GITHUB_ENV"
+      run: echo "OWNER_LC=${OWNER,,}" >> "$GITHUB_ENV"
       env:
         OWNER: '${{ github.repository_owner }}'
     - name: Log in to the Container registry
-      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      uses: docker/login-action@v3
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
@@ -73,25 +88,32 @@ jobs:
     name: "Build release Docker images"
     if: github.event_name == 'create' && github.event.ref_type == 'tag'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch:
+          - 'amd64'
+          - 'arm64'
+    env:
+      BUILD_AMD64: ${{ fromJSON('[0, 1]')[matrix.arch == 'amd64'] }}
+      BUILD_ARM64: ${{ fromJSON('[0, 1]')[matrix.arch == 'arm64'] }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set lower case repository owner name
-      run: |
-        echo "OWNER_LC=${OWNER,,}" >>"$GITHUB_ENV"
+      run: echo "OWNER_LC=${OWNER,,}" >> "$GITHUB_ENV"
       env:
         OWNER: '${{ github.repository_owner }}'
-    - name: Check tag
+    - name: Check versions match (Makefile & git-tag)
       run: |
-        VERSION1=$(grep '^VERSION = ' Makefile | sed 's|.*= *||')
-        VERSION2=$(sed 's|^rel-||' <<< "$TAG")
-        if [[ "$VERSION1" != "$VERSION2" ]]; then
-          echo "ERROR: version in Makefile ($VERSION1) doesn't match Git tag ($VERSION2)"
+        MAKEFILE_VERSION=$(grep '^VERSION = ' Makefile | sed 's|.*= *||')
+        GIT_TAG_VERSION=$(sed 's|^rel-||' <<< "$TAG")
+        if [[ "MAKEFILE_$VERSION" != "$GIT_TAG_VERSION" ]]; then
+          echo "ERROR: version in Makefile ($MAKEFILE_VERSION) doesn't match Git tag ($GIT_TAG_VERSION)"
           exit 1
         fi
       env:
         TAG: ${{ github.event.ref }}
     - name: Log in to the Container registry
-      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      uses: docker/login-action@v3
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
