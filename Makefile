@@ -2,9 +2,14 @@ VERSION = 4.0.0
 ifneq ($VERSION, edge)
 MAJOR_VERSION := $(shell awk -v OFS=. -F. '{print $$1,$$2}' <<< $(VERSION))
 endif
+ifeq ($(GITHUB_ACTIONS),true)
+IMG_REPO = ghcr.io
+else
+IMG_REPO = docker.io
+endif
 OWNER = phusion
 DISABLE_OPTIMIZATIONS = 0
-IMAGE = $(OWNER)/holy-build-box
+IMAGE = $(IMG_REPO)/$(OWNER)/holy-build-box
 
 .PHONY: build test tags push release
 
