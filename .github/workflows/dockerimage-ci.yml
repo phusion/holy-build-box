@@ -54,6 +54,8 @@ jobs:
         OWNER: '${{ github.repository_owner }}'
     - name: Enable docker multiarch
       run: 'docker run --privileged --rm tonistiigi/binfmt --install all'
+    - name: Fix docker logs
+      run: docker buildx create --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=-1,env.BUILDKIT_STEP_LOG_MAX_SPEED=-1,default-load=true --use
     - name: Build the Docker images
       run: make DISABLE_OPTIMIZATIONS=1 "OWNER=$OWNER_LC"
 
@@ -83,6 +85,8 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Enable docker multiarch
       run: 'docker run --privileged --rm tonistiigi/binfmt --install all'
+    - name: Fix docker logs
+      run: docker buildx create --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=-1,env.BUILDKIT_STEP_LOG_MAX_SPEED=-1,default-load=true --use
     - name: Build the Docker images
       run: make "OWNER=$OWNER_LC" VERSION=edge
     - name: Push the Docker images
@@ -124,6 +128,8 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Enable docker multiarch
       run: 'docker run --privileged --rm tonistiigi/binfmt --install all'
+    - name: Fix docker logs
+      run: docker buildx create --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=-1,env.BUILDKIT_STEP_LOG_MAX_SPEED=-1,default-load=true --use
     - name: Build the Docker images
       run: make build "OWNER=$OWNER_LC"
     - name: Tag and push the Docker images
