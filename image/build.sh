@@ -19,10 +19,6 @@ SKIP_TOOLS=${SKIP_TOOLS:-false}
 SKIP_LIBS=${SKIP_LIBS:-false}
 SKIP_FINALIZE=${SKIP_FINALIZE:-false}
 
-SKIP_CCACHE=${SKIP_CCACHE:-$SKIP_TOOLS}
-SKIP_CMAKE=${SKIP_CMAKE:-$SKIP_TOOLS}
-SKIP_GIT=${SKIP_GIT:-$SKIP_TOOLS}
-
 SKIP_LIBSTDCXX=${SKIP_LIBSTDCXX:-$SKIP_LIBS}
 SKIP_ZLIB=${SKIP_ZLIB:-$SKIP_LIBS}
 SKIP_OPENSSL=${SKIP_OPENSSL:-$SKIP_LIBS}
@@ -59,10 +55,11 @@ if ! eval_bool "$SKIP_INITIALIZE"; then
 	header "Updating system, installing compiler toolchain"
 	run touch /var/lib/rpm/*
 	run yum update -y
-	run yum install -y tar curl curl-devel m4 autoconf automake libtool pkgconfig openssl-devel \
-		cmake ccache git file patch bzip2 zlib-devel gettext python2-setuptools python2-devel \
-		epel-release perl-IPC-Cmd
-	run yum install -y python2-pip "gcc-toolset-$DEVTOOLSET_VERSION" "gcc-toolset-$DEVTOOLSET_VERSION-runtime"
+	run yum install -y autoconf automake bzip2 cmake curl curl-devel epel-release \
+	    file gettext git libtool m4 openssl-devel patch perl-IPC-Cmd \
+	    pkgconfig python2-devel python2-pip python2-setuptools \
+	    tar zlib-devel "gcc-toolset-$DEVTOOLSET_VERSION" "gcc-toolset-$DEVTOOLSET_VERSION-runtime"
+	run yum install -y --enablerepo=epel ccache
 
 	echo "*link_gomp: %{static|static-libgcc|static-libstdc++|static-libgfortran: libgomp.a%s; : -lgomp } %{static: -ldl }" > /opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib/gcc/*-redhat-linux/9/libgomp.spec
 
