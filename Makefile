@@ -27,10 +27,10 @@ endif
 
 build:
 ifeq ($(_build_amd64),1)
-	docker buildx build --platform "linux/amd64" --rm -t $(IMAGE)-amd64:$(VERSION) --pull --build-arg DISABLE_OPTIMIZATIONS=$(DISABLE_OPTIMIZATIONS) .
+	docker buildx build --load --platform "linux/amd64" --rm -t $(IMAGE):$(VERSION)-amd64 --pull --build-arg DISABLE_OPTIMIZATIONS=$(DISABLE_OPTIMIZATIONS) .
 endif
 ifeq ($(_build_arm64),1)
-	docker buildx build --platform "linux/arm64" --rm -t $(IMAGE)-arm64:$(VERSION) --pull --build-arg DISABLE_OPTIMIZATIONS=$(DISABLE_OPTIMIZATIONS) .
+	docker buildx build --load --platform "linux/arm64" --rm -t $(IMAGE):$(VERSION)-arm64 --pull --build-arg DISABLE_OPTIMIZATIONS=$(DISABLE_OPTIMIZATIONS) .
 endif
 
 test:
@@ -81,11 +81,11 @@ endif
 
 release: push
 	docker manifest create $(IMAGE):$(VERSION) $(IMAGE):$(VERSION)-amd64 $(IMAGE):$(VERSION)-arm64
+	docker manifest push $(IMAGE):$(VERSION)
 ifdef MAJOR_VERSION
 	docker manifest create $(IMAGE):$(MAJOR_VERSION) $(IMAGE):$(MAJOR_VERSION)-amd64 $(IMAGE):$(MAJOR_VERSION)-arm64
 	docker manifest create $(IMAGE):latest $(IMAGE):latest-amd64 $(IMAGE):latest-arm64
 	docker manifest push $(IMAGE):$(MAJOR_VERSION)
-endif
-	docker manifest push $(IMAGE):$(VERSION)
 	docker manifest push $(IMAGE):latest
 	@echo "*** Don't forget to create a tag. git tag rel-$(VERSION) && git push origin rel-$(VERSION)"
+endif

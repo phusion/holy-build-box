@@ -88,9 +88,9 @@ jobs:
     - name: Fix docker logs
       run: docker buildx create --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=-1,env.BUILDKIT_STEP_LOG_MAX_SPEED=-1,default-load=true --use
     - name: Build the Docker images
-      run: make "OWNER=$OWNER_LC" VERSION=edge
+      run: make "OWNER=$OWNER_LC" VERSION=edge build
     - name: Push the Docker images
-      run: docker push "ghcr.io/$OWNER_LC/holy-build-box:edge"
+      run: make "OWNER=$OWNER_LC" VERSION=edge push
 
   build_release:
     name: "Build release Docker images"
