@@ -217,8 +217,8 @@ function install_openssl()
 		fi
 
 		# shellcheck disable=SC2016
-		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lcrypto -lz -ldl -lpthread/' "$PREFIX"/lib64/pkgconfig/libcrypto.pc
-		run sed -i '/^Libs.private:/d'                                         "$PREFIX"/lib64/pkgconfig/libcrypto.pc
+		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lcrypto -lz -ldl -lpthread/' "$PREFIX"/lib*/pkgconfig/libcrypto.pc
+		run sed -i '/^Libs.private:/d'                                         "$PREFIX"/lib*/pkgconfig/libcrypto.pc
 	)
 	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
