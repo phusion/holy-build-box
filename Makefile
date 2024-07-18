@@ -11,7 +11,7 @@ OWNER = phusion
 DISABLE_OPTIMIZATIONS = 0
 IMAGE = $(IMG_REPO)/$(OWNER)/holy-build-box
 
-.PHONY: build_amd64 test_amd64 tags_amd64 push_amd64 build_arm64 test_arm64 tags_arm64 push_arm64 release
+.PHONY: build_amd64 test_amd64 tags_amd64 push_amd64 build_arm64 test_arm64 tags_arm64 push_arm64 export_amd64 export_arm64 release
 
 build_amd64:
 	docker buildx build --load --platform "linux/amd64" --rm -t $(IMAGE):$(VERSION)-amd64 --pull --build-arg DISABLE_OPTIMIZATIONS=$(DISABLE_OPTIMIZATIONS) .
@@ -50,6 +50,12 @@ ifdef MAJOR_VERSION
 	docker push $(IMAGE):$(MAJOR_VERSION)-arm64
 	docker push $(IMAGE):latest-arm64
 endif
+
+export_amd64: tags_amd64
+	docker save -o hbb_amd64.tar $(IMAGE):$(VERSION)-amd64
+
+export_arm64: tags_arm64
+	docker save -o hbb_arm64.tar $(IMAGE):$(VERSION)-arm64
 
 release: push_amd64 push_arm64
 	docker manifest create $(IMAGE):$(VERSION) $(IMAGE):$(VERSION)-amd64 $(IMAGE):$(VERSION)-arm64
