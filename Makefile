@@ -11,75 +11,47 @@ OWNER = phusion
 DISABLE_OPTIMIZATIONS = 0
 IMAGE = $(IMG_REPO)/$(OWNER)/holy-build-box
 
-.PHONY: build test tags push release
+.PHONY: build_amd64 test_amd64 tags_amd64 push_amd64 build_arm64 test_arm64 tags_arm64 push_arm64 release
 
-ifeq ($(BUILD_AMD64),0)
-_build_amd64 := 0
-else
-_build_amd64 := 1
-endif
-
-ifeq ($(BUILD_ARM64),0)
-_build_arm64 := 0
-else
-_build_arm64 := 1
-endif
-
-build:
-ifeq ($(_build_amd64),1)
+build_amd64:
 	docker buildx build --load --platform "linux/amd64" --rm -t $(IMAGE):$(VERSION)-amd64 --pull --build-arg DISABLE_OPTIMIZATIONS=$(DISABLE_OPTIMIZATIONS) .
-endif
-ifeq ($(_build_arm64),1)
+
+build_arm64:
 	docker buildx build --load --platform "linux/arm64" --rm -t $(IMAGE):$(VERSION)-arm64 --pull --build-arg DISABLE_OPTIMIZATIONS=$(DISABLE_OPTIMIZATIONS) .
-endif
 
-test:
-ifeq ($(_build_amd64),1)
+test_amd64:
 	docker run -it --platform "linux/amd64" --rm -e SKIP_FINALIZE=1 -e DISABLE_OPTIMIZATIONS=1 -v $$(pwd)/image:/hbb_build:ro rockylinux:8 bash /hbb_build/build.sh
-endif
-ifeq ($(_build_arm64),1)
-	docker run -it --platform "linux/arm64" --rm -e SKIP_FINALIZE=1 -e DISABLE_OPTIMIZATIONS=1 -v $$(pwd)/image:/hbb_build:ro rockylinux:8 bash /hbb_build/build.sh
-endif
 
-tags:
+test_arm64:
+	docker run -it --platform "linux/arm64" --rm -e SKIP_FINALIZE=1 -e DISABLE_OPTIMIZATIONS=1 -v $$(pwd)/image:/hbb_build:ro rockylinux:8 bash /hbb_build/build.sh
+
+tags_amd64:
 ifdef MAJOR_VERSION
-ifeq ($(_build_amd64),1)
 	docker tag $(IMAGE):$(VERSION)-amd64 $(IMAGE):$(MAJOR_VERSION)-amd64
-endif
-ifeq ($(_build_arm64),1)
-	docker tag $(IMAGE):$(VERSION)-arm64 $(IMAGE):$(MAJOR_VERSION)-arm64
-endif
-ifeq ($(_build_amd64),1)
 	docker tag $(IMAGE):$(VERSION)-amd64 $(IMAGE):latest-amd64
 endif
-ifeq ($(_build_arm64),1)
+
+tags_arm64:
+ifdef MAJOR_VERSION
+	docker tag $(IMAGE):$(VERSION)-arm64 $(IMAGE):$(MAJOR_VERSION)-arm64
 	docker tag $(IMAGE):$(VERSION)-arm64 $(IMAGE):latest-arm64
 endif
-endif
 
-push: tags
-ifeq ($(_build_amd64),1)
+push_amd64: tags_amd64
 	docker push $(IMAGE):$(VERSION)-amd64
-endif
-ifeq ($(_build_arm64),1)
-	docker push $(IMAGE):$(VERSION)-arm64
-endif
 ifdef MAJOR_VERSION
-ifeq ($(_build_amd64),1)
 	docker push $(IMAGE):$(MAJOR_VERSION)-amd64
-endif
-ifeq ($(_build_arm64),1)
-	docker push $(IMAGE):$(MAJOR_VERSION)-arm64
-endif
-ifeq ($(_build_amd64),1)
 	docker push $(IMAGE):latest-amd64
 endif
-ifeq ($(_build_arm64),1)
+
+push_arm64: tags_arm64
+	docker push $(IMAGE):$(VERSION)-arm64
+ifdef MAJOR_VERSION
+	docker push $(IMAGE):$(MAJOR_VERSION)-arm64
 	docker push $(IMAGE):latest-arm64
 endif
-endif
 
-release: push
+release: push_amd64 push_arm64
 	docker manifest create $(IMAGE):$(VERSION) $(IMAGE):$(VERSION)-amd64 $(IMAGE):$(VERSION)-arm64
 	docker manifest push $(IMAGE):$(VERSION)
 ifdef MAJOR_VERSION
