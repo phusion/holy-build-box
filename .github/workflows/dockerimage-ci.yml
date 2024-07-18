@@ -69,7 +69,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: docker_image_{{matrix.arch}}
-        path: *.tar
+        path: hbb_*.tar
 
   build_release:
     name: "Build release Docker images"
