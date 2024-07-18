@@ -62,13 +62,13 @@ jobs:
           env.BUILDKIT_STEP_LOG_MAX_SPEED=-1
           default-load=true
     - name: Build the Docker images
-      run: make DISABLE_OPTIMIZATIONS=1 "OWNER=$OWNER_LC" build_{{matrix.arch}}
+      run: make DISABLE_OPTIMIZATIONS=1 "OWNER=$OWNER_LC" build_${{matrix.arch}}
     - name: Export image
-      run: make "OWNER=$OWNER_LC" export_{{matrix.arch}}
+      run: make "OWNER=$OWNER_LC" export_${{matrix.arch}}
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: docker_image_{{matrix.arch}}
+        name: docker_image_${{matrix.arch}}
         path: hbb_*.tar
 
   build_release:
@@ -111,6 +111,6 @@ jobs:
           env.BUILDKIT_STEP_LOG_MAX_SPEED=-1
           default-load=true
     - name: Build the Docker images
-      run: make "OWNER=$OWNER_LC" build_{{matrix.arch}}
+      run: make "OWNER=$OWNER_LC" build_${{matrix.arch}}
     - name: Tag and push the Docker images
       run: make "OWNER=$OWNER_LC" release
