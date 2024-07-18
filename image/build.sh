@@ -1,14 +1,10 @@
 #!/bin/bash
 set -e
 
-CCACHE_VERSION=4.9.1
-CMAKE_VERSION=3.29.3
-CMAKE_MAJOR_VERSION=3.29
 GCC_LIBSTDCXX_VERSION=9.3.0
 ZLIB_VERSION=1.3.1
 OPENSSL_VERSION=3.3.0
 CURL_VERSION=8.7.1
-GIT_VERSION=2.45.0
 SQLITE_VERSION=3450300
 SQLITE_YEAR=2024
 
@@ -19,13 +15,8 @@ source /hbb_build/activate_func.sh
 
 SKIP_INITIALIZE=${SKIP_INITIALIZE:-false}
 SKIP_USERS_GROUPS=${SKIP_USERS_GROUPS:-false}
-SKIP_TOOLS=${SKIP_TOOLS:-false}
 SKIP_LIBS=${SKIP_LIBS:-false}
 SKIP_FINALIZE=${SKIP_FINALIZE:-false}
-
-SKIP_CCACHE=${SKIP_CCACHE:-$SKIP_TOOLS}
-SKIP_CMAKE=${SKIP_CMAKE:-$SKIP_TOOLS}
-SKIP_GIT=${SKIP_GIT:-$SKIP_TOOLS}
 
 SKIP_LIBSTDCXX=${SKIP_LIBSTDCXX:-$SKIP_LIBS}
 SKIP_ZLIB=${SKIP_ZLIB:-$SKIP_LIBS}
@@ -63,89 +54,13 @@ if ! eval_bool "$SKIP_INITIALIZE"; then
 	header "Updating system, installing compiler toolchain"
 	run touch /var/lib/rpm/*
 	run yum update -y
-	run yum install -y tar curl curl-devel m4 autoconf automake libtool pkgconfig openssl-devel \
-		file patch bzip2 zlib-devel gettext python2-setuptools python2-devel \
-		epel-release perl-IPC-Cmd
-	run yum install -y python2-pip "gcc-toolset-$DEVTOOLSET_VERSION" "gcc-toolset-$DEVTOOLSET_VERSION-runtime"
+	run yum install -y autoconf automake bzip2 cmake curl curl-devel epel-release \
+		file gettext git libtool m4 openssl-devel patch perl-IPC-Cmd \
+		pkgconfig python2-devel python2-pip python2-setuptools \
+		tar zlib-devel "gcc-toolset-$DEVTOOLSET_VERSION" "gcc-toolset-$DEVTOOLSET_VERSION-runtime"
+	run yum install -y --enablerepo=epel ccache
 
 	echo "*link_gomp: %{static|static-libgcc|static-libstdc++|static-libgfortran: libgomp.a%s; : -lgomp } %{static: -ldl }" > /opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib/gcc/*-redhat-linux/9/libgomp.spec
-
-fi
-
-
-### CMake
-
-if ! eval_bool "$SKIP_CMAKE"; then
-	header "Installing CMake $CMAKE_VERSION"
-	download_and_extract cmake-$CMAKE_VERSION.tar.gz \
-		cmake-$CMAKE_VERSION \
-		https://cmake.org/files/v$CMAKE_MAJOR_VERSION/cmake-$CMAKE_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		set_default_cflags
-		run ./configure --prefix=/hbb --no-qt-gui --parallel=$MAKE_CONCURRENCY
-		run make -j$MAKE_CONCURRENCY
-		run make install
-		run strip --strip-all /hbb/bin/cmake /hbb/bin/cpack /hbb/bin/ctest
-	)
-	# shellcheck disable=SC2181
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf cmake-$CMAKE_VERSION
-fi
-
-
-### ccache
-
-if ! eval_bool "$SKIP_CCACHE"; then
-	header "Installing ccache $CCACHE_VERSION"
-	download_and_extract ccache-$CCACHE_VERSION.tar.gz \
-		ccache-$CCACHE_VERSION \
-		https://github.com/ccache/ccache/releases/download/v$CCACHE_VERSION/ccache-$CCACHE_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		set_default_cflags
-		run cmake -DREDIS_STORAGE_BACKEND=OFF -DCMAKE_INSTALL_PREFIX="/hbb" -S . -B build
-		run cmake --build build
-		run cmake --install build
-		run strip --strip-all /hbb/bin/ccache
-	)
-	# shellcheck disable=SC2181
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf ccache-$CCACHE_VERSION
-fi
-
-
-### Git
-
-if ! eval_bool "$SKIP_GIT"; then
-	header "Installing Git $GIT_VERSION"
-	download_and_extract git-$GIT_VERSION.tar.gz \
-		git-$GIT_VERSION \
-		https://www.kernel.org/pub/software/scm/git/git-$GIT_VERSION.tar.gz
-
-	(
-		activate_holy_build_box_deps_installation_environment
-		set_default_cflags
-		run make configure
-		run ./configure --prefix=/hbb --without-tcltk
-		run make -j$MAKE_CONCURRENCY
-		run make install
-		run strip --strip-all /hbb/bin/git
-	)
-	# shellcheck disable=SC2181
-	if [[ "$?" != 0 ]]; then false; fi
-
-	echo "Leaving source directory"
-	popd >/dev/null
-	run rm -rf git-$GIT_VERSION
 fi
 
 
@@ -276,12 +191,25 @@ function install_openssl()
 		# shellcheck disable=SC2030,SC2001
 		CFLAGS=$(adjust_optimization_level "$STATICLIB_CFLAGS")
 		export CFLAGS
+		# shellcheck disable=SC2153
+		export LIB_CFLAGS="$SHLIB_CFLAGS"
+		# shellcheck disable=SC2153
+		export LIB_LDFLAGS="-Wl,-znodelete -shared -Wl,-Bsymbolic $SHLIB_LDFLAGS"
+		export DSO_CFLAGS="$SHLIB_CFLAGS"
+		export DSO_LDFLAGS="-Wl,-z,defs -Wl,-znodelete -shared -Wl,-Bsymbolic $SHLIB_LDFLAGS"
 
 		# shellcheck disable=SC2086
 		run ./Configure "linux-$(uname -m)" \
-		    --prefix="$PREFIX" --openssldir="$PREFIX/openssl" \
-		    threads zlib no-shared no-sse2 -fvisibility=hidden $CFLAGS $LDFLAGS
-		run make
+			--prefix="$PREFIX" --openssldir="$PREFIX/openssl" \
+			threads zlib no-shared no-sse2 no-legacy no-tests
+
+		# Force Make to use the environment variables instead
+		run sed -i "/^LIB_CFLAGS=/d"  Makefile
+		run sed -i "/^LIB_LDFLAGS=/d" Makefile
+		run sed -i "/^DSO_CFLAGS=/d"  Makefile
+		run sed -i "/^DSO_LDFLAGS=/d" Makefile
+
+		run make "-j$MAKE_CONCURRENCY"
 		run make install_sw
 		run strip --strip-all "$PREFIX/bin/openssl"
 		if [[ "$VARIANT" = exe_gc_hardened ]]; then
@@ -289,8 +217,8 @@ function install_openssl()
 		fi
 
 		# shellcheck disable=SC2016
-		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lcrypto -lz -ldl -lpthread/' "$PREFIX"/lib/pkgconfig/libcrypto.pc
-		run sed -i '/^Libs.private:.*/d' "$PREFIX"/lib/pkgconfig/libcrypto.pc
+		run sed -i 's/^Libs:.*/Libs: -L${libdir} -lcrypto -lz -ldl -lpthread/' "$PREFIX"/lib*/pkgconfig/libcrypto.pc
+		run sed -i '/^Libs.private:/d'                                         "$PREFIX"/lib*/pkgconfig/libcrypto.pc
 	)
 	# shellcheck disable=SC2181
 	if [[ "$?" != 0 ]]; then false; fi
