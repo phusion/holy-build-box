@@ -91,7 +91,7 @@ jobs:
       run: |
         MAKEFILE_VERSION=$(grep '^VERSION = ' Makefile | sed 's|.*= *||')
         GIT_TAG_VERSION=$(sed 's|^rel-||' <<< "$TAG")
-        if [[ "MAKEFILE_$VERSION" != "$GIT_TAG_VERSION" ]]; then
+        if [[ "$MAKEFILE_VERSION" != "$GIT_TAG_VERSION" ]]; then
           echo "ERROR: version in Makefile ($MAKEFILE_VERSION) doesn't match Git tag ($GIT_TAG_VERSION)"
           exit 1
         fi
