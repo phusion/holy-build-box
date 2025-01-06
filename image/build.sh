@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-GCC_LIBSTDCXX_VERSION=9.3.0
+GCC_LIBSTDCXX_VERSION=14.2.0
 ZLIB_VERSION=1.3.1
 OPENSSL_VERSION=3.3.0
 CURL_VERSION=8.7.1
@@ -60,7 +60,7 @@ if ! eval_bool "$SKIP_INITIALIZE"; then
 		tar zlib-devel "gcc-toolset-$DEVTOOLSET_VERSION" "gcc-toolset-$DEVTOOLSET_VERSION-runtime"
 	run yum install -y --enablerepo=epel ccache
 
-	echo "*link_gomp: %{static|static-libgcc|static-libstdc++|static-libgfortran: libgomp.a%s; : -lgomp } %{static: -ldl }" > /opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib/gcc/*-redhat-linux/9/libgomp.spec
+	echo "*link_gomp: %{static|static-libgcc|static-libstdc++|static-libgfortran: libgomp.a%s; : -lgomp } %{static: -ldl }" > /opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib/gcc/*-redhat-linux/${DEVTOOLSET_VERSION}/libgomp.spec
 fi
 
 

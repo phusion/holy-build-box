@@ -1,6 +1,6 @@
 # shellcheck shell=bash
 
-DEVTOOLSET_VERSION=9
+DEVTOOLSET_VERSION=14
 
 function activate_holy_build_box_deps_installation_environment() {
 	# shellcheck disable=SC1090
