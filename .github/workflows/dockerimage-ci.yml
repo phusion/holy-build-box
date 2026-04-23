@@ -22,8 +22,8 @@ jobs:
     name: Code checks
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: ludeeus/action-shellcheck@2.0.0
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38
         env:
           SHELLCHECK_OPTS: -x
       - name: Install eclint
@@ -48,13 +48,13 @@ jobs:
     env:
       OWNER: '${{ github.repository_owner }}'
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
     - name: Set lower case repository owner name
       run: echo "OWNER_LC=${OWNER,,}" >> "$GITHUB_ENV"
     - name: Enable docker multiarch
-      uses: docker/setup-qemu-action@v3
+      uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a
     - name: Fix docker logs
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd
       with:
         driver-opts: |
           env.BUILDKIT_STEP_LOG_MAX_SIZE=-1
@@ -65,7 +65,7 @@ jobs:
     - name: Export image
       run: make "OWNER=$OWNER_LC" export_${{matrix.arch}}
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
       with:
         name: docker_image_${{matrix.arch}}
         path: hbb_*.tar
@@ -88,7 +88,7 @@ jobs:
       TAG: ${{ github.event.ref }}
       OWNER: '${{ github.repository_owner }}'
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
     - name: Set lower case repository owner name
       run: echo "OWNER_LC=${OWNER,,}" >> "$GITHUB_ENV"
     - name: Check versions match (Makefile & git-tag)
@@ -100,15 +100,15 @@ jobs:
           exit 1
         fi
     - name: Log in to the Container registry
-      uses: docker/login-action@v3
+      uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Enable docker multiarch
-      uses: docker/setup-qemu-action@v3
+      uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a
     - name: Fix docker logs
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd
       with:
         driver-opts: |
           env.BUILDKIT_STEP_LOG_MAX_SIZE=-1
