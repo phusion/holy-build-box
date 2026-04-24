@@ -20,10 +20,11 @@ on:
 jobs:
   code_check:
     name: Code checks
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - run: |
+      - name: Shellcheck
+        run: |
           sudo apt install -y shellcheck
           find image -type f -print0 | xargs -0 grep -ELe '#!.*(python|perl)' --null | xargs -0 shellcheck
         env:
