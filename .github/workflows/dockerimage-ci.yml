@@ -23,9 +23,11 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38
+      - run: |
+          sudo apt install -y shellcheck
+          find image -type f -print0 | xargs -0 grep -ELe '#!.*(python|perl)' --null | xargs -0 shellcheck
         env:
-          SHELLCHECK_OPTS: -x
+          SHELLCHECK_OPTS: -x --format=gcc
       - name: Install eclint
         run: sudo npm install -g eclint
       - name: Check EditorConfig compliance
